@@ -84,6 +84,25 @@ xmlrpc_build()
 }
 
 
+test_script()
+{
+   echo "#!/bin/bash
+
+
+list_IO=( 23 24 25 26 27 28 29 75 76 77 78 )
+
+for i in ${list_IO[*]} ; do
+    echo $i
+    folder="/tmp/gpio/gpio${i}/"
+    if [ ! -d $folder ]; then
+       mkdir -pv $folder
+       echo "1" > $folder/value
+       echo "1" > $folder/direction
+    fi
+done"> ./test.sh
+chmod u+x test.sh
+}
+
 
 
 main=$0
@@ -110,7 +129,7 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
         h     ) help; exit 0;;
         x     ) printf "BUILD XML-RPC LIBRARY\n===========================\n"; XMLRPC=1 ;;
         b     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1 ;;
-        t     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1; TEST=1 ;;
+        t     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1; TEST=1 ; test_script ;;
         *     ) printf "Unimplemented option chosen.\n"; help; exit 1;;   # Default.
       esac
     done
@@ -121,6 +140,7 @@ if [[ $XMLRPC -eq 1 ]]; then
 fi 
 
 if [[ $MAKE -eq 1 ]]; then
+        export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
 	make clean all TEST=${TEST}
 	echo ""
 	echo "================================================"
