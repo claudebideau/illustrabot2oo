@@ -1,5 +1,6 @@
 #!/bin/bash
-export PYTHONPATH=`pwd`
+export PYTHONPATH=`pwd`/..
+echo "PYTHONPATH=$PYTHONPATH"
 
 ./illusoo.py
 
