@@ -1,0 +1,465 @@
+/*!
+ * \file _ms_element.cpp
+ * \author claude.bideau@gmail.com
+ * \version 0.1
+ * \brief This module provides a motor/sensor declaration.
+ * \date  2014/03/21
+ * 
+ * \section LICENSE
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details at
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * \section DESCRIPTION
+ *
+ * This module provides a motor/sensor declaration.
+ *
+ */
+#include <iostream>
+#include <list>
+#include <map>
+#include "trace.h"
+#include "ms_element.h"
+
+using namespace std;
+
+std::map<std::string, MotorSensorElementCl *> G_MapElementObj;
+
+
+/**
+   @brief construct
+
+   @param[in]     _pini    ini Object from inifile parsing
+   @param[in]     _keyName motor/Sensor name
+   
+   @return none.
+ */
+MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
+{
+    std::list<std::string> F_listKey;
+	std::list<std::string>::iterator L_it;
+	std::string  L_driverName;
+	std::string  L_sensorName;
+	long  L_s64sensorIo;
+	long  L_s64Value;
+
+    TRACES_MSG_ARG1("MotorSensorElementCl: %s",_keyName.c_str());
+
+    _name   = _keyName;
+    _trace = new RtTrace(_keyName, RT_TRACE_ENABLE |  MOTOR_CALIBRATION | MOTOR_STEP);
+    _trace->trace(0, RT_TRACE_ENABLE, 0xFFFFFFFF, 2);
+
+    _minStep = -1<<31;
+    _maxStep = -1<<31;
+    _currentStep = 0;
+    _requireStep = 0;
+	/* get parameters */
+    
+    TRACES_MSG_ARG1("MotorSensorElementCl: %s ini parsing",_keyName.c_str());
+    F_listKey = _pIni.getItems(_name);
+
+	if (!F_listKey.empty())
+	{
+		/* find driver/sensor */
+		L_driverName = _pIni.get(_name,"driver");
+		_pDriver = new EasyDriverCl(&_pIni,L_driverName);
+        TRACES_MSG_ARG1("MotorSensorElementCl: %s eo driver ini parsing",_keyName.c_str());
+		L_sensorName = _pIni.get(_name,"sensor");
+        TRACES_MSG_ARG1("MotorSensorElementCl: %s eo sensor ini parsing",_keyName.c_str());
+		if (L_sensorName.size() >= 0)
+		{
+			L_s64sensorIo = _pIni.getInteger(L_sensorName,"input",-1);
+			if (L_s64sensorIo > 0)
+				_pSensor = new GpioInCl((unsigned int) L_s64sensorIo);
+		}
+		/* range */
+		L_s64Value = _pIni.getInteger(_name,"min",- 1<<31);
+		if (L_s64Value != -2^31) _minStep = (int) L_s64Value;
+		L_s64Value = _pIni.getInteger(_name,"max",- 1<<31);
+		if (L_s64Value != -2^31) _maxStep = (int) L_s64Value;
+
+		L_s64Value = _pIni.getInteger(_name,"speed", 100);
+        if (L_s64Value > 0) _speed = L_s64Value;
+        _pDriver->setSpeed(_speed);
+        
+	} else throw  std::string("undefined element : ")+_name;
+    TRACES_MSG_ARG1("MotorSensorElementCl: %s eo ini parsing",_keyName.c_str());
+    _pDriver->disable();
+    _pDriver->sleep();
+
+    // /* find the dependance if exist */
+    // _pAttachedMS = NULL;
+    // std::string L_dependName(_pIni.get(_name,"depend"));
+    // if (L_dependName.compare("") != 0)
+    // {
+        // std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+        // L_itElement = G_MapElementObj.find(L_dependName);
+        // if (L_itElement != G_MapElementObj.end())
+        // {
+            // /* manage the dependence */
+            // L_itElement->second->attach(this);
+        // }
+        // else {
+            // TRACES_ERROR_ARG1("there is a dependence with '%s'",L_dependName.c_str());
+            // throw "there is a dependence with " +L_dependName;
+        // }
+    // }
+    
+#if __cplusplus > 199711L
+    _thCal=NULL;
+#endif    
+}
+
+
+/**
+   @brief attached external motor sensor element
+   @return None
+ */
+
+// void MotorSensorElementCl::attach(MotorSensorElementCl * _pAttachedElt)
+// {
+    // _pAttachedMS = _pAttachedElt;
+    // return;
+// }
+
+
+/**
+   @brief return the name of the element
+   @return motor/sensor name.
+ */
+
+std::string MotorSensorElementCl::name(void)
+{
+    return _name;
+}
+
+/**
+   @brief enable the stepper driver
+   @return none.
+ */
+void MotorSensorElementCl::enable(void)
+{
+    _pDriver->enable();
+}
+
+/**
+   @brief disable the stepper driver
+   @return none.
+ */
+void MotorSensorElementCl::disable(void)
+{
+    _pDriver->disable();
+}
+
+/**
+   @brief force to sleep the stepper driver
+   @return none.
+ */
+void MotorSensorElementCl::sleep(void)
+{
+    _pDriver->sleep();
+}
+
+/**
+   @brief wakeup the stepper driver
+   @return none.
+ */
+void MotorSensorElementCl::wakeup(void)
+{
+    _pDriver->wakeup();
+}
+
+/**
+   @brief wakeup the stepper driver
+   @return none.
+ */
+int MotorSensorElementCl::state(void)
+{
+    return -1;
+}
+
+/**
+   @brief set the speed of the stepper driver
+   @return none.
+ */
+unsigned int MotorSensorElementCl::speed(unsigned int F_u32speed)
+{
+    _pDriver->setSpeed(F_u32speed);
+    return _pDriver->speed;
+    
+}
+
+/**
+   @brief return the speed of stepper driver
+   @return speed value
+ */
+
+unsigned int MotorSensorElementCl::speed(void)
+{
+    return _pDriver->speed;
+}
+
+
+/**
+   @brief create the calibration thread with calibrate function
+   @return none.
+ */
+
+void MotorSensorElementCl::start_calibrate(void)
+{
+#if __cplusplus > 199711L
+    _thMutex.lock();
+    _stop_thCal= false;
+    _thMutex.unlock();
+    /* create thread with calibrate call */
+    std::thread t1(&Test::calculate, this,  0, 10);
+    _thCal = new std::thread(&MotorSensorElementCl::calibrate, this);
+    
+#endif
+}
+
+/**
+   @brief request to stop calibration thread 
+   @return none.
+ */
+
+void MotorSensorElementCl::stop_calibrate(void)
+{
+#if __cplusplus > 199711L
+    _thMutex.lock();
+    _stop_thCal= true;
+    _thMutex.unlock();
+    _thCal->join();
+    _thCal=NULL;
+#endif   
+
+}
+/**
+   @brief calibrate the position of the motor with sensor edge
+   @return none.
+ */
+
+void MotorSensorElementCl::calibrate(void)
+{
+    teValue L_teValueCurrent;
+    teValue L_teValuePrev;
+    int     L_i32Step;
+    unsigned char L_bDetectEdge = 0;
+    
+    L_teValuePrev = _pSensor->get();
+    while (L_bDetectEdge==0)
+    {
+#if __cplusplus > 199711L
+        _thMutex.lock();
+#endif
+        if (_stop_thCal == true)
+        {
+            L_bDetectEdge= 1;
+#if __cplusplus > 199711L
+            _thMutex.unlock();
+#endif
+            continue;
+        }
+#if __cplusplus > 199711L
+        _thMutex.unlock();
+#endif
+        L_teValueCurrent = _pSensor->get();
+        if (L_teValueCurrent != L_teValuePrev)
+        {
+            L_bDetectEdge=1;
+            _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, L_teValueCurrent, L_teValuePrev );
+        } else 
+        {
+            L_i32Step = ( L_teValueCurrent == LOW) ? 1 : -1;
+            /* do step */
+            _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, L_teValueCurrent, L_teValuePrev );
+            _pDriver->step_pulse(L_i32Step);
+            usleep(100);
+            _pDriver->step_fall();
+            usleep(100);
+        }
+    }
+
+}
+
+/**
+   @brief       set the value to target
+   @param[in]   value
+   @return none.
+ */
+void MotorSensorElementCl::set(int _i32Value)
+{
+    _requireStep = _i32Value;
+}
+
+/**
+   @brief       set the value to target
+   @return none.
+ */
+void MotorSensorElementCl::rise()
+{
+    int L_i32diff;
+    
+    /* force step to 0 */
+    _pDriver->step_fall();
+    L_i32diff = _requireStep- _currentStep;
+    _direction = (L_i32diff >=0) ? 1: -1;
+    if (L_i32diff!=0)
+    {
+        _pDriver->step_pulse(_direction);
+        _currentStep += _direction;
+    }
+
+}
+
+/**
+   @brief       set the value to target
+   @param[in]   value
+   @return none.
+ */
+void MotorSensorElementCl::fall()
+{
+    _pDriver->step_fall();
+}
+
+
+/**
+   @brief       set the direction
+   @param[in]   _dirValue direction value -1/1
+   @return none.
+ */
+void MotorSensorElementCl::dir(int _dirValue)
+{
+    _direction = _dirValue;
+    // if (_dirValue > 0)
+        // _direction = -1;  /* ANTICLOCKWISE */
+    // else
+        // _direction = 1;   /* CLOCKWISE */
+    return;
+}
+
+/**
+   @brief       do a step pulse in current direction
+   @return none.
+ */
+void MotorSensorElementCl::do_step(void)
+{
+    // int step = (_direction>0)?1:-1;
+    _pDriver->step_pulse(_direction);
+    _currentStep += _direction;
+    usleep(100);
+    fall();
+    return;
+}
+
+/**
+   @brief       set current position
+   @return .
+ */
+void MotorSensorElementCl::current(int _value)
+{
+    _currentStep =_value;
+}
+
+
+/**
+   @brief       return current position
+   @return .
+ */
+int MotorSensorElementCl::current(void)
+{
+    return _currentStep;
+}
+
+/**
+   @brief return the speed of stepper driver
+   @return speed value
+ */
+
+  /**
+   @brief       set min position
+   @return .
+ */
+void MotorSensorElementCl::min(int _value)
+{
+    _minStep =_value;
+}
+
+
+/**
+   @brief       return min position
+   @return .
+ */
+int MotorSensorElementCl::min(void)
+{
+    return _minStep;
+}
+
+ /**
+   @brief       set max position
+   @return .
+ */
+void MotorSensorElementCl::max(int _value)
+{
+    _maxStep =_value;
+}
+
+
+/**
+   @brief       return max position
+   @return .
+ */
+int MotorSensorElementCl::max(void)
+{
+    return _maxStep;
+}
+
+/**
+   @brief return the speed of stepper driver
+   @return speed value
+ */
+
+void MotorSensorElementCl::sensor(unsigned char * _pSensorValue)
+{
+    // cout << "read sensor(" << _pSensor->id << ")" << endl;
+    (*_pSensorValue)= _pSensor->get();
+}
+
+/**
+   @brief return the speed of stepper driver
+   @return speed value
+ */
+
+int MotorSensorElementCl::dir(void)
+{
+    _direction = (_pDriver->dir()==CLOCKWISE?1:-1);
+    return  _direction;
+}
+
+
+/**
+   @brief       set ini parameters
+   @param[in]   _param parameter to update ( min/max/ )
+   @param[in]   _value new value
+   @return .
+ */
+void MotorSensorElementCl::ini(std::string _param, int _value)
+{
+    
+}
+
+MotorSensorElementCl::~MotorSensorElementCl(void)
+{
+
+    delete _pDriver;
+    delete _pSensor;
+}
+
