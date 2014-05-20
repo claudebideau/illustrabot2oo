@@ -33,6 +33,10 @@
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /**   1. Include files  (own)                                       **/
 #include "rpc/xmlrpc_method.h"
@@ -43,12 +47,21 @@
 using namespace std;
 
 
+void DisplayHelp(void)
+{
+	cout << "Usage:" << endl;
+	cout << "\tdebug_thread [-h] [-i <ini>]"<<endl;
+	cout << endl;
+	return;
+}
 
-int 
-main(int           const, 
-     const char ** const) {
+
+int main(int argc, char **  argv) 
+{
     iniCl *cini;
-    
+	char *inifile = NULL;
+	int index;
+	int c;
 	std::list<std::string> L_listSection;
 	std::string  L_element;
 	std::string  L_type;
@@ -57,10 +70,34 @@ main(int           const,
 
 	std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
     
-    TRACES_INFO("xmlrpc_thread main function");
+    TRACES_INFO(__FILE__"main function");
+
+	opterr = 0;
+     
     try {
+        while ((c = getopt (argc, argv, "hi:")) != -1)
+        {
+		    switch (c)
+            {
+                case 'h':
+                    DisplayHelp();
+                    exit(0);
+				    break;
+				case 'i':
+                    inifile = optarg;
+                    break;
+                case '?':
+                    throw std::string("Unknown option character");
+                    return 1;
+                default:
+                    abort ();
+            }
+        }
+        if (inifile == NULL) throw std::string("You must specify ini file");
+
         xmlrpc_c::registry myRegistry;
-        cini = new iniCl("tst.ini");
+
+        cini = new iniCl(inifile);
 		L_listSection = cini->sections();
 		L_element = cini->get("main","element");
 		tokens = split(L_element," ",true);
