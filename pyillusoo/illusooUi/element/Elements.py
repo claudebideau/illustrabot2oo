@@ -33,15 +33,25 @@ class Elements(QtGui.QWidget):
             self.__rpc__ = rpc
             self.__mth__ = "xml.element.info"
             self.__info_mth__ = getattr(self.__rpc__,self.__mth__)
+            self.widget = QtGui.QWidget()           
             self.__grid__ = QtGui.QGridLayout()
-
+            #self.__grid__.setMargin(1)
+            self.__grid__.setHorizontalSpacing(2)
+            self.__grid__.setVerticalSpacing(2)
             self.__grid__.addWidget(self.__info__(),0,0)
             self.__grid__.setRowStretch(4, 1)
-            self.setLayout(self.__grid__)
-            
+            self.widget.setLayout(self.__grid__)           
+            self.__scrollArea = QtGui.QScrollArea()
+            self.__scrollArea.setWidget(self.widget)
+            self.__scrollArea.setWidgetResizable(True)
+    
+            self.__ScrollLayout = QtGui.QVBoxLayout()
+            self.__ScrollLayout.addWidget(self.__scrollArea)
+            self.setLayout(self.__ScrollLayout)      
+            # self.setLayout(self.__grid__)
+           
             if self.status != None:
                 self.status.updateState(True)
-            
 
         except Exception, e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

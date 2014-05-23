@@ -27,6 +27,8 @@
 #include <sstream> 
 #include <fstream>
 #include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "gpio.h"
 
 using namespace std;
@@ -35,15 +37,27 @@ static inline int gpio_export(unsigned int gpio)
 {
     ofstream L_fd;
     
+#ifdef __TEST
+    int status;
+    char cmd[1024];
+    system("mkdir -p " SYSFS_GPIO_DIR);
+    snprintf(cmd,1024, "mkdir -p " SYSFS_GPIO_DIR "/gpio%d",gpio);
+    system(cmd);
+    snprintf(cmd,1024, "echo 1 > " SYSFS_GPIO_DIR "/gpio%d/value",gpio);
+    system(cmd);
+    snprintf(cmd,1024, "echo 'in' > " SYSFS_GPIO_DIR "/gpio%d/value",gpio);
+    system(cmd);
+   
+#endif
     L_fd.open (SYSFS_GPIO_DIR "/export");
     if (! L_fd.is_open())
     {
        throw std::string("Error: impossible to open " SYSFS_GPIO_DIR "/export");
     }    
     L_fd << gpio;
-	L_fd.close();
+    L_fd.close();
 
-	return 0;
+    return 0;
 }
 
 static inline int gpio_unexport(unsigned int gpio)
