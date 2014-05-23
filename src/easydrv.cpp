@@ -115,6 +115,7 @@ void EasyDriverCl::attach(teEdIOType F_iotype, GpioOutCl * F_io)
             break;
         
     }
+    io[F_iotype]->setDir();
 }
 
 void EasyDriverCl::unattach(teEdIOType F_iotype)
