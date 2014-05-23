@@ -147,4 +147,5 @@ if [[ $MAKE -eq 1 ]]; then
 	echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"
 	echo " LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:${BUILD_LIB_PATH}"
 	echo "================================================"
+sudo  LD_LIBRARY_PATH=/home/debian/illustrabot2oo/build/armv7l/lib  ./debug_thread -i config/illusoo.ini
 fi 
