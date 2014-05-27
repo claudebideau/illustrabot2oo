@@ -41,6 +41,9 @@ class LedStatus(QtGui.QLabel):
         self.setEnabled(not pixmap.isNull())
         
 class ElementWidget(QtGui.QWidget):
+
+    LED_LEVEL=1
+
     def __init__(self, rpc, name, env=[None, None, None], parent=None):
         super(ElementWidget, self).__init__(parent)
 
@@ -210,7 +213,7 @@ class ElementWidget(QtGui.QWidget):
         res = self.__info_act__(*[self.__name__])
 
         # print "res sensor =", res
-        self.__led__.updateState(res['sensor'] ==1 )
+        self.__led__.updateState(res['sensor'] == self.LED_LEVEL )
         if not auto:
             if res['dir'] ==CLOCKWISE:
                 self.__dirbox__['clockwise'].toggle()

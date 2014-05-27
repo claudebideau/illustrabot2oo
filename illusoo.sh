@@ -56,6 +56,9 @@ help()
    printf "     -x    : build the xmlrpc library for local target\n"
    printf "     -b    : build illusoo\n"
    printf "     -t    : build illusoo with __TEST flag\n"
+   printf "     -c    : execute GPIO config with sudo ( beaglebone case only)\n"
+   printf "     -s    : execute illusoo with sudo ( beaglebone case only)\n"
+   printf "     -l    : execute illusoo\n"
    printf "\nEXAMPLE\n\n"
    printf "\nEXIT STATUS\n\n"
    printf "     0 Successful completion\n"
@@ -109,6 +112,9 @@ main=$0
 XMLRPC=0
 MAKE=0
 TEST=0
+GPIO=0
+LOAD=0
+LSUDO=0
 
 if [[ "${main}" == "./illusoo.sh" ]]; then
 	CDIR=`pwd`
@@ -123,13 +129,16 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
                                 # Usage: scriptname -options
                                 # Note: dash (-) necessary
     fi  
-    while getopts "xbt" Option
+    while getopts "xbtslc" Option
     do
       case $Option in
         h     ) help; exit 0;;
         x     ) printf "BUILD XML-RPC LIBRARY\n===========================\n"; XMLRPC=1 ;;
         b     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1 ;;
-        t     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1; TEST=1 ; test_script ;;
+        t     ) printf "BUILD ILLUSOO TEST mode\n===========================\n"; MAKE=1; TEST=1 ; test_script ;;
+        c     ) printf "load ILLUSOO GPIO config\n===========================\n"; GPIO=1 ;;
+        s     ) printf "load ILLUSOO in sudoers mode\n===========================\n"; LOAD=1; LSUDO=1 ;;
+        l     ) printf "load ILLUSOO\n===========================\n"; LOAD=1 ;;
         *     ) printf "Unimplemented option chosen.\n"; help; exit 1;;   # Default.
       esac
     done
@@ -147,5 +156,20 @@ if [[ $MAKE -eq 1 ]]; then
 	echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"
 	echo " LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:${BUILD_LIB_PATH}"
 	echo "================================================"
-sudo  LD_LIBRARY_PATH=/home/debian/illustrabot2oo/build/armv7l/lib  ./debug_thread -i config/illusoo.ini
+fi
+
+if [[ $GPIO -eq 1 ]]; then
+	CDIR=`pwd`
+	cd config
+	sudo config.sh
+	cd $CDIR
+fi
+
+if [[ $LOAD -eq 1 ]]; then
+   
+   if [[ ${LSUDO} -eq 1 ]]; then
+        sudo LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
+   else
+        LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
+   fi
 fi 
