@@ -86,7 +86,7 @@ GpioCl::GpioCl(unsigned int F_u32id, teDirection F_teDir, teValue F_teValue)
     snprintf(iodirname, MAX_BUF, SYSFS_GPIO_DIR  "/gpio%d/direction", F_u32id);
     snprintf(iovaluename, MAX_BUF, SYSFS_GPIO_DIR  "/gpio%d/value", F_u32id);
 
-    cout << "io = " << F_u32id << " dir=" << F_teDir << " value=" << F_teValue << " iodirname=" << iodirname << " iovaluename="<< iovaluename<< endl;
+    // cout << "io = " << F_u32id << " dir=" << F_teDir << " value=" << F_teValue << " iodirname=" << iodirname << " iovaluename="<< iovaluename<< endl;
     
     if (gpio_export(F_u32id) != 0) throw "GpioCl : Export impossible";
     if (setDir() != 0) throw  "GpioCl : SetDir impossible";
@@ -94,7 +94,7 @@ GpioCl::GpioCl(unsigned int F_u32id, teDirection F_teDir, teValue F_teValue)
     dir   = F_teDir;
     F_teValue = get();
     state = OPEN;
-    cout << "io = " << F_u32id << " dir=" << F_teDir << " value=" << F_teValue << " iodirname=" << iodirname << " iovaluename="<< iovaluename << " done" << endl;
+    // cout << "io = " << F_u32id << " dir=" << F_teDir << " value=" << F_teValue << " iodirname=" << iodirname << " iovaluename="<< iovaluename << " done" << endl;
 }
 
 GpioCl::~GpioCl()
@@ -103,7 +103,7 @@ GpioCl::~GpioCl()
 
     if (setDir() != 0) throw "~GpioCl : SetDir impossible";
     if (gpio_unexport(id) != 0)  throw "~GpioCl : unexport impossible";
-    cout << "io[" << id << "] delete" << endl;
+    // cout << "io[" << id << "] delete" << endl;
     state = CLOSE;
 }
 
@@ -160,14 +160,14 @@ int GpioCl::set(teValue F_teValue)
 {
     ofstream L_fd;
 	const char L_s8aValue[2][2] = { "0", "1" };
-    cout << "set(" << id << ") iovaluename = "<< iovaluename <<endl;
+    // cout << "set(" << id << ") iovaluename = "<< iovaluename <<endl;
 
 	L_fd.open(iovaluename);
     if (! L_fd.is_open())
     {
            throw std::string("Error: impossible to open ")+iovaluename;
     }
-    cout << "write " << L_s8aValue[F_teValue] << " in gpio(" << id<<")" <<endl;
+    // cout << "write " << L_s8aValue[F_teValue] << " in gpio(" << id<<")" <<endl;
     L_fd << L_s8aValue[F_teValue];
     L_fd.close();
 

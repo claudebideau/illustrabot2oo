@@ -44,7 +44,14 @@ typedef struct {
     short norm;
 } tsAlphaAngle;
 
+typedef struct {
+    short degre;
+    short norm;
+} tsMinLatitudeAngle;
+
+
 tsAlphaAngle G_tsaAlphaTable[MAX_SIZE+1];
+tsMinLatitudeAngle G_tsaMinLatitudeTable[MAX_SIZE+1];
 
 static inline short Q_i16Alpha( unsigned short F_u16Distance, unsigned short F_u16minDist)
 {
@@ -55,7 +62,17 @@ static inline short Q_i16Alpha( unsigned short F_u16Distance, unsigned short F_u
     return G_tsaAlphaTable[F_u16Distance].norm;
 }
 
-
+/**
+ * \fn Q_vInitAlphaTable
+ * \brief
+ * \author Claude Bideau
+ * \date  2014/05/21
+ * \return 0
+ * \details
+ * \note
+ * \todo
+ *
+ */
 void Q_vInitAlphaTable(void)
 {
     unsigned short L_u16Index;
@@ -76,6 +93,48 @@ void Q_vInitAlphaTable(void)
     }
     return;
 }
+
+/**
+ * \fn Q_vInitCheckLattitudeTable
+ * \brief
+ * \author Claude Bideau
+ * \date  2014/05/21
+ * \return 0
+ * \details
+ * \note
+ * \todo
+ *
+ */
+void Q_vInitCheckLattitudeTable(short F_i16Heigh)
+{
+    unsigned short L_u16RadiusIndex;
+    double L_dIndex;
+    double L_dValue;
+    long int L_i64Value;
+    // for each radius length
+    // determine the acos
+    for (L_u16RadiusIndex=0; L_u16RadiusIndex <= MAX_SIZE; L_u16RadiusIndex++)
+    {
+        if (L_u16RadiusIndex >= F_i16Heigh)
+        {
+            L_dIndex = (double)F_i16Heigh / (double)L_u16RadiusIndex;
+            L_dValue = acos(L_dIndex);
+            L_i64Value = lrint(L_dValue*MAX_SIZE/PI);
+            G_tsaMinLatitudeTable[L_u16RadiusIndex].degre = (short)L_i64Value;
+            L_i64Value = lrint(L_dValue*180/PI);
+            G_tsaMinLatitudeTable[L_u16RadiusIndex].norm  = (short)L_i64Value;
+#ifdef __TEST
+            std::cout << L_u16RadiusIndex  << " / " << L_dIndex<<  " / " << L_dValue <<  " / " ;
+            std::cout << L_i64Value << " / " << G_tsaMinLatitudeTable[L_u16RadiusIndex].degre << " / " << G_tsaMinLatitudeTable[L_u16RadiusIndex].norm << endl;
+#endif
+        } else {
+            G_tsaMinLatitudeTable[L_u16RadiusIndex].degre  = 0;
+            G_tsaMinLatitudeTable[L_u16RadiusIndex].norm   = 0;
+        }
+    }
+    return;
+}
+
 
 
 // determine Alpha Angle

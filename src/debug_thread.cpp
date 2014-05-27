@@ -55,6 +55,9 @@ void DisplayHelp(void)
 	return;
 }
 
+extern void Q_vInitCheckLattitudeTable(short F_i16Heigh);
+extern void Q_vInitAlphaTable(void);
+
 
 int main(int argc, char **  argv) 
 {
@@ -69,7 +72,11 @@ int main(int argc, char **  argv)
 	std::vector<std::string>::iterator L_it ;
 
 	std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
-    
+
+#ifdef __TEST
+    Q_vInitAlphaTable();
+    Q_vInitCheckLattitudeTable(1024);
+#endif    
     TRACES_INFO(__FILE__"main function");
 
 	opterr = 0;

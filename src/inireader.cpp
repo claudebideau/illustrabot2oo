@@ -129,7 +129,7 @@ std::string iniSectionCl::get(std::string name)
 
 iniSectionCl::~iniSectionCl(void)
 {
-    cout << "====== DELETE iniSectionCl "<< _name << "======"<<endl;
+    std::cout << "====== DELETE iniSectionCl "<< _name << "======"<<endl;
     _items.erase(_items.begin(),_items.end() );
 }
 
@@ -230,12 +230,12 @@ std::list<std::string> iniCl::sections(void)
 void iniCl::getSections(void)
 {
     std::map<std::string, iniSectionCl *>::const_iterator it;
-    cout << "============================================="<<endl;
+    std::cout << "============================================="<<endl;
     for (it = _sections.begin(); it != _sections.end(); ++it)
     {
         std::cout << "iniCl(" << it->first << "), " << it->second->getName() << std::endl;
     }
-    cout << "============================================="<<endl;
+    std::cout << "============================================="<<endl;
 
 }
 
@@ -279,14 +279,14 @@ long iniCl::getInteger(std::string F_section,std::string F_key, long default_val
 {
     string L_valstr = get(F_section,F_key);
 
-	std::cout << "integer= '" <<L_valstr << "' size= " <<L_valstr.size() << endl;
+	// std::cout << "integer= '" <<L_valstr << "' size= " <<L_valstr.size() << endl;
 	if (L_valstr.size() == 0) return default_value;
 
     const char* value = L_valstr.c_str();
     char* end;
     // This parses "1234" (decimal) and also "0x4D2" (hex)
     long n = strtol(value, &end, 0);
-    std::cout << "n=" <<n << endl;
+    // std::cout << "n=" <<n << endl;
     return end > value ? n : default_value;
 }
 
@@ -315,7 +315,7 @@ bool iniCl::getBoolean(std::string F_section,std::string F_key, bool default_val
 
 iniCl::~iniCl()
 {
-    cout << "====== DELETE iniCl ======"<<endl;
+    // std::cout << "====== DELETE iniCl ======"<<endl;
     _sections.erase(_sections.begin(),_sections.end() );
     getSections();
 }

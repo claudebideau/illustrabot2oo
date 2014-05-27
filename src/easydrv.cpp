@@ -72,11 +72,11 @@ EasyDriverCl::EasyDriverCl(iniCl * F_pini, std::string F_drvname)
 			L_s64GpioIdx = F_pini->getInteger(F_drvname,GPIOKEYS[L_u8Idx],-1);
 			if (L_s64GpioIdx >= 0)
 			{
-                cout << "create GPIO(" << L_s64GpioIdx<<")"<< endl;
+                // std::cout << "create GPIO(" << L_s64GpioIdx<<")"<< endl;
 				L_pGpio = new GpioOutCl((unsigned int) L_s64GpioIdx, LOW);
-                cout << "attach GPIO(" << L_s64GpioIdx<<")"<< endl;
+                // std::cout << "attach GPIO(" << L_s64GpioIdx<<")"<< endl;
 				attach((eEdIOType)L_u8Idx,L_pGpio);
-                cout << "eo attach GPIO(" << L_s64GpioIdx<<")"<< endl;
+                // std::cout << "eo attach GPIO(" << L_s64GpioIdx<<")"<< endl;
 			}
 		}
 	} else throw  std::string("undefined driver : ")+_name;
@@ -122,7 +122,7 @@ void EasyDriverCl::unattach(teEdIOType F_iotype)
 {
     /* minimal require is DIR and STEP                               */
     /* others must be hard-wired set to correct value if not require */
-    cout << "unattach IO[" << F_iotype << "] ";
+    //std::cout << "unattach IO[" << F_iotype << "] ";
     if (io[F_iotype] == NULL) throw "not attached";
     switch(F_iotype)
     {
@@ -138,7 +138,7 @@ void EasyDriverCl::unattach(teEdIOType F_iotype)
             break;
     }
     delete io[F_iotype];
-    cout << " done" << endl;
+    //std::cout << " done" << endl;
 }
 
 void EasyDriverCl::enable()
@@ -167,7 +167,7 @@ void EasyDriverCl::step_pulse(int F_i32Value)
     teValue L_teDir;
     teValue L_teStep;
     /* determine the motor direction */
-    cout << "step_pulse : "<<F_i32Value<<endl;
+    // std::cout << "step_pulse : "<<F_i32Value<<endl;
     L_teDir = (F_i32Value>=0) ? CLOCKWISE : ANTICLOCKWISE;
     L_teStep = (teValue) (F_i32Value&0x1);
     if (L_teDir != currentDir)
@@ -198,7 +198,7 @@ void EasyDriverCl::setSpeed(unsigned int F_u32Value)
     /* M1 : bit 1 */
     /* M2 : bit 2 */
     speed= F_u32Value;
-    // cout << "speed = " << speed << endl;
+    // std::cout << "speed = " << speed << endl;
     for (L_u32Index=0; L_u32Index< 3; L_u32Index++);
     {
         L_teValue = (teValue) (F_u32Value & 0x1);
@@ -222,13 +222,13 @@ EasyDriverCl::~EasyDriverCl()
             unattach((teEdIOType) L_u8Idx);
         } catch (const char* msg)
         {
-            cout << msg <<endl;
+            std::cout << msg <<endl;
         }
         catch (std::string msg)
         {
-            cerr << msg << endl;
+            std::cerr << msg << endl;
         }
     }
-    cout << "~EasyDriverCl : delete done" << endl;
+    std::cout << "~EasyDriverCl : delete done" << endl;
 }
 
