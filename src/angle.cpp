@@ -84,9 +84,9 @@ void Q_vInitAlphaTable(void)
         L_dIndex = (double)L_u16Index;
         L_dValue = acos(L_dIndex/MAX_SIZE);
         L_i64Value = lrint(L_dValue*MAX_SIZE/PI);
-        G_tsaAlphaTable[L_u16Index].degre = (short)L_i64Value;
-        L_i64Value = lrint(L_dValue*180/PI);
-        G_tsaAlphaTable[L_u16Index].norm  = (short)L_i64Value;
+        G_tsaAlphaTable[L_u16Index].norm = (short)L_i64Value;
+        L_i64Value = lrint(L_dValue*180.0/PI);
+        G_tsaAlphaTable[L_u16Index].degre  = (short)L_i64Value;
 #ifdef __TEST
         std::cout << L_u16Index  << " / " << L_dValue<<  " / " << L_i64Value << " / " << G_tsaAlphaTable[L_u16Index].degre << " / " << G_tsaAlphaTable[L_u16Index].norm << endl;
 #endif
@@ -120,9 +120,9 @@ void Q_vInitCheckLattitudeTable(short F_i16Heigh)
             L_dIndex = (double)F_i16Heigh / (double)L_u16RadiusIndex;
             L_dValue = acos(L_dIndex);
             L_i64Value = lrint(L_dValue*MAX_SIZE/PI);
-            G_tsaMinLatitudeTable[L_u16RadiusIndex].degre = (short)L_i64Value;
-            L_i64Value = lrint(L_dValue*180/PI);
-            G_tsaMinLatitudeTable[L_u16RadiusIndex].norm  = (short)L_i64Value;
+            G_tsaMinLatitudeTable[L_u16RadiusIndex].norm = (short)L_i64Value;
+            L_i64Value = lrint(L_dValue*180.0/PI);
+            G_tsaMinLatitudeTable[L_u16RadiusIndex].degre  = (short)L_i64Value;
 #ifdef __TEST
             std::cout << L_u16RadiusIndex  << " / " << L_dIndex<<  " / " << L_dValue <<  " / " ;
             std::cout << L_i64Value << " / " << G_tsaMinLatitudeTable[L_u16RadiusIndex].degre << " / " << G_tsaMinLatitudeTable[L_u16RadiusIndex].norm << endl;
