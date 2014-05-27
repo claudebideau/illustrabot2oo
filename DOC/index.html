@@ -1,0 +1,119 @@
+
+
+
+<h1>Representation:</h1>
+
+we can show the arm position as sphere defined with the triple :
+<ul>
+<li> r   : radius</li>
+<li> lat : latitude</li>
+<li> lon : longitude</li>
+</ul>
+
+<ul>
+<li>x = r cos(lat) cos(Lo)</li>
+<li>y = r cos(lat) sin(Lo)</li>
+<li>z = r sin(lat)</li>
+</ul>
+
+with some limitation ( TBD )<br>
+<ul>
+<li> 0.2 < r < 1</li>
+<li>-pi+e <= lon <= pi-e </li>
+<li>-x(r) < lat <= pi/2</li>
+</ul>
+
+<ul>
+<li> e : epsilon due to limitation of the vertical rotation</li>
+<li> x : limitation of the ground / x depend of r also (and hand orientation)</li>
+</ul>
+
+ <h2> shoulder and elbow determination <h2>
+
+<h3>hypothesys:<h3>
+The arm and the forearm have the same dimension named L (TBC).<BR>
+We name A(Alpha) and B(beta), the angle both rectangle triangle formed by the arms.
+
+<ul>
+<li>B = pi/2 - A</li>
+<li>r = r' + r''<li>
+<li>r' =r''= L cos A<li>
+<li>r <= 2L    ( r = 2L when A = 0°)</li>
+<li>r = 2L cos A
+<ul>
+<li>cos A = r/(a+b) = r /2L</li>
+<li>A = arc_cos(r/2a)</li>
+</ul></li>
+</ul>
+
+<h3>determination of the shoulder angle(s)</h3>
+they are 2 angles for the shoulder. the first one is the lon(longitude) for the motor1.
+the second angle named T(theta) is the angle between the horizontal plan and the arm.
+<ul>
+<li>T = A + lat</li>
+</ul>
+
+<h3>determination of the elbow angle</h3>
+G(Gamma) is the angle of the elbow with the forearm.<BR>
+the shoulder and the wrist are on the sample plan ( latitude 0 ), otherwise we need to add the latitude <BR>
+<ul>
+<li>G = -pi/2 + B +lat = lat-A </li>
+</ul>
+
+
+<h1>Processing</h1>
+
+<h2>incoming parameters</h2>
+the triple <r,lon,lat> must be quantify to optimize processing <br>
+
+example of quantification:<BR>
+
+<ul>
+<li>x < r <=2^12   ( x must be determine / example 0.25 * 2^12 = 1024 )</li>
+<li>-2^13+y < lon <=2^13-y   ( y must be determine / limitation of the arm )</li>
+<li>fct(r) <= lat <=2^12   (fct(r) determine the lowest value for latitude, (1)</li>
+</ul>
+
+fct(r) correspond to the side of a triangle define as following:
+r=1 A=0 and y = - H(heigh) = cos lat
+lat = cos_inv(H)
+lat min = -cos_inv(H/r)
+
+
+<h2>Angle processing</h2>
+Now, we have the arm representation.
+But how to represent them to determine the stepper position?
+
+<h3>determine Alpha Angle</h3>
+
+r/2a is named D(distance)<BR>
+example of quantification:<BR>
+x < D <=2^12   ( x must be determine / example 0.25 * 2^12 = 1024 )<BR>
+<BR>
+A=cos_inv(D)<BR>
+cos_inv could be a table of 2^12 ( 4096 value of short)<BR>
+
+
+<h3>determine Theta Angle</h3>
+T = A + lat
+T norm = (A norm + lat norm) >>1
+
+<h3>determine Gamma Angle</h3>
+G = lat - A
+G norm = (lat norm - A norm ) >>1
+
+
+<h3>Step processing</h3>
+90° (pi/2) <==> 2^12 <bR>
+if 90° equal at X step on a motor, the equation will be the following:<bR>
+
+step position = (angle*X )/90<bR>
+step position = (angleNorm*X)/2^12<bR>
+
+example:<bR>
+if X = 2000<bR>
+angle = -10°  <=> angle norm = -455    : -(4096*10° )/90° = -455.1111111<bR>
+dest pos = -10*2000/90    = -222.2222<bR>
+dest pos = -455*2000/2^12 = -222.16796875 = -222<bR>
+
+
