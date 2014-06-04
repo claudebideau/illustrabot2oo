@@ -209,16 +209,17 @@ void EasyDriverCl::setSpeed(unsigned int F_u32Value)
     // speed= F_u32Value;
     speed = 0;
     std::cout << "speed = " << F_u32Value << endl;
-    for (L_u32Index=0; L_u32Index< 3; L_u32Index++);
+    for (L_u32Index=0; L_u32Index< 3; L_u32Index++)
     {
         L_ioType = L_aEdio[L_u32Index];
         L_teValue = (teValue) (F_u32Value & 0x1);
+	std::cout <<  "L_u32Index = " << L_u32Index << " / L_ioType=" << L_ioType << endl;
         if (io[L_ioType] != NULL)
         {
             std::cout << "setSpeed / IO speed = (" <<L_ioType << ") value = " <<L_teValue  << endl;
         
             io[L_ioType]->set(L_teValue);
-            speed |= (1<L_u32Index);
+            speed |= (1<<L_u32Index);
         } else {
             std::cout << "setSpeed / IO speed (" <<L_ioType << ") not connected !!! "<< endl;
         

@@ -50,13 +50,14 @@ help()
    printf "\nNAME\n\n"
    printf "     %s - Compile illusoo program and xmlrpc-c library \n\n" $0 
    printf "SYNOPSYS\n\n"
-   printf "     %s [-h :help] [-x] [-b]\n"
+   printf "     %s [-h :help] [-x] [-c] [-b] [-t] [-g] [-s] [-l]\n"
    printf "\nDESCRIPTION\n\n"
    printf "\nOPTIONS\n\n"
    printf "     -x    : build the xmlrpc library for local target\n"
+   printf "     -c    : clean illusoo\n"
    printf "     -b    : build illusoo\n"
    printf "     -t    : build illusoo with __TEST flag\n"
-   printf "     -c    : execute GPIO config with sudo ( beaglebone case only)\n"
+   printf "     -g    : execute GPIO config with sudo ( beaglebone case only)\n"
    printf "     -s    : execute illusoo with sudo ( beaglebone case only)\n"
    printf "     -l    : execute illusoo\n"
    printf "\nEXAMPLE\n\n"
@@ -115,9 +116,10 @@ TEST=0
 GPIO=0
 LOAD=0
 LSUDO=0
+CLEAN=0
 
 if [[ "${main}" == "./illusoo.sh" ]]; then
-	CDIR=`pwd`
+    CDIR=`pwd`
 
     NO_ARGS=0 
     E_OPTERROR=85
@@ -129,14 +131,15 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
                                 # Usage: scriptname -options
                                 # Note: dash (-) necessary
     fi  
-    while getopts "xbtslc" Option
+    while getopts "xbgtslc" Option
     do
       case $Option in
         h     ) help; exit 0;;
         x     ) printf "BUILD XML-RPC LIBRARY\n===========================\n"; XMLRPC=1 ;;
+        c     ) printf "CLEAN ILLUSOO\n===========================\n"; CLEAN=1 ;;
         b     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1 ;;
         t     ) printf "BUILD ILLUSOO TEST mode\n===========================\n"; MAKE=1; TEST=1 ; test_script ;;
-        c     ) printf "load ILLUSOO GPIO config\n===========================\n"; GPIO=1 ;;
+        g     ) printf "load ILLUSOO GPIO config\n===========================\n"; GPIO=1 ;;
         s     ) printf "load ILLUSOO in sudoers mode\n===========================\n"; LOAD=1; LSUDO=1 ;;
         l     ) printf "load ILLUSOO\n===========================\n"; LOAD=1 ;;
         *     ) printf "Unimplemented option chosen.\n"; help; exit 1;;   # Default.
@@ -150,7 +153,10 @@ fi
 
 if [[ $MAKE -eq 1 ]]; then
         export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
-	make clean all TEST=${TEST}
+	if [[ $CLEAN -eq 1 ]]; then
+            make clean 
+        fi
+	make all TEST=${TEST}
 	echo ""
 	echo "================================================"
 	echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"
@@ -170,7 +176,7 @@ if [[ $LOAD -eq 1 ]]; then
    
    	echo "'${LSUDO}'"
 	if [[ $LSUDO -eq 1 ]]; then
-		echo " exexute in SUDO mode "
+		echo " execute in SUDO mode "
         	sudo LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
    	else
 		LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
