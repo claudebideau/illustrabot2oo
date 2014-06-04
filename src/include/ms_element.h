@@ -51,6 +51,10 @@ using namespace std;
 #define MOTOR_CALIBRATION 0x000002
 #define MOTOR_STEP        0x000004
 
+
+typedef enum eMState {MS_INIT=0, MS_UNCALIBRATE, MS_READY } teMSState;
+
+
  /**
  * \class ms_element
  * \brief 
@@ -99,9 +103,10 @@ class MotorSensorElementCl
         void sleep();
         void enable();
         void disable();
-        int state();
+        teMSState state();
         unsigned int speed(unsigned int);
         unsigned int speed(void);
+        unsigned int speed_mask(void);
         void start_calibrate();
         void stop_calibrate();
         // void attach(MotorSensorElementCl *);
@@ -117,9 +122,13 @@ class MotorSensorElementCl
         int current();
         int dir(void);
         int min();
+        void min(int);
+        void min(int, int);
+        void min(int *, int *);
         int max();
         void max(int);
-        void min(int);
+        void max(int, int);
+        void max(int *, int *);
         
         /* debug     action */
         void ini(std::string, int);
@@ -147,8 +156,9 @@ class MotorSensorElementCl
                 
             }
             // output << "sensor=" << "MotorSensorElementCl" << endl;
-            output << "min=" << MS._minStep << endl;
-            output << "max=" << MS._maxStep << endl;
+            output << "min=" << MS._minStep << " " << MS._minAngle << endl;
+            output << "max=" << MS._maxStep << " " << MS._maxAngle << endl;
+            output << "calibration=" << MS._calibrationAngle << endl;
             output << "speed=" << MS.speed() << endl <<endl ;
             
             output << *MS._pDriver ;
@@ -166,9 +176,15 @@ class MotorSensorElementCl
     private:
         void calibrate();
 
+        teMSState       _state;
         std::string     _name;
         int             _minStep;
+        int             _minAngle;
         int             _maxStep;
+        int             _maxAngle;
+        int             _calibrationStep;
+        int             _calibrationAngle;
+        
         int             _currentStep;
         int             _requireStep;
         int             _direction;

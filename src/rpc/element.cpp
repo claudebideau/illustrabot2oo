@@ -209,6 +209,86 @@ usage : xml.element.step <name> <direction> [number]\n\n\
         
 };
 
+
+ /**
+ * \class ElementSpeedCl
+ * \brief 
+ *
+ */
+class ElementSpeedCl : public xmlrpc_c::method
+{
+    public:
+        ElementSpeedCl()
+        {
+            // this->_signature = "n:A";
+            this->_help = "\n\
+usage : xml.element.speed <name> [<speed value>]\n\n\
+\tget or program speed value for the stepper \n\
+\n\n parameters:\n\
+\t<name>         : name of the element to apply the step(s)\n\
+\t<speed value>  : 0 to 7\n\
+\nreturn :\n\
+\t<status> : status and current speed/ otherwise error\n\
+\t\n\n";
+            return;
+        };
+        
+        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+        {
+            int L_i32Number(1);
+            switch(paramList.size())
+            {
+
+                case 1:
+                    {
+                        std::string const L_name(paramList.getString(0));
+                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+                        map<string, xmlrpc_c::value> L_structData;
+
+                        L_itElement = G_MapElementObj.find(L_name);
+                        if (L_itElement != G_MapElementObj.end())
+                        {
+                            pair<string, xmlrpc_c::value> member_name("name", xmlrpc_c::value_string(L_itElement->first));
+                            pair<string, xmlrpc_c::value> member_speed("speed", xmlrpc_c::value_int(L_itElement->second->speed()));
+                            pair<string, xmlrpc_c::value> member_mask("mask", xmlrpc_c::value_int(L_itElement->second->speed_mask()));
+                            L_structData.insert(member_name);
+                            L_structData.insert(member_speed);
+                            L_structData.insert(member_mask);
+
+                            *retvalP =  xmlrpc_c::value_struct(L_structData);
+
+                        } else {
+                            *retvalP = xmlrpc_c::value_int(-1);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        std::string const L_name(paramList.getString(0));
+                        unsigned int const  L_u32Speed = (unsigned int )paramList.getInt(1);
+                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+
+                        L_itElement = G_MapElementObj.find(L_name);
+                        if (L_itElement != G_MapElementObj.end())
+                        {
+                            cout << "update speed with " <<L_u32Speed << endl;
+                            *retvalP = xmlrpc_c::value_int(L_itElement->second->speed(L_u32Speed));
+
+                        } else {
+                            *retvalP = xmlrpc_c::value_int(-1);
+                        }
+                    }
+                    break;
+                default:
+                    *retvalP = xmlrpc_c::value_int(-2);
+                    throw "require only one or two parameter";
+                    break;
+            }
+            return;
+        }
+        
+};
+
 /**
  * \class ElementCalibrateCl
  * \brief 
@@ -345,8 +425,8 @@ class ElementPosMinCl : public xmlrpc_c::method
         {
             // this->_signature = "n:A";
             this->_help = "\n\
-usage : xml.element.pos.min <name> <value>\n\n\
-\tset min value for stepper range for element <name>\n\
+usage : xml.element.pos.min <name> [<value> [<degre>]]\n\n\
+\tget/set min value for stepper range for element <name>\n\
 \n\n parameters:\n\
 \t<name>      : name of the element to apply the step(s)\n\
 \t<value>     : min value\n\
@@ -358,9 +438,35 @@ usage : xml.element.pos.min <name> <value>\n\n\
         
         void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
         {
+        
             switch(paramList.size())
             {
 
+                case 1:
+                    {
+                        // RtTrace * L_RtTraceBuffer;
+                        std::string const L_name(paramList.getString(0));
+                        int L_value, L_angle;
+
+                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+                        map<string, xmlrpc_c::value> L_structData;
+                        
+                        L_itElement = G_MapElementObj.find(L_name);
+                        if (L_itElement != G_MapElementObj.end())
+                        {
+                            L_itElement->second->min(&L_value,&L_angle);
+                            pair<string, xmlrpc_c::value> member_value("value", xmlrpc_c::value_int(L_value));
+                            pair<string, xmlrpc_c::value> member_angle("angle", xmlrpc_c::value_int(L_angle));
+                            L_structData.insert(member_value);
+                            L_structData.insert(member_angle);
+
+                            *retvalP =  xmlrpc_c::value_struct(L_structData);
+
+                        } else {
+                            *retvalP = xmlrpc_c::value_int(-1);
+                        }
+                    }
+                    break;
                 case 2:
                     {
                         // RtTrace * L_RtTraceBuffer;
@@ -374,6 +480,27 @@ usage : xml.element.pos.min <name> <value>\n\n\
                         if (L_itElement != G_MapElementObj.end())
                         {
                             L_itElement->second->min(L_value);
+                            *retvalP = xmlrpc_c::value_int(0);
+
+                        } else {
+                            *retvalP = xmlrpc_c::value_int(-1);
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        // RtTrace * L_RtTraceBuffer;
+                        std::string const L_name(paramList.getString(0));
+                        int const L_value(paramList.getInt(1));
+                        int const L_angle(paramList.getInt(2));
+                        
+                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+                        map<string, xmlrpc_c::value> L_structData;
+                        
+                        L_itElement = G_MapElementObj.find(L_name);
+                        if (L_itElement != G_MapElementObj.end())
+                        {
+                            L_itElement->second->min(L_value,L_angle);
                             *retvalP = xmlrpc_c::value_int(0);
 
                         } else {
@@ -414,11 +541,37 @@ usage : xml.element.pos.min <name> <value>\n\n\
             return;
         };
         
-        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+         void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
         {
+        
             switch(paramList.size())
             {
 
+                case 1:
+                    {
+                        // RtTrace * L_RtTraceBuffer;
+                        std::string const L_name(paramList.getString(0));
+                        int L_value, L_angle;
+                                                
+                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+                        map<string, xmlrpc_c::value> L_structData;
+                        
+                        L_itElement = G_MapElementObj.find(L_name);
+                        if (L_itElement != G_MapElementObj.end())
+                        {
+                            L_itElement->second->max(&L_value,&L_angle);
+                            pair<string, xmlrpc_c::value> member_value("value", xmlrpc_c::value_int(L_value));
+                            pair<string, xmlrpc_c::value> member_angle("angle", xmlrpc_c::value_int(L_angle));
+                            L_structData.insert(member_value);
+                            L_structData.insert(member_angle);
+
+                            *retvalP =  xmlrpc_c::value_struct(L_structData);
+
+                        } else {
+                            *retvalP = xmlrpc_c::value_int(-1);
+                        }
+                    }
+                    break;
                 case 2:
                     {
                         // RtTrace * L_RtTraceBuffer;
@@ -439,6 +592,27 @@ usage : xml.element.pos.min <name> <value>\n\n\
                         }
                     }
                     break;
+                case 3:
+                    {
+                        // RtTrace * L_RtTraceBuffer;
+                        std::string const L_name(paramList.getString(0));
+                        int const L_value(paramList.getInt(1));
+                        int const L_angle(paramList.getInt(2));
+                        
+                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+                        map<string, xmlrpc_c::value> L_structData;
+                        
+                        L_itElement = G_MapElementObj.find(L_name);
+                        if (L_itElement != G_MapElementObj.end())
+                        {
+                            L_itElement->second->max(L_value,L_angle);
+                            *retvalP = xmlrpc_c::value_int(0);
+
+                        } else {
+                            *retvalP = xmlrpc_c::value_int(-1);
+                        }
+                    }
+                    break;
                 default:
                     *retvalP = xmlrpc_c::value_int(-2);
                     throw "require only 2 parameters <name> <value>";
@@ -447,18 +621,21 @@ usage : xml.element.pos.min <name> <value>\n\n\
             return;
         }
         
+        
 };
 
 void ElementRpcAttach(xmlrpc_c::registry * F_pRegistry)
 {
     xmlrpc_c::methodPtr const ElementInfoObj  (new ElementInfoCl);
     xmlrpc_c::methodPtr const ElementStepObj  (new ElementStepCl);
+    xmlrpc_c::methodPtr const ElementSpeedObj  (new ElementSpeedCl);
     xmlrpc_c::methodPtr const ElementCalibrateObj(new ElementCalibrateCl);
     xmlrpc_c::methodPtr const ElementPosResetObj(new ElementPosResetCl);
     xmlrpc_c::methodPtr const ElementPosMinObj(new ElementPosMinCl);
     xmlrpc_c::methodPtr const ElementPosMaxObj(new ElementPosMaxCl);
 
     F_pRegistry->addMethod("xml.element.info",   ElementInfoObj    );
+    F_pRegistry->addMethod("xml.element.speed",   ElementSpeedObj    );
     F_pRegistry->addMethod("xml.element.step",   ElementStepObj    );
     F_pRegistry->addMethod("xml.element.calibrate", ElementCalibrateObj  );
     F_pRegistry->addMethod("xml.element.pos.reset", ElementPosResetObj  );

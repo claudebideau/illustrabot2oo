@@ -73,11 +73,14 @@ int main(int argc, char **  argv)
 
 	std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
 
-#ifdef __TEST
-    Q_vInitAlphaTable();
-    Q_vInitCheckLattitudeTable(1024);
-#endif    
     TRACES_INFO(__FILE__"main function");
+    TRACES_INFO_ARG1("Compiler version %d",__cplusplus);
+
+    
+#ifdef __TEST
+    // Q_vInitAlphaTable();
+    // Q_vInitCheckLattitudeTable(1024);
+#endif    
 
 	opterr = 0;
      

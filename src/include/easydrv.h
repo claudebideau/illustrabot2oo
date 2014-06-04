@@ -82,6 +82,7 @@ class EasyDriverCl
         virtual ~EasyDriverCl();
         inline std::string name() { return _name; }
         unsigned int speed;
+        unsigned int speed_mask;
 
         friend ostream &operator<<( ostream &output, 
                                     EasyDriverCl &ED )
@@ -94,6 +95,7 @@ class EasyDriverCl
             if (ED.io[M2    ] != NULL) output << "m2="    << ED.io[M2    ]->id << endl;
             if (ED.io[STEP  ] != NULL) output << "step="  << ED.io[STEP  ]->id << endl;
             if (ED.io[DIR   ] != NULL) output << "dir="   << ED.io[DIR   ]->id << endl;
+            output << "mask="  << ED.speed_mask << endl;
 
             output << endl;
             

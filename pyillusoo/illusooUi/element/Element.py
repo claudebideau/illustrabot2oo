@@ -39,10 +39,43 @@ class LedStatus(QtGui.QLabel):
         self.setPixmap(pixmap)
         # print "value= ",value, " / ",self.__led__[value] , " / not pixmap.isNull() = ", not pixmap.isNull()
         self.setEnabled(not pixmap.isNull())
+
+        
+
+class LedColor(QtGui.QLabel):
+    
+    __STATE__ ={ 'blue': "icone/ledblue.png", 'lightblue': "icone/ledlightblue.png",
+                 'green': "icone/ledgreen.png", 'lightgreen': "icone/ledlightgreen.png",
+                 'red': "icone/ledred.png", 'orange': "icone/ledorange.png", 'purple': "icone/ledpurple.png" , 'yellow': "icone/ledyellow.png"}
+    def __init__(self, parent=None):
+        super(LedColor, self).__init__(parent)
+
+        self.__led__= {}
+        for k,v in self.__STATE__.items():
+            self.__led__[k] = QtGui.QIcon(v)
+            
+        self.__build__()
+        self.updateState()
+
+    def __build__(self):
+        self.setEnabled(False)
+        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        self.setAutoFillBackground(True)
+        self.setMaximumSize(16, 16)
+
+    def updateState(self,value='red'):
+        pixmap = self.__led__[value].pixmap(QtCore.QSize(16, 16), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.setPixmap(pixmap)
+        self.setEnabled(not pixmap.isNull())
+        
         
 class ElementWidget(QtGui.QWidget):
 
     LED_LEVEL=1
+    STATE2COLOR={0:'red', 1 :'orange', 2: 'green' }
+    SPEED_TABLE =[('M0',1),('M1',2),('M2',4)]
+    CHECK_BOX_VALUE = { False : QtCore.Qt.CheckState.Unchecked, True :QtCore.Qt.CheckState.Checked }
 
     def __init__(self, rpc, name, env=[None, None, None], parent=None):
         super(ElementWidget, self).__init__(parent)
@@ -57,12 +90,14 @@ class ElementWidget(QtGui.QWidget):
         self.__info_mth__ = "xml.element.info"
         self.__step_mth__ = "xml.element.step"
         self.__cal_mth__ = "xml.element.calibrate"
+        self.__speed_mth__ = "xml.element.speed"
         self.__pos_reset_mth__ = "xml.element.pos.reset"
         self.__pos_min_mth__ = "xml.element.pos.min"
         self.__pos_max_mth__ = "xml.element.pos.max"
         self.__info_act__  = getattr(self.__rpc__,self.__info_mth__)
         self.__step_act__  = getattr(self.__rpc__,self.__step_mth__)
         self.__cal_act__  = getattr(self.__rpc__,self.__cal_mth__)
+        self.__speed_act__  = getattr(self.__rpc__,self.__speed_mth__)
         self.__pos_reset_act__  = getattr(self.__rpc__,self.__pos_reset_mth__)
         self.__pos_min_act__  = getattr(self.__rpc__,self.__pos_min_mth__)
         self.__pos_max_act__  = getattr(self.__rpc__,self.__pos_max_mth__)
@@ -83,6 +118,7 @@ class ElementWidget(QtGui.QWidget):
         i=0
         grid.addWidget(self.__label__(self.__name__), 0, i); i+=1
         grid.addWidget(self.__directionButton__(), 0, i); i+=1
+        grid.addWidget(self.__speedButton__(), 0, i); i+=1
         grid.addWidget(self.__currentPos__(), 0, i); i+=1
         grid.addWidget(self.__sensorIcon__(), 0, i); i+=1
         grid.addWidget(self.__stepNumber__(), 0, i); i+=1
@@ -99,11 +135,13 @@ class ElementWidget(QtGui.QWidget):
         label.setAlignment(QtCore.Qt.AlignJustify | QtCore.Qt.AlignLeft)        
         label.setText(name)
         labelLayout.addWidget(label)
+        self.__ledState__ = LedColor(self)
+        labelLayout.addWidget(self.__ledState__)
+
         
         groupBox.setLayout(labelLayout)
         
         return groupBox
-
 
     def __directionButton__(self):
         groupBox = QtGui.QGroupBox("Direction")
@@ -121,6 +159,48 @@ class ElementWidget(QtGui.QWidget):
 
         return groupBox
 
+
+    def __speedButton__(self):
+        groupBox = QtGui.QGroupBox("speed")
+        groupBox.setFlat(True)
+        checkLayout = QtGui.QVBoxLayout()
+        self.__speedbox__ = {}
+        for name,mask in self.SPEED_TABLE:
+            checkbox = QtGui.QCheckBox(name)
+            checkLayout.addWidget(checkbox)
+            self.__speedbox__[name] = checkbox
+            self.__speedbox__[name].stateChanged.connect(self.__updateSpeed__)
+        groupBox.setLayout(checkLayout)
+
+        return groupBox
+
+    def __refreshSpeed__(self):
+        res = self.__speed_act__(*[self.__name__])
+        for name,mask in self.SPEED_TABLE:
+            v= ((res['mask'] & mask) == 0)
+            if v:
+                self.__speedbox__[name].hide()
+            else:
+                self.__speedbox__[name].show()
+        for name,mask in self.SPEED_TABLE:
+            v = ((res['speed'] & mask) != 0)
+            # if self.__speedbox__[name].isChecked() != v:
+            self.__speedbox__[name].setCheckState(self.CHECK_BOX_VALUE[v])
+        return
+
+    
+    def __updateSpeed__(self):
+        value = 0
+        for name,mask in self.SPEED_TABLE:
+            if self.__speedbox__[name].isChecked():
+                value += mask
+        # apply new speed
+        res = self.__speed_act__(*[self.__name__, value])
+        # self.__refreshSpeed__()
+        
+                
+        return 
+    
     def __sensorIcon__(self):
         groupBox = QtGui.QGroupBox("sensor")
         groupBox.setFlat(True)
@@ -202,7 +282,7 @@ class ElementWidget(QtGui.QWidget):
             dir = ANTICLOCKWISE
         res = self.__step_act__(*[self.__name__, dir ,self.__slider__.value() ])
         self.do_refresh()
-        print res
+        # print res
 
     def __update_pos__(self,value):
         self.__pos__.setText("%d"%value)
@@ -213,6 +293,7 @@ class ElementWidget(QtGui.QWidget):
         res = self.__info_act__(*[self.__name__])
 
         # print "res sensor =", res
+        self.__ledState__.updateState(self.STATE2COLOR[res['state']] )
         self.__led__.updateState(res['sensor'] == self.LED_LEVEL )
         if not auto:
             if res['dir'] ==CLOCKWISE:
@@ -222,13 +303,14 @@ class ElementWidget(QtGui.QWidget):
         else:
             sys.stdout.write(".")
         self.__update_pos__(res['current'])
+        self.__refreshSpeed__()
             
     def do_calibrate(self):
         # get number of step
         # print self.__slider__.value()
         res = self.__cal_act__(*[self.__name__, 'start' ])
         self.do_refresh()
-        print res
+        # print res
 
     def do_stopCalibrate(self):
         # get number of step

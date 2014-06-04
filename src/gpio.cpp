@@ -140,7 +140,7 @@ teValue GpioCl::get()
             throw std::string("Error: impossible to open ")+iovaluename;        
     }
     L_fd.close();
-    if ((L_s32Value != LOW) && (L_s32Value != HIGH)) throw std::string("convertion issue on ")+iovaluename+"value ="+L_pcStr;
+    if ((L_s32Value != LOW) && (L_s32Value != HIGH)) throw std::string("convertion issue on ")+iovaluename+" value ="+L_pcStr;
     
 	return (teValue)L_s32Value;
 }

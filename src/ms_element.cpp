@@ -50,17 +50,22 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
 	std::string  L_sensorName;
 	long  L_s64sensorIo;
 	long  L_s64Value;
+    std::vector<int> L_vectorValue;
 
     TRACES_MSG_ARG1("MotorSensorElementCl: %s",_keyName.c_str());
 
+    _state  = MS_INIT;
     _name   = _keyName;
     _trace = new RtTrace(_keyName, RT_TRACE_ENABLE |  MOTOR_CALIBRATION | MOTOR_STEP);
     _trace->trace(0, RT_TRACE_ENABLE, 0xFFFFFFFF, 2);
 
-    _minStep = -1<<31;
-    _maxStep = -1<<31;
-    _currentStep = 0;
-    _requireStep = 0;
+    _minStep          = -1<<31;
+    _minAngle         = -1<<31;
+    _maxStep          = -1<<31;
+    _maxAngle         = -1<<31;
+    _calibrationAngle = -1<<31;
+    _currentStep      = 0;
+    _requireStep      = 0;
 	/* get parameters */
     
     TRACES_MSG_ARG1("MotorSensorElementCl: %s ini parsing",_keyName.c_str());
@@ -81,16 +86,26 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
 				_pSensor = new GpioInCl((unsigned int) L_s64sensorIo);
 		}
 		/* range */
-		L_s64Value = _pIni.getInteger(_name,"min",- 1<<31);
-		if (L_s64Value != -2^31) _minStep = (int) L_s64Value;
-		L_s64Value = _pIni.getInteger(_name,"max",- 1<<31);
-		if (L_s64Value != -2^31) _maxStep = (int) L_s64Value;
+        L_vectorValue = _pIni.getIntVector(_name,"min",- 1<<31);
+        if (L_vectorValue.size() != 2) throw std::string("MotorSensorElementCl: ") + _name + std::string(": min option require only 2 integer / min = <step> <degre>");
+        _minStep   = L_vectorValue[0];
+        _minAngle  = L_vectorValue[1];
+
+        L_vectorValue = _pIni.getIntVector(_name,"max",- 1<<31);
+        if (L_vectorValue.size() != 2) throw std::string("MotorSensorElementCl: ") + _name + std::string(": max option require only 2 integer / max = <step> <degre>");
+        _maxStep   = L_vectorValue[0];
+        _maxAngle  = L_vectorValue[1];
+        
+		L_s64Value = _pIni.getInteger(_name,"calibration",- 1<<31);
+		if (L_s64Value == -1<<31)  throw std::string("MotorSensorElementCl: ") + _name + std::string(": calibration angle not define / calibration= <degre>");
+        _calibrationAngle = (int) L_s64Value;
 
 		L_s64Value = _pIni.getInteger(_name,"speed", 100);
         if (L_s64Value > 0) _speed = L_s64Value;
         _pDriver->setSpeed(_speed);
         
 	} else throw  std::string("undefined element : ")+_name;
+    
     TRACES_MSG_ARG1("MotorSensorElementCl: %s eo ini parsing",_keyName.c_str());
     _pDriver->disable();
     _pDriver->sleep();
@@ -115,7 +130,8 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
     
 #if __cplusplus > 199711L
     _thCal=NULL;
-#endif    
+#endif
+    _state  = MS_UNCALIBRATE;
 }
 
 
@@ -181,9 +197,9 @@ void MotorSensorElementCl::wakeup(void)
    @brief wakeup the stepper driver
    @return none.
  */
-int MotorSensorElementCl::state(void)
+teMSState MotorSensorElementCl::state(void)
 {
-    return -1;
+    return _state;
 }
 
 /**
@@ -207,6 +223,16 @@ unsigned int MotorSensorElementCl::speed(void)
     return _pDriver->speed;
 }
 
+
+/**
+   @brief return the speed mapping mask of stepper driver
+   @return speed value
+ */
+
+unsigned int MotorSensorElementCl::speed_mask(void)
+{
+    return _pDriver->speed_mask;
+}
 
 /**
    @brief create the calibration thread with calibrate function
@@ -276,6 +302,7 @@ void MotorSensorElementCl::calibrate(void)
         {
             L_bDetectEdge=1;
             _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, L_teValueCurrent, L_teValuePrev );
+            _state  = MS_READY;
         } else 
         {
             L_i32Step = ( L_teValueCurrent == LOW) ? 1 : -1;
@@ -393,6 +420,16 @@ void MotorSensorElementCl::min(int _value)
     _minStep =_value;
 }
 
+/**
+   @brief       set min position and angle
+   @return .
+ */
+void MotorSensorElementCl::min(int _value,int _angle)
+{
+    _minStep  = _value;
+    _minAngle = _angle;
+}
+
 
 /**
    @brief       return min position
@@ -403,13 +440,34 @@ int MotorSensorElementCl::min(void)
     return _minStep;
 }
 
- /**
+
+/**
+   @brief       get min position and angle
+   @return .
+ */
+void MotorSensorElementCl::min(int * _pvalue,int * _pangle)
+{
+    (*_pvalue) = _minStep;
+    (*_pangle) = _minAngle;
+}
+
+/**
    @brief       set max position
    @return .
  */
 void MotorSensorElementCl::max(int _value)
 {
     _maxStep =_value;
+}
+
+/**
+   @brief       set max position and angle
+   @return .
+ */
+void MotorSensorElementCl::max(int _value,int _angle)
+{
+    _maxStep  = _value;
+    _maxAngle = _angle;
 }
 
 
@@ -420,6 +478,16 @@ void MotorSensorElementCl::max(int _value)
 int MotorSensorElementCl::max(void)
 {
     return _maxStep;
+}
+
+/**
+   @brief       get max position and angle
+   @return .
+ */
+void MotorSensorElementCl::max(int * _pvalue,int * _pangle)
+{
+    (*_pvalue) = _maxStep;
+    (*_pangle) = _maxAngle;
 }
 
 /**

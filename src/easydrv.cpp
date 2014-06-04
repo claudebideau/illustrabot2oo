@@ -53,9 +53,11 @@ EasyDriverCl::EasyDriverCl(iniCl * F_pini, std::string F_drvname)
 	std::list<std::string>::iterator L_it;
 	GpioOutCl * L_pGpio;
 	
-	_name = F_drvname;
-    state = ED_INIT;
+	_name      = F_drvname;
+    state      = ED_INIT;
     currentDir = CLOCKWISE;
+    speed_mask = 0;
+    speed      = 0;
 
     for (L_u8Idx=STEP; L_u8Idx<= SLEEP ; L_u8Idx++)
     {
@@ -88,10 +90,13 @@ EasyDriverCl::EasyDriverCl(iniCl * F_pini, std::string F_drvname)
  
 void EasyDriverCl::attach(teEdIOType F_iotype, GpioOutCl * F_io)
 {
+    unsigned int L_u32mask = 0x1;
+    
     /* minimal require is DIR and STEP                               */
     /* others must be hard-wired set to correct value if not require */
     if (io[F_iotype] != NULL) throw "already attached ( need to unattach before resetting)";
     io[F_iotype] = F_io;
+    
     switch(F_iotype)
     {
         case STEP:
@@ -108,9 +113,10 @@ void EasyDriverCl::attach(teEdIOType F_iotype, GpioOutCl * F_io)
         case SLEEP:
             io[F_iotype]->set(HIGH);
             break;
+        case M2: L_u32mask <<= 1;
+        case M1: L_u32mask <<= 1;
         case M0: 
-        case M1: 
-        case M2: 
+            speed_mask |= L_u32mask;
             io[F_iotype]->set(LOW);
             break;
         
@@ -194,19 +200,30 @@ void EasyDriverCl::setSpeed(unsigned int F_u32Value)
 {
     unsigned int L_u32Index;
     teValue  L_teValue;
+    teEdIOType L_ioType;
+    const teEdIOType L_aEdio[3] = {M0, M1, M2};
+    
     /* M0 : bit 0 */
     /* M1 : bit 1 */
     /* M2 : bit 2 */
-    speed= F_u32Value;
-    // std::cout << "speed = " << speed << endl;
+    // speed= F_u32Value;
+    speed = 0;
+    std::cout << "speed = " << F_u32Value << endl;
     for (L_u32Index=0; L_u32Index< 3; L_u32Index++);
     {
+        L_ioType = L_aEdio[L_u32Index];
         L_teValue = (teValue) (F_u32Value & 0x1);
-        F_u32Value = F_u32Value>>1;
-        if (io[M0+L_u32Index] != NULL)
+        if (io[L_ioType] != NULL)
         {
-            io[STEP]->set(L_teValue);
+            std::cout << "setSpeed / IO speed = (" <<L_ioType << ") value = " <<L_teValue  << endl;
+        
+            io[L_ioType]->set(L_teValue);
+            speed |= (1<L_u32Index);
+        } else {
+            std::cout << "setSpeed / IO speed (" <<L_ioType << ") not connected !!! "<< endl;
+        
         }
+        F_u32Value = F_u32Value>>1;
     }
 
     return;

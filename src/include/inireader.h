@@ -104,7 +104,7 @@ class iniCl
         std::list<std::string> getItems(std::string);
         std::string get(std::string, std::string );
         std::vector<std::string> getStrVector(std::string, std::string );
-
+        std::vector<int> getIntVector(std::string ,std::string , long );
         long getInteger(std::string, std::string , long );
         double getReal(std::string, std::string, double );
         bool getBoolean(std::string, std::string, bool );

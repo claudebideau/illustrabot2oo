@@ -269,11 +269,37 @@ std::vector<std::string> iniCl::getStrVector(std::string F_section,std::string F
 	if (_sections.find(F_section)  != _sections.end())
 	{
         L_value = _sections[F_section]->get(F_key);
-        return split( L_value," ", true);
+        return split( L_value," ", false);
 	}
 	return L_vector;
 
 }
+
+std::vector<int> iniCl::getIntVector(std::string F_section,std::string F_key, long default_value)
+{
+    std::vector<std::string> L_strVector;
+	std::vector<std::string>::iterator L_it ;
+    
+    std::vector<int> L_i32Vector;
+    std::string L_value;
+
+    L_strVector = getStrVector(F_section,F_key);
+    for (L_it = L_strVector.begin() ; L_it != L_strVector.end(); ++L_it)
+    {
+        // std::cout << " '" << *L_it << "'";
+        std::string L_strValue = *L_it;
+        const char* value = L_strValue.c_str();
+        char* end;
+        long n = strtol(value, &end, 0);
+        L_i32Vector.push_back( end > value ? n : default_value);
+
+    }
+	if (_sections.find(F_section)  != _sections.end())
+    
+	return L_i32Vector;
+
+}
+
 
 long iniCl::getInteger(std::string F_section,std::string F_key, long default_value)
 {
