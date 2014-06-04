@@ -5,11 +5,11 @@ TARGET=$(shell uname -m)
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS=-g  -Wwrite-strings -Isrc/include -Ibuild/$(TARGET)/include
+CPPFLAGS=-g -Wall -Wwrite-strings -Isrc/include -Ibuild/$(TARGET)/include  -std=c++0x -DILLUSOO_THREAD=1
 ifeq (1,${TEST})
 CPPFLAGS += -D__TEST
 endif
-LDFLAGS = -l xmlrpc++ -l xmlrpc_server++ -l xmlrpc_server_abyss++  -lrt  -Wl 
+LDFLAGS = -l xmlrpc++ -l xmlrpc_server++ -l xmlrpc_server_abyss++  -lrt -lpthread -Wl
 
 LDLIBS=-L build/$(TARGET)/lib
 
