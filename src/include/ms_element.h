@@ -30,7 +30,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD 
 #include <thread>
 #include <mutex>
 #endif
@@ -193,7 +193,7 @@ class MotorSensorElementCl
         GpioInCl      * _pSensor;
         RtTrace       * _trace;
         bool            _stop_thCal;
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD 
         std::mutex      _thMutex;
         std::thread   * _thCal;
 #endif        

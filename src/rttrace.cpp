@@ -1,5 +1,5 @@
 /*!
- * \file rttrace.h
+ * \file rttrace.cpp
  * \author claude.bideau@gmail.com
  * \version 0.1
  * \brief This module provides a calibrate declaration.
