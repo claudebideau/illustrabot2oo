@@ -20,3 +20,7 @@ execute "illusoo.sh"
 illusoo.sh -x : build xmlrpc-c and install to build/<platform>/
 illusoo.sh -b : build illusoo
 illusoo.sh -b -t : build illusoo with __TEST flag
+
+
+NB: icon from http://www.icon-king.com/projects/nuvola/
+The Nuvola icons are licensed under the LGPL
