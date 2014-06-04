@@ -161,15 +161,18 @@ fi
 if [[ $GPIO -eq 1 ]]; then
 	CDIR=`pwd`
 	cd config
-	sudo config.sh
+	pwd
+	sudo ./config.sh
 	cd $CDIR
 fi
 
 if [[ $LOAD -eq 1 ]]; then
    
-   if [[ ${LSUDO} -eq 1 ]]; then
-        sudo LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
-   else
-        LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
-   fi
+   	echo "'${LSUDO}'"
+	if [[ $LSUDO -eq 1 ]]; then
+		echo " exexute in SUDO mode "
+        	sudo LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
+   	else
+		LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
+   	fi
 fi 
