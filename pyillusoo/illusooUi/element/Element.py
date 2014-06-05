@@ -256,23 +256,23 @@ class ElementWidget(QtGui.QWidget):
         self.__calibrateButton__ = QtGui.QPushButton("&Calibrate")
         self.__stopCalibrateButton__ = QtGui.QPushButton("&Stop Calibrate")
         self.__paramButton__ = QtGui.QPushButton("&Update Field(s)")
-        self.__minButton__ = QtGui.QPushButton("&Min")
-        self.__maxButton__ = QtGui.QPushButton("M&ax")
+        # self.__minButton__ = QtGui.QPushButton("&Min")
+        # self.__maxButton__ = QtGui.QPushButton("M&ax")
         # associated function
         self.__stepButton__.clicked.connect(self.do_step)
         self.__refreshButton__.clicked.connect(self.do_refresh)
         self.__calibrateButton__.clicked.connect(self.do_calibrate)
         self.__stopCalibrateButton__.clicked.connect(self.do_stopCalibrate)
-        self.__minButton__.clicked.connect(self.do_min)
-        self.__maxButton__.clicked.connect(self.do_max)
+        # self.__minButton__.clicked.connect(self.do_min)
+        # self.__maxButton__.clicked.connect(self.do_max)
         self.__paramButton__.clicked.connect(self.do_update)
         buttonLayout.addWidget(self.__stepButton__,0,0)
         buttonLayout.addWidget(self.__refreshButton__,1,0)
         buttonLayout.addWidget(self.__calibrateButton__,0,1)
         buttonLayout.addWidget(self.__stopCalibrateButton__,1,1)
-        buttonLayout.addWidget(self.__minButton__,0,2)
-        buttonLayout.addWidget(self.__maxButton__,1,2)
-        buttonLayout.addWidget(self.__paramButton__,0,3)
+        # buttonLayout.addWidget(self.__minButton__,0,2)
+        # buttonLayout.addWidget(self.__maxButton__,1,2)
+        buttonLayout.addWidget(self.__paramButton__,0,2)
         groupBox.setLayout(buttonLayout)
         
         return groupBox       
@@ -326,29 +326,35 @@ class ElementWidget(QtGui.QWidget):
         res = self.__pos_reset_act__(*[self.__name__ ])
         self.do_refresh()
 
-    def do_min(self):
-        res = self.__info_act__(*[self.__name__])
+    # def do_min(self):
+        # res = self.__info_act__(*[self.__name__])
         
-        i, ok = QtGui.QInputDialog.getInteger(self,"Fill Min value", "min value:", res['min'])
-        if ok:
-            res = self.__pos_min_act__(*[self.__name__, i ])
-        return
+        # i, ok = QtGui.QInputDialog.getInteger(self,"Fill Min value", "min value:", res['min'])
+        # if ok:
+            # res = self.__pos_min_act__(*[self.__name__, i ])
+        # return
 
-    def do_max(self):
-        res = self.__info_act__(*[self.__name__])
-        i, ok = QtGui.QInputDialog.getInteger(self,"Fill Max value", "max value:", res['max'])
-        if ok:
-            res = self.__pos_max_act__(*[self.__name__, i ])
-        return
+    # def do_max(self):
+        # res = self.__info_act__(*[self.__name__])
+        # i, ok = QtGui.QInputDialog.getInteger(self,"Fill Max value", "max value:", res['max'])
+        # if ok:
+            # res = self.__pos_max_act__(*[self.__name__, i ])
+        # return
 
     def do_update(self):
         res = self.__info_act__(*[self.__name__])
-        print res
+        # print res
         param = { 'Minimum': ( [res['min'],res['minAngle']], [-180,180] ), 'Maximum': ( [res['max'],res['maxAngle']], [-180,180] )}
         tabdialog = ParamDialog.ParamDialog(param)
         res, ok =  tabdialog.exec_()
         if ok:
-            print res
-            # res = self.__pos_min_act__(*[self.__name__, i ])
+            for k,v,d in res:
+                if k == 'Minimum':
+                    res = self.__pos_min_act__(*[self.__name__, v, d ])
+                elif k == 'Maximum':
+                    res = self.__pos_max_act__(*[self.__name__, v, d ])
+                else:
+                    raise Exception( "update : not supported for '%s'"%k)
+
         return
         

@@ -138,6 +138,8 @@ int main(int argc, char **  argv)
         TraceRpcAttach(&myRegistry );
         RtTraceRpcAttach(&myRegistry ); 
         ElementRpcAttach(&myRegistry );
+        osAttach(&myRegistry );
+
         
         xmlrpc_c::serverAbyss myAbyssServer(
             xmlrpc_c::serverAbyss::constrOpt()

@@ -48,6 +48,7 @@ using namespace std;
 extern void RtTraceRpcAttach(xmlrpc_c::registry * );
 extern void TraceRpcAttach(xmlrpc_c::registry * );
 extern void ElementRpcAttach(xmlrpc_c::registry * );
+extern void osAttach(xmlrpc_c::registry * );
 
 
 #endif // XMLRPC_METHOD_H

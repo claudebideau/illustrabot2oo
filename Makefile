@@ -5,7 +5,8 @@ TARGET=$(shell uname -m)
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS=-g -Wall -Wwrite-strings -Isrc/include -Ibuild/$(TARGET)/include  -std=c++0x -DILLUSOO_THREAD=1
+CPPFLAGS=-g -Wall -Wwrite-strings -Isrc/include -Ibuild/$(TARGET)/include 
+# -std=c++0x -DILLUSOO_THREAD=1
 ifeq (1,${TEST})
 CPPFLAGS += -D__TEST
 endif
@@ -16,7 +17,7 @@ LDLIBS=-L build/$(TARGET)/lib
 SRCS_INIREAD=src/inireader.cpp
 SRCS_EASYDRV=src/gpio.cpp src/easydrv.cpp src/rttrace.cpp  src/trace.c  src/ms_element.cpp src/angle.cpp
 SRCS_INITEST=initst.cpp $(SRCS_INIREAD)
-SRCS_XML=src/rpc/element.cpp src/rpc/rttraceRpc.cpp src/rpc/traceRpc.cpp  src/debug_thread.cpp $(SRCS_EASYDRV) $(SRCS_INIREAD)
+SRCS_XML=src/rpc/element.cpp src/rpc/rttraceRpc.cpp src/rpc/traceRpc.cpp src/rpc/osRpc.cpp src/debug_thread.cpp $(SRCS_EASYDRV) $(SRCS_INIREAD)
 SRCS= $(SRCS_INITEST) $(SRCS_XML) 
 
 OBJS_INIREAD=$(subst .c,.o, $(subst .cpp,.o, $(subst src/,obj/,$(SRCS_INIREAD))))

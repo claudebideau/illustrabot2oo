@@ -85,13 +85,13 @@ class MainButton(QtGui.QVBoxLayout):
         
     def boardrstAction(self,item=None):
         print 'boardrstAction', item
-        execAct= getattr(self.__rpc__,'xml.os.exec')
+        initAct= getattr(self.__rpc__,'xml.os.init')
         button = QtGui.QMessageBox.question(self.__button__[0],   "Confirm Board Reset",
                                                     "Are you sure you want to reset the board ?",
                                                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
         if button == QtGui.QMessageBox.Yes:
             try:
-                execAct(*['/sbin/boardrst'])
+                initAct(*[6])
                 if self.status != None: self.status.updateState(True)
             except Exception,e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -134,8 +134,8 @@ class MainButton(QtGui.QVBoxLayout):
 class CentralWidget(QtGui.QWidget):
 
     LIST_TAB = [
-               ('RtTrace', illusooUi.RttraceBuffers) ,
                ('Elements', illusooUi.Elements) ,
+               ('RtTrace', illusooUi.RttraceBuffers) ,
            ]
 
     
