@@ -45,19 +45,22 @@ std::map<std::string, MotorSensorElementCl *> G_MapElementObj;
 MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
 {
     std::list<std::string> F_listKey;
-	std::list<std::string>::iterator L_it;
-	std::string  L_driverName;
-	std::string  L_sensorName;
-	long  L_s64sensorIo;
-	long  L_s64Value;
+    std::list<std::string>::iterator L_it;
+    std::string  L_driverName;
+    std::string  L_sensorName;
+    long  L_s64sensorIo;
+    long  L_s64Value;
     std::vector<int> L_vectorValue;
 
     TRACES_MSG_ARG1("MotorSensorElementCl: %s",_keyName.c_str());
 
     _state  = MS_INIT;
     _name   = _keyName;
+
+    /* create and associate Rt Trace object */
     _trace = new RtTrace(_keyName, RT_TRACE_ENABLE |  MOTOR_CALIBRATION | MOTOR_STEP);
     _trace->trace(0, RT_TRACE_ENABLE, 0xFFFFFFFF, 2);
+    TRACES_MSG_ARG1("MotorSensorElementCl: %s",_keyName.c_str());
 
     _minStep          = -1<<31;
     _minAngle         = -1<<31;
@@ -66,26 +69,26 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
     _calibrationAngle = -1<<31;
     _currentStep      = 0;
     _requireStep      = 0;
-	/* get parameters */
+    /* get parameters */
     
     TRACES_MSG_ARG1("MotorSensorElementCl: %s ini parsing",_keyName.c_str());
     F_listKey = _pIni.getItems(_name);
 
-	if (!F_listKey.empty())
-	{
-		/* find driver/sensor */
-		L_driverName = _pIni.get(_name,"driver");
-		_pDriver = new EasyDriverCl(&_pIni,L_driverName);
+    if (!F_listKey.empty())
+    {
+        /* find driver/sensor */
+        L_driverName = _pIni.get(_name,"driver");
+        _pDriver = new EasyDriverCl(&_pIni,L_driverName);
         TRACES_MSG_ARG1("MotorSensorElementCl: %s eo driver ini parsing",_keyName.c_str());
-		L_sensorName = _pIni.get(_name,"sensor");
+        L_sensorName = _pIni.get(_name,"sensor");
         TRACES_MSG_ARG1("MotorSensorElementCl: %s eo sensor ini parsing",_keyName.c_str());
-		if (L_sensorName.size() >= 0)
-		{
-			L_s64sensorIo = _pIni.getInteger(L_sensorName,"input",-1);
-			if (L_s64sensorIo > 0)
-				_pSensor = new GpioInCl((unsigned int) L_s64sensorIo);
-		}
-		/* range */
+        if (L_sensorName.size() >= 0)
+        {
+            L_s64sensorIo = _pIni.getInteger(L_sensorName,"input",-1);
+            if (L_s64sensorIo > 0)
+                _pSensor = new GpioInCl((unsigned int) L_s64sensorIo);
+        }
+        /* range */
         L_vectorValue = _pIni.getIntVector(_name,"min",- 1<<31);
         if (L_vectorValue.size() != 2) throw std::string("MotorSensorElementCl: ") + _name + std::string(": min option require only 2 integer / min = <step> <degre>");
         _minStep   = L_vectorValue[0];
@@ -96,15 +99,15 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
         _maxStep   = L_vectorValue[0];
         _maxAngle  = L_vectorValue[1];
         
-		L_s64Value = _pIni.getInteger(_name,"calibration",- 1<<31);
-		if (L_s64Value == -1<<31)  throw std::string("MotorSensorElementCl: ") + _name + std::string(": calibration angle not define / calibration= <degre>");
+        L_s64Value = _pIni.getInteger(_name,"calibration",- 1<<31);
+        if (L_s64Value == -1<<31)  throw std::string("MotorSensorElementCl: ") + _name + std::string(": calibration angle not define / calibration= <degre>");
         _calibrationAngle = (int) L_s64Value;
 
-		L_s64Value = _pIni.getInteger(_name,"speed", 100);
+        L_s64Value = _pIni.getInteger(_name,"speed", 100);
         if (L_s64Value > 0) _speed = L_s64Value;
         _pDriver->setSpeed(_speed);
         
-	} else throw  std::string("undefined element : ")+_name;
+    } else throw  std::string("undefined element : ")+_name;
     
     TRACES_MSG_ARG1("MotorSensorElementCl: %s eo ini parsing",_keyName.c_str());
     _pDriver->disable();
@@ -128,7 +131,7 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl& _pIni, std::string _keyName)
         // }
     // }
     
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD
     _thCal=NULL;
 #endif
     _state  = MS_UNCALIBRATE;
@@ -241,12 +244,11 @@ unsigned int MotorSensorElementCl::speed_mask(void)
 
 void MotorSensorElementCl::start_calibrate(void)
 {
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD
     _thMutex.lock();
     _stop_thCal= false;
     _thMutex.unlock();
     /* create thread with calibrate call */
-    std::thread t1(&Test::calculate, this,  0, 10);
     _thCal = new std::thread(&MotorSensorElementCl::calibrate, this);
     
 #endif
@@ -259,7 +261,7 @@ void MotorSensorElementCl::start_calibrate(void)
 
 void MotorSensorElementCl::stop_calibrate(void)
 {
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD
     _thMutex.lock();
     _stop_thCal= true;
     _thMutex.unlock();
@@ -283,18 +285,18 @@ void MotorSensorElementCl::calibrate(void)
     L_teValuePrev = _pSensor->get();
     while (L_bDetectEdge==0)
     {
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD
         _thMutex.lock();
 #endif
         if (_stop_thCal == true)
         {
             L_bDetectEdge= 1;
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD
             _thMutex.unlock();
 #endif
             continue;
         }
-#if __cplusplus > 199711L
+#ifdef ILLUSOO_THREAD
         _thMutex.unlock();
 #endif
         L_teValueCurrent = _pSensor->get();

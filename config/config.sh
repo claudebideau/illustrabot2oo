@@ -9,7 +9,10 @@
 export SLOTS=/sys/devices/bone_capemgr.9/slots
 export PINS=/sys/kernel/debug/pinctrl/44e10800.pinmux/pins
 
+echo "cat $SLOTS"
 cat $SLOTS
+
 cat $PINS
+echo "slot"
 echo arm_control-1 > $SLOTS
 

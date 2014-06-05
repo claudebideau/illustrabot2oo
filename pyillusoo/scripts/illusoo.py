@@ -214,7 +214,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def __setting__(self):
         print "get setting"
-        self.settings = QSettings(QSettings.IniFormat,QSettings.SystemScope, '__SUPERVISOR', '__settings')
+        #self.settings = QSettings(QSettings.IniFormat,QSettings.SystemScope, '__ILLUSTRABOT2OO', '__settings')
+        self.settings = QSettings(QSettings.IniFormat,QSettings.UserScope, '__ILLUSTRABOT2OO', '__settings')
         self.settings.setFallbacksEnabled(False)    # File only, not registry or or.
         
         self.__mutex__.lock()
