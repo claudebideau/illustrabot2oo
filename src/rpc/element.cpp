@@ -94,7 +94,8 @@ usage : xml.element.info [<name>] \n\n\
                         std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
                         map<string, xmlrpc_c::value> L_structData;
                         int L_direction;
-                        
+                        int L_step, L_angle;
+
                         L_itElement = G_MapElementObj.find(L_name);
                         if (L_itElement != G_MapElementObj.end())
                         {
@@ -105,8 +106,12 @@ usage : xml.element.info [<name>] \n\n\
                             pair<string, xmlrpc_c::value> member_speed("speed", xmlrpc_c::value_int(L_itElement->second->speed()));
                             pair<string, xmlrpc_c::value> member_current("current", xmlrpc_c::value_int(L_itElement->second->current()));
                             pair<string, xmlrpc_c::value> member_sensor("sensor", xmlrpc_c::value_int(L_u8SensorValue));
-                            pair<string, xmlrpc_c::value> member_min("min", xmlrpc_c::value_int(L_itElement->second->min()));
-                            pair<string, xmlrpc_c::value> member_max("max", xmlrpc_c::value_int(L_itElement->second->max()));
+                            L_itElement->second->min(&L_step,&L_angle);
+                            pair<string, xmlrpc_c::value> member_min("min", xmlrpc_c::value_int(L_step));
+                            pair<string, xmlrpc_c::value> member_minAngle("minAngle", xmlrpc_c::value_int(L_angle));
+                            L_itElement->second->max(&L_step,&L_angle);
+                            pair<string, xmlrpc_c::value> member_max("max", xmlrpc_c::value_int(L_step));
+                            pair<string, xmlrpc_c::value> member_maxAngle("maxAngle", xmlrpc_c::value_int(L_angle));
                             L_direction = (L_itElement->second->dir() == 1?CLOCKWISE:ANTICLOCKWISE);
 
                             pair<string, xmlrpc_c::value> member_dir("dir", xmlrpc_c::value_int(L_direction));
@@ -116,7 +121,9 @@ usage : xml.element.info [<name>] \n\n\
                             L_structData.insert(member_current);
                             L_structData.insert(member_sensor);
                             L_structData.insert(member_min);
+                            L_structData.insert(member_minAngle);
                             L_structData.insert(member_max);
+                            L_structData.insert(member_maxAngle);
                             L_structData.insert(member_dir);
         
                             *retvalP =  xmlrpc_c::value_struct(L_structData);

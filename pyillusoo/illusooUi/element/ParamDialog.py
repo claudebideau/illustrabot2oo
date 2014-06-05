@@ -7,7 +7,7 @@ __all__ = ['ParamDialog', 'minMaxTabCl']
 
 class ParamDialog(QtGui.QDialog):
     def __init__(self, param={} , parent=None):
-        super(TabDialog, self).__init__(parent)
+        super(ParamDialog, self).__init__(parent)
 
         self._tabWidget = QtGui.QTabWidget()
         self._elt = {}
@@ -26,13 +26,13 @@ class ParamDialog(QtGui.QDialog):
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
 
-        self.setWindowTitle("Tab Dialog")
+        self.setWindowTitle("Parameters Update")
 
     def getValue(self):
         return  [v.getValue() for k,v in self._elt.items()]
 
     def exec_(self):
-        res= super(TabDialog, self).exec_()
+        res= super(ParamDialog, self).exec_()
         return self.getValue(), res
 
         
@@ -85,4 +85,4 @@ if __name__ == '__main__':
 
     param = { 'Minimum': ( [-2000,0], [-180,180] ), 'Maximum': ( [2000,135], [-180,180] )}
     tabdialog = ParamDialog(param)
-    sys.exit(tabdialog.exec_())
+    print tabdialog.exec_()

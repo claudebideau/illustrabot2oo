@@ -4,6 +4,7 @@
 import sys
 from PySide import QtCore, QtGui
 import array, re
+import ParamDialog
 
 
 __all__ = ['ElementWidget', 'LedStatus']
@@ -118,7 +119,7 @@ class ElementWidget(QtGui.QWidget):
         i=0
         grid.addWidget(self.__label__(self.__name__), 0, i); i+=1
         grid.addWidget(self.__directionButton__(), 0, i); i+=1
-        grid.addWidget(self.__speedButton__(), 0, i); i+=1
+        grid.addWidget(self.__speedBox__(),   0, i); i+=1
         grid.addWidget(self.__currentPos__(), 0, i); i+=1
         grid.addWidget(self.__sensorIcon__(), 0, i); i+=1
         grid.addWidget(self.__stepNumber__(), 0, i); i+=1
@@ -160,7 +161,7 @@ class ElementWidget(QtGui.QWidget):
         return groupBox
 
 
-    def __speedButton__(self):
+    def __speedBox__(self):
         groupBox = QtGui.QGroupBox("speed")
         groupBox.setFlat(True)
         checkLayout = QtGui.QVBoxLayout()
@@ -254,6 +255,7 @@ class ElementWidget(QtGui.QWidget):
         self.__refreshButton__ = QtGui.QPushButton("&Refresh")
         self.__calibrateButton__ = QtGui.QPushButton("&Calibrate")
         self.__stopCalibrateButton__ = QtGui.QPushButton("&Stop Calibrate")
+        self.__paramButton__ = QtGui.QPushButton("&Update Field(s)")
         self.__minButton__ = QtGui.QPushButton("&Min")
         self.__maxButton__ = QtGui.QPushButton("M&ax")
         # associated function
@@ -263,12 +265,14 @@ class ElementWidget(QtGui.QWidget):
         self.__stopCalibrateButton__.clicked.connect(self.do_stopCalibrate)
         self.__minButton__.clicked.connect(self.do_min)
         self.__maxButton__.clicked.connect(self.do_max)
+        self.__paramButton__.clicked.connect(self.do_update)
         buttonLayout.addWidget(self.__stepButton__,0,0)
         buttonLayout.addWidget(self.__refreshButton__,1,0)
         buttonLayout.addWidget(self.__calibrateButton__,0,1)
         buttonLayout.addWidget(self.__stopCalibrateButton__,1,1)
         buttonLayout.addWidget(self.__minButton__,0,2)
         buttonLayout.addWidget(self.__maxButton__,1,2)
+        buttonLayout.addWidget(self.__paramButton__,0,3)
         groupBox.setLayout(buttonLayout)
         
         return groupBox       
@@ -336,3 +340,15 @@ class ElementWidget(QtGui.QWidget):
         if ok:
             res = self.__pos_max_act__(*[self.__name__, i ])
         return
+
+    def do_update(self):
+        res = self.__info_act__(*[self.__name__])
+        print res
+        param = { 'Minimum': ( [res['min'],res['minAngle']], [-180,180] ), 'Maximum': ( [res['max'],res['maxAngle']], [-180,180] )}
+        tabdialog = ParamDialog.ParamDialog(param)
+        res, ok =  tabdialog.exec_()
+        if ok:
+            print res
+            # res = self.__pos_min_act__(*[self.__name__, i ])
+        return
+        
