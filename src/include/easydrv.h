@@ -57,8 +57,6 @@ typedef enum eEdState {ED_INIT=0, ED_READY } teEdState;
 
 typedef enum eEdIOType {STEP=0, DIR, ENABLE, M0, M1, M2, SLEEP} teEdIOType;
 
-const std::string GPIOKEYS[] =  {"step", "dir", "enable", "m0", "m1", "m2", "sleep"};
-
  /**
  * \class GpioCl
  * \brief 

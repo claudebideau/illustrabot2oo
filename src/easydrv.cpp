@@ -1,5 +1,5 @@
 /*!
- * \file easydrv.hpp
+ * \file easydrv.cpp
  * \author claude.bideau@gmail.com
  * \version 0.1
  * \brief This module provides a easydrv declaration.
@@ -27,6 +27,9 @@
 #include "gpio.h"
 #include "easydrv.h"
 #include "trace.h"
+
+const std::string GPIOKEYS[] =  {"step", "dir", "enable", "m0", "m1", "m2", "sleep"};
+
 
 using namespace std;
 

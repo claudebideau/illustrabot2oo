@@ -122,8 +122,10 @@ class ElementWidget(QtGui.QWidget):
         grid.addWidget(self.__speedBox__(),   0, i); i+=1
         grid.addWidget(self.__currentPos__(), 0, i); i+=1
         grid.addWidget(self.__sensorIcon__(), 0, i); i+=1
+        grid.addWidget(self.__scaledValue__(), 0, i); i+=1
         grid.addWidget(self.__stepNumber__(), 0, i); i+=1
         grid.addWidget(self.__stepAction__(), 0, i); i+=1
+
         self.setLayout(grid)
         
         
@@ -208,10 +210,30 @@ class ElementWidget(QtGui.QWidget):
         ledLayout = QtGui.QVBoxLayout()
         self.__led__ = LedStatus(self)
         ledLayout.addWidget(self.__led__)
+        
         groupBox.setLayout(ledLayout)
         
         return groupBox     
+
+    def __scaledValue__(self):
+        groupBox = QtGui.QGroupBox("scaled")
+        groupBox.setFlat(True)
+        layout = QtGui.QVBoxLayout()
+        self.__scaledVal1__ = QtGui.QLabel(self)
+        self.__scaledVal1__.setAlignment(QtCore.Qt.AlignJustify | QtCore.Qt.AlignLeft)        
+        self.__scaledVal1__.setText("step")
+        layout.addWidget(self.__scaledVal1__)
+
         
+        groupBox.setLayout(layout)
+        
+        return groupBox
+        
+    def __scaledRefresh__(self,v1):
+        self.__scaledVal1__.setText("step  = %04x"%v1)
+        return
+        
+                
     def __currentPos__(self):
         groupBox = QtGui.QGroupBox("position")
         groupBox.setFlat(True)
@@ -308,6 +330,8 @@ class ElementWidget(QtGui.QWidget):
             sys.stdout.write(".")
         self.__update_pos__(res['current'])
         self.__refreshSpeed__()
+        print res
+        self.__scaledRefresh__(res['factorStep'])
             
     def do_calibrate(self):
         # get number of step

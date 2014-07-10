@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import inspect
 from Elements       import *
+from Arm            import *
 
 __all__ = sorted(name for name, obj in locals().items()
                  if not (name.startswith('_') or inspect.ismodule(obj)) )

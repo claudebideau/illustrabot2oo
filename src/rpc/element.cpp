@@ -106,6 +106,9 @@ usage : xml.element.info [<name>] \n\n\
                             pair<string, xmlrpc_c::value> member_speed("speed", xmlrpc_c::value_int(L_itElement->second->speed()));
                             pair<string, xmlrpc_c::value> member_current("current", xmlrpc_c::value_int(L_itElement->second->current()));
                             pair<string, xmlrpc_c::value> member_sensor("sensor", xmlrpc_c::value_int(L_u8SensorValue));
+                            L_itElement->second->factor(&L_step);
+                            pair<string, xmlrpc_c::value> member_factorStep("factorStep", xmlrpc_c::value_int(L_step));
+
                             L_itElement->second->min(&L_step,&L_angle);
                             pair<string, xmlrpc_c::value> member_min("min", xmlrpc_c::value_int(L_step));
                             pair<string, xmlrpc_c::value> member_minAngle("minAngle", xmlrpc_c::value_int(L_angle));
@@ -124,6 +127,7 @@ usage : xml.element.info [<name>] \n\n\
                             L_structData.insert(member_minAngle);
                             L_structData.insert(member_max);
                             L_structData.insert(member_maxAngle);
+                            L_structData.insert(member_factorStep);
                             L_structData.insert(member_dir);
         
                             *retvalP =  xmlrpc_c::value_struct(L_structData);

@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <queue>
 #include <xmlrpc-c/base.hpp>
 
 #include "ms_element.h"
@@ -49,6 +50,8 @@ extern void RtTraceRpcAttach(xmlrpc_c::registry * );
 extern void TraceRpcAttach(xmlrpc_c::registry * );
 extern void ElementRpcAttach(xmlrpc_c::registry * );
 extern void osAttach(xmlrpc_c::registry * );
+extern void ArmRpcAttach(xmlrpc_c::registry * );
+extern void OrientationRpcAttach(xmlrpc_c::registry *);
 
 
 #endif // XMLRPC_METHOD_H

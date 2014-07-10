@@ -25,29 +25,14 @@
  */
  /**   1. Standard Library Include                                   **/
 #include <cmath>
-#ifdef __TEST
 #include <iostream>
-#endif
+#include <fstream>
 /**   1. Include files  (own)                                       **/
 #include "trace.h"
+#include "angle.h"
 
 using namespace std;
 
-#define PI 3.14159265
-#define QUANTIFICATION_LENGTH 12
-#define MAX_SIZE ( 1<<QUANTIFICATION_LENGTH)
-
-
-
-typedef struct {
-    short degre;
-    short norm;
-} tsAlphaAngle;
-
-typedef struct {
-    short degre;
-    short norm;
-} tsMinLatitudeAngle;
 
 
 tsAlphaAngle G_tsaAlphaTable[MAX_SIZE+1];
@@ -75,21 +60,25 @@ static inline short Q_i16Alpha( unsigned short F_u16Distance, unsigned short F_u
  */
 void Q_vInitAlphaTable(void)
 {
-    unsigned short L_u16Index;
+    unsigned int L_u32Index;
     double L_dIndex;
     double L_dValue;
     long int L_i64Value;
-    for (L_u16Index=0; L_u16Index <= MAX_SIZE; L_u16Index++)
+    ofstream L_pAlphaFile;
+    L_pAlphaFile.open("alpha.txt");
+    L_pAlphaFile << "MAX_SIZE=" << MAX_SIZE << endl;
+    L_pAlphaFile << "[index]\tacos\t64 bits\tdegre\tscaled" << endl;
+    
+    for (L_u32Index=0; L_u32Index <= MAX_SIZE; L_u32Index++)
     {
-        L_dIndex = (double)L_u16Index;
+        L_dIndex = (double)L_u32Index;
         L_dValue = acos(L_dIndex/MAX_SIZE);
-        L_i64Value = lrint(L_dValue*MAX_SIZE/PI);
-        G_tsaAlphaTable[L_u16Index].norm = (short)L_i64Value;
-        L_i64Value = lrint(L_dValue*180.0/PI);
-        G_tsaAlphaTable[L_u16Index].degre  = (short)L_i64Value;
-#ifdef __TEST
-        std::cout << L_u16Index  << " / " << L_dValue<<  " / " << L_i64Value << " / " << G_tsaAlphaTable[L_u16Index].degre << " / " << G_tsaAlphaTable[L_u16Index].norm << endl;
-#endif
+        L_i64Value = lrint(L_dValue*2*MAX_SIZE/PI);
+        G_tsaAlphaTable[L_u32Index].norm = (int)L_i64Value;
+        L_i64Value = lrint(L_dValue*2*90.0/PI);
+        G_tsaAlphaTable[L_u32Index].degre  = (int)L_i64Value;
+        L_pAlphaFile << "[" << L_u32Index  << "]\t" << L_dValue<<  "\t" << L_i64Value << "\t" << G_tsaAlphaTable[L_u32Index].degre << "\t" << G_tsaAlphaTable[L_u32Index].norm << endl;
+
     }
     return;
 }
@@ -107,29 +96,29 @@ void Q_vInitAlphaTable(void)
  */
 void Q_vInitCheckLattitudeTable(short F_i16Heigh)
 {
-    unsigned short L_u16RadiusIndex;
+    unsigned int L_u32RadiusIndex;
     double L_dIndex;
     double L_dValue;
     long int L_i64Value;
     // for each radius length
     // determine the acos
-    for (L_u16RadiusIndex=0; L_u16RadiusIndex <= MAX_SIZE; L_u16RadiusIndex++)
+    for (L_u32RadiusIndex=0; L_u32RadiusIndex <= MAX_SIZE; L_u32RadiusIndex++)
     {
-        if (L_u16RadiusIndex >= F_i16Heigh)
+        if (L_u32RadiusIndex >= F_i16Heigh)
         {
-            L_dIndex = (double)F_i16Heigh / (double)L_u16RadiusIndex;
+            L_dIndex = (double)F_i16Heigh / (double)L_u32RadiusIndex;
             L_dValue = acos(L_dIndex);
-            L_i64Value = lrint(L_dValue*MAX_SIZE/PI);
-            G_tsaMinLatitudeTable[L_u16RadiusIndex].norm = (short)L_i64Value;
-            L_i64Value = lrint(L_dValue*180.0/PI);
-            G_tsaMinLatitudeTable[L_u16RadiusIndex].degre  = (short)L_i64Value;
+            L_i64Value = lrint(L_dValue*2*MAX_SIZE/PI);
+            G_tsaMinLatitudeTable[L_u32RadiusIndex].norm = (int)L_i64Value;
+            L_i64Value = lrint(L_dValue*2*90.0/PI);
+            G_tsaMinLatitudeTable[L_u32RadiusIndex].degre  = (int)L_i64Value;
 #ifdef __TEST
-            std::cout << L_u16RadiusIndex  << " / " << L_dIndex<<  " / " << L_dValue <<  " / " ;
-            std::cout << L_i64Value << " / " << G_tsaMinLatitudeTable[L_u16RadiusIndex].degre << " / " << G_tsaMinLatitudeTable[L_u16RadiusIndex].norm << endl;
+            // std::cout << L_u32RadiusIndex  << " / " << L_dIndex<<  " / " << L_dValue <<  " / " ;
+            // std::cout << L_i64Value << " / " << G_tsaMinLatitudeTable[L_u32RadiusIndex].degre << " / " << G_tsaMinLatitudeTable[L_u32RadiusIndex].norm << endl;
 #endif
         } else {
-            G_tsaMinLatitudeTable[L_u16RadiusIndex].degre  = 0;
-            G_tsaMinLatitudeTable[L_u16RadiusIndex].norm   = 0;
+            G_tsaMinLatitudeTable[L_u32RadiusIndex].degre  = 0;
+            G_tsaMinLatitudeTable[L_u32RadiusIndex].norm   = 0;
         }
     }
     return;

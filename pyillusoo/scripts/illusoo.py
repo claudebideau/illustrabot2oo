@@ -136,6 +136,7 @@ class CentralWidget(QtGui.QWidget):
     LIST_TAB = [
                ('Elements', illusooUi.Elements) ,
                ('RtTrace', illusooUi.RttraceBuffers) ,
+               ('Arm', illusooUi.Arm) ,
            ]
 
     

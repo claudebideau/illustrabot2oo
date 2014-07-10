@@ -40,6 +40,8 @@
 #include "easydrv.h"
 #include "inireader.h"
 #include "rttrace.h"
+#include "angle.h"
+
 using namespace std;
 
 /**   2a.   External Functions                                      **/
@@ -56,7 +58,7 @@ typedef enum eMState {MS_INIT=0, MS_UNCALIBRATE, MS_READY } teMSState;
 
 
  /**
- * \class ms_element
+ * \class MotorSensorElementCl
  * \brief 
  *
  * basic Angle motor:
@@ -96,7 +98,7 @@ typedef enum eMState {MS_INIT=0, MS_UNCALIBRATE, MS_READY } teMSState;
 class MotorSensorElementCl
 {
     public:
-        MotorSensorElementCl( iniCl &, std::string);
+        MotorSensorElementCl( iniCl *, std::string);
         std::string name();
         /* setting */
         void wakeup();
@@ -129,6 +131,8 @@ class MotorSensorElementCl
         void max(int);
         void max(int, int);
         void max(int *, int *);
+
+        void factor(int *);
         
         /* debug     action */
         void ini(std::string, int);
@@ -176,12 +180,15 @@ class MotorSensorElementCl
     private:
         void calibrate();
 
+        void _anglePreProc(void);
+        
         teMSState       _state;
         std::string     _name;
         int             _minStep;
         int             _minAngle;
         int             _maxStep;
         int             _maxAngle;
+        unsigned int    _factorStep;
         int             _calibrationStep;
         int             _calibrationAngle;
         
