@@ -35,24 +35,24 @@ int main ( int argc, char * argv[] )
         while ( true )
         {
 
-        ServerSocket new_sock;
-        server.accept ( new_sock );
-        std::cout << "accept"<<std::endl;
+            ServerSocket new_sock;
+            server.accept ( new_sock );
+            std::cout << "accept"<<std::endl;
 
-        try
-        {
-            while ( true )
+            try
             {
-                message_t data;
-                
-                new_sock.recv((void*)&data);
-                hex_dump_message((void*)&data);
-                //new_sock >> data;
-                // new_sock << data;
-                new_sock.send((void*)&data, sizeof(message_t));
+                while ( true )
+                {
+                    message_t data;
+
+                    new_sock.recv((void*)&data);
+                    hex_dump_message((void*)&data);
+                    //new_sock >> data;
+                    // new_sock << data;
+                    new_sock.send((void*)&data, sizeof(message_t));
+                }
             }
-        }
-        catch ( SocketException& ) {}
+            catch ( SocketException& ) {}
 
         }
     }

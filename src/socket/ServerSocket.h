@@ -16,7 +16,7 @@ class ServerSocket : private Socket
 
   // Data Transmission
   bool send ( const std::string &) const;
-  bool send ( const void * buf, ssize_t size ) const;
+  bool send ( void * buf, ssize_t size ) const;
   
   int recv ( std::string& ) const;
   int recv ( void * buf ) const;

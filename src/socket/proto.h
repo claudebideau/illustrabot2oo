@@ -4,6 +4,8 @@
 
 #define PROTO_VERSION 1
 
+typedef unsigned char uint8_t;
+
 typedef uint8_t msgType_t;      /** message type. See message_t.type */
 
 /** various message types
@@ -13,6 +15,7 @@ typedef uint8_t msgType_t;      /** message type. See message_t.type */
 #define T_DATA_WII 1
 #define T_DATA_JOY 2
 #define T_DATA_AND 3
+
 
 /** Message send from client to server
  */
@@ -65,5 +68,24 @@ typedef struct message {
 } message_t;
 
 #define HEADER_SIZE (size_t)(sizeof(uint8_t)+sizeof(uint8_t)+sizeof(msgType_t))
+
+
+/** Display a received message from the client as hex bytes
+ * @param msg the message to dump
+ */
+//void hex_dump_message (std::string &msg)
+static inline void hex_dump_message (void * msg)
+{
+//   char* ptr = (char*)msg.c_str();
+   char* ptr = (char*)msg;
+   int i;
+
+   for (i=0;i < sizeof(message_t);i++) {
+      printf ("%02X ",(uint8_t) ptr[i]);
+   }
+   printf("\n");
+}// hex_dump_message
+
+
 
 #endif /* __PROTO_H__ */

@@ -33,7 +33,7 @@ bool ServerSocket::send ( const std::string &s ) const
 {
     return Socket::send ( s );
 }
-bool ServerSocket::send ( const void * buf, ssize_t size ) const
+bool ServerSocket::send ( void * buf, ssize_t size ) const
 {
     return Socket::send ( buf, size );
 }

@@ -120,7 +120,7 @@ bool Socket::send ( const std::string s ) const
 }
 
 
-bool Socket::send ( const void* buf, ssize_t size ) const
+bool Socket::send ( void* buf, ssize_t size ) const
 {
   int status = ::send ( m_sock, buf, size, MSG_NOSIGNAL );
   if ( status == -1 )
