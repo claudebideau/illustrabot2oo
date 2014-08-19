@@ -330,8 +330,8 @@ class ElementWidget(QtGui.QWidget):
             sys.stdout.write(".")
         self.__update_pos__(res['current'])
         self.__refreshSpeed__()
-        print res
-        self.__scaledRefresh__(res['factorStep'])
+        #self.__scaledRefresh__(res['factorStep'])
+        print "Element.__info__ = ", res
             
     def do_calibrate(self):
         # get number of step

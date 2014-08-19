@@ -71,6 +71,7 @@ class Elements(QtGui.QWidget):
         elementLayout = QtGui.QVBoxLayout()
 
         res = self.__info_mth__()
+        #~ print 'Elements.__info__ = ',res
         self.__elements__= []
         
         elementLayout.addWidget(self.__autoRefreshButton__(), 0, 0 )
@@ -110,6 +111,7 @@ class Elements(QtGui.QWidget):
         return groupBox        
         
     def do_refresh(self,auto=False, force=False):
+        #~ print self.__elements__
         if self.__checkBox__.isChecked() or force==True:
             for elt in self.__elements__:
                 elt.do_refresh(auto)
