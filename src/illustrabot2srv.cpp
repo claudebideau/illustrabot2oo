@@ -46,7 +46,6 @@
 #include "trace.h"
 #include "angle.h"
 #include "orientation.h"
-#include "server.h"
 
 
 using namespace std;
@@ -117,8 +116,6 @@ int main(int argc, char **  argv)
 
         cini = new iniCl(inifile);
         E_pOrientationThObj = new OrientationThCl(cini );
-        E_pServerThObj     = new ServerThCl(cini );
-        pthread_create(&G_ServerRunTh, NULL, &ServerThCl::run, E_pServerThObj);
 
         
         // TRACES_INFO("Create pthread for orientation");
