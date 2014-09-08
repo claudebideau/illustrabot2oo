@@ -56,17 +56,24 @@ class Arm(QtGui.QWidget):
         self.param.latitudeChanged.connect(self.scene.setLatitude)
         self.param.longitudeChanged.connect(self.scene.setLongitude)
         self.param.radiusChanged.connect(self.scene.setRadius)
-        self.param.allChanged.connect(self.scene.setAll)
-        self.param.allChanged.connect(self.sendParam)
+        self.param.allArmChanged.connect(self.scene.setArmAll)
+        self.param.allArmChanged.connect(self.sendArmParam)
+        self.param.allWristChanged.connect(self.scene.setWristAll)
+        self.param.allWristChanged.connect(self.sendWristParam)
         layout.addWidget(self.view)
         self.setLayout(layout)
 
     @QtCore.Slot(int,int,int)
-    def sendParam(self,long,lat,rad):
-        print [long, lat,rad ]
+    def sendArmParam(self,long,lat,rad):
+        print 'Send to Arm=',[long, lat,rad ]
         res = self.__set_act__(*[long, lat,rad ])
         return
-        
+
+    @QtCore.Slot(int,int,int)
+    def sendWristParam(self,long,lat,rad):
+        print 'Send to Wrist=',[long, lat,rad ]
+        # res = self.__set_act__(*[long, lat,rad ])
+        return
     # def __info__(self):
         # groupBox = QtGui.QGroupBox()
         # groupBox.setFlat(False)

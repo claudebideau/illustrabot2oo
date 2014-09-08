@@ -53,12 +53,17 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
     std::list<std::string> F_listKey;
 	std::list<std::string>::iterator L_it;
 
-	
-    _state     = ORIENTATION_INIT;
     _pArm   = NULL;
     _pWrist = NULL;
     _pHand  = NULL;
 
+    pthread_mutex_init(&_mutex,NULL);
+    
+    pthread_mutex_lock(&_mutex);
+    _bContinue = false;
+    _state     = ORIENTATION_INIT;
+    pthread_mutex_unlock(&_mutex);
+    
     TRACES_MSG("OrientationThCl: init");
 
     /* create and associate Rt Trace object */
@@ -92,8 +97,10 @@ teOrientationState OrientationThCl::state(void)
 }
 
 int OrientationThCl::set(tsOrientation F_tsOrientation)
-{ 
+{
+    pthread_mutex_lock(&_mutex);
     _queue.push(F_tsOrientation);
+    pthread_mutex_unlock(&_mutex);
     return 0;
 }
 
@@ -169,8 +176,11 @@ void *OrientationThCl::_execute(void)
         {
             /* - get new orientation          */
             /*   & suppress element in queue  */
+            pthread_mutex_lock(&_mutex);
             L_tsOrientationValue =  _queue.front();
             _queue.pop();
+            pthread_mutex_unlock(&_mutex);
+            
             /* - compute new orientation      */
             /* - set new orientation          */
         }

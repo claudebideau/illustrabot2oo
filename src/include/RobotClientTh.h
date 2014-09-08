@@ -39,6 +39,7 @@
 #include "rttrace.h"
 #include "tcpconnector.h"
 #include "proto.h"
+#include "orientation.h"
 
 /**   2a.   External Functions                                      **/
 /**   2b.   External Data                                           **/

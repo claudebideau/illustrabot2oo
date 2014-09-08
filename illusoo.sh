@@ -177,8 +177,8 @@ if [[ $LOAD -eq 1 ]]; then
    	echo "'${LSUDO}'"
 	if [[ $LSUDO -eq 1 ]]; then
 		echo " execute in SUDO mode "
-        	sudo LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
+        	sudo LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./illustrabot2srv -i config/illusoo.ini
    	else
-		LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./debug_thread -i config/illusoo.ini
+		LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./illustrabot2srv -i config/illusoo.ini
    	fi
 fi 

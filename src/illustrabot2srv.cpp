@@ -46,26 +46,40 @@
 #include "trace.h"
 #include "angle.h"
 #include "orientation.h"
-
+#include "RobotClientTh.h"
+// #include "server.h"
+// #include "clientTh.h"
 
 using namespace std;
 
-static pthread_t G_ServerRunTh;
 
-///*---------------------------------------------------------*/
-//class RpcShutdownCl : public xmlrpc_c::registry::shutdown {
-//    public:
-//        RpcShutdownCl(myServerType * const serverHandle) : serverHandle(serverHandle) {}
-//
-//        void doit(string const& comment,void * const) const 
-//        {
-//            cerr << "Shutting down because " << comment <<endl;
-//            // shutdownMyServer(serverHandle);
-//        }
-//
-//    private:
-//        myServerType * const serverHandle;
-//};
+RobotClientThreadCl * G_pClientThObj=NULL;
+
+
+/*---------------------------------------------------------*/
+class RpcShutdownCl : public xmlrpc_c::registry::shutdown {
+   public:
+       RpcShutdownCl(xmlrpc_c::serverAbyss * const serverHandle) : serverHandle(serverHandle) {}
+
+       void doit(string const& comment,void * const) const 
+       {
+            cerr << "Shutting down because " << comment <<endl;
+            if (G_pClientThObj != NULL)
+                G_pClientThObj->stop();
+            if (E_pOrientationThObj != NULL)
+                E_pOrientationThObj->stop();
+            sleep(1);
+            delete G_pClientThObj;
+            G_pClientThObj = NULL;
+            delete E_pOrientationThObj;
+            E_pOrientationThObj = NULL;
+            cerr << "terminate " << comment <<endl;
+            serverHandle->terminate();
+       }
+
+   private:
+       xmlrpc_c::serverAbyss * const serverHandle;
+};
 
 /*---------------------------------------------------------*/
 void DisplayHelp(char * F_pcname)
@@ -82,7 +96,8 @@ int main(int argc, char **  argv)
     iniCl *cini;
 	char *inifile = NULL;
 	int L_i32option;
-    // pthread_t L_OrientationTh;
+    pthread_t L_OrientationTh;
+    pthread_t L_ClientTh;
 
     TRACES_INFO(__FILE__"main function");
     TRACES_INFO_ARG1("Compiler version %d",__cplusplus);
@@ -112,15 +127,19 @@ int main(int argc, char **  argv)
         }
         if (inifile == NULL) throw std::string("You must specify ini file");
 
-        xmlrpc_c::registry myRegistry;
+        xmlrpc_c::registry L_rpcRegistry;
 
         cini = new iniCl(inifile);
         E_pOrientationThObj = new OrientationThCl(cini );
+        // E_pServerThObj     = new ServerThCl(cini );
 
+        G_pClientThObj     = new RobotClientThreadCl("locahost", 8088);
         
-        // TRACES_INFO("Create pthread for orientation");
-        // pthread_create(&L_OrientationTh, NULL, &OrientationThCl::run, E_pOrientationThObj);        
+        TRACES_INFO("Create pthread for orientation");
+        pthread_create(&L_OrientationTh, NULL, &OrientationThCl::run, E_pOrientationThObj);        
 
+        TRACES_INFO("Create pthread for client TH");
+        pthread_create(&L_ClientTh, NULL, &RobotClientThreadCl::run, G_pClientThObj);     
         
         // TRACES_INFO("==========  CHECK INI  ==========");
 		// for (L_itElement = G_MapElementObj.begin() ; L_itElement != G_MapElementObj.end(); ++L_itElement)
@@ -131,25 +150,26 @@ int main(int argc, char **  argv)
 
         TRACES_INFO("Prepare XML-RPC attachment");
 
-        TraceRpcAttach(&myRegistry );
-        RtTraceRpcAttach(&myRegistry ); 
-        ElementRpcAttach(&myRegistry );
-        osAttach(&myRegistry );
-        ArmRpcAttach(&myRegistry );
-        OrientationRpcAttach(&myRegistry);
+        TraceRpcAttach(&L_rpcRegistry );
+        RtTraceRpcAttach(&L_rpcRegistry ); 
+        ElementRpcAttach(&L_rpcRegistry );
+        osAttach(&L_rpcRegistry );
+        ArmRpcAttach(&L_rpcRegistry );
+        OrientationRpcAttach(&L_rpcRegistry);
 
         
 
-        xmlrpc_c::serverAbyss myAbyssServer(
+        xmlrpc_c::serverAbyss L_rpcAbyssServer(
             xmlrpc_c::serverAbyss::constrOpt()
-            .registryP(&myRegistry)
+            .registryP(&L_rpcRegistry)
             .portNumber(8000));
 
-        xmlrpc_c::serverAbyss::shutdown shutdown(&myAbyssServer);
-        myRegistry.setShutdown(&shutdown);
+        RpcShutdownCl shutdown(&L_rpcAbyssServer);
+        // xmlrpc_c::serverAbyss::shutdown shutdown(&L_rpcAbyssServer);
+        L_rpcRegistry.setShutdown(&shutdown);
         
         TRACES_INFO("run Rpc server");
-        myAbyssServer.run();
+        L_rpcAbyssServer.run();
   
     } catch (exception const& e) {
         // cerr << "Something failed.  " << e.what() << endl;
@@ -163,6 +183,7 @@ int main(int argc, char **  argv)
     catch(char* error)
     {
         cerr<<"Error: "<<error<<endl;
-    }    
+    }
+
     return 0;
 }

@@ -43,6 +43,7 @@
 #include "trace.h"
 #include "tcpacceptor.h"
 #include "RobotSrvTh.h"
+#include "UeSrvTh.h"
 
 
 using namespace std;
@@ -131,8 +132,9 @@ int main ( int argc, char * argv[] )
 
     TCPStream* stream = NULL;
     TCPAcceptor* acceptor = NULL;
-    pthread_t L_ClientTh;
-    
+    pthread_t L_RobotSrvTh;
+    pthread_t L_UeSrvTh;
+
     // pthread_t L_RobotTh;
     // pthread_t L_DebugTh;
     // pthread_t L_UeTh[MAX_UE_THREAD];
@@ -178,8 +180,13 @@ int main ( int argc, char * argv[] )
         // Create the socket Ue 2 Srv
 
         RobotSrvThreadCl * L_ptsRobotSrvThreadCl = new RobotSrvThreadCl(G_tsSrvParam.robot);
-        pthread_create(&L_ClientTh, NULL, &RobotSrvThreadCl::run, L_ptsRobotSrvThreadCl);
-        pthread_join(L_ClientTh,NULL);
+        pthread_create(&L_RobotSrvTh, NULL, &RobotSrvThreadCl::run, L_ptsRobotSrvThreadCl);
+
+        UeSrvThreadCl * L_ptsUeSrvThreadCl = new UeSrvThreadCl(G_tsSrvParam.ue);
+        pthread_create(&L_UeSrvTh, NULL, &UeSrvThreadCl::run, L_ptsUeSrvThreadCl);
+
+        pthread_join(L_RobotSrvTh,NULL);
+        pthread_join(L_UeSrvTh,NULL);        
     }
     // catch ( SocketException& e )
     // {

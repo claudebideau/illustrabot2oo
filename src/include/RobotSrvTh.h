@@ -68,7 +68,8 @@ class RobotSrvThreadCl
             return ((RobotSrvThreadCl *)context)->_execute();
         }
 
-        bool addMsg(char*,uint32_t);
+        // bool addMsg(char*,uint32_t);
+        bool addMsg(tsMsgRobotSrv * );
         void stop(void);
 
         virtual ~RobotSrvThreadCl();
@@ -90,7 +91,7 @@ class RobotSrvThreadCl
         tsMsgRobotSrv      _tsMsgTx;
         tsMsgRobotSrv      _tsMsgRx;
 
-        std::queue<tsQueueBuffer> _TxFifo;
+        std::queue<tsMsgRobotSrv *> _TxFifo;
 
         // std::string __getHost(void);
         // int __getPort(void);
