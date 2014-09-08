@@ -116,7 +116,7 @@ socketlib_build()
 {
 	cd src/socketlib/
     make clean all
-    cp libsocklib.so $BUILD_LIB_PATH
+    cp libsocket.so $BUILD_LIB_PATH
     cp *.h $BUILD_INC_PATH
 	cd ${CDIR}
 }
