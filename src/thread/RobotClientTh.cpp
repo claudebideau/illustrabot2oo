@@ -34,9 +34,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "RobotClientTh.h"
 #include "trace.h"
 #include "proto.h"
+#include "RobotClientTh.h"
 
 using namespace std;
 
@@ -65,6 +65,7 @@ RobotClientThreadCl::RobotClientThreadCl(std::string F_host, int F_i32port)
  */
 void RobotClientThreadCl::stop(void)
 { 
+    cout << "RobotClientThreadCl : stop requested" << endl;
     pthread_mutex_lock(&_mutex);
     _bContinue = false;
     _bStop     = false;
@@ -109,8 +110,8 @@ void *RobotClientThreadCl::_execute(void)
             while ( L_bLoop )
             {
 
-                _tsMsgTx.version = PROTO_VERSION;
-                _tsMsgTx.size    = 0;
+                _tsMsgTx.header.version = PROTO_VERSION;
+                _tsMsgTx.header.size    = 0;
                 
                 /* non blocking mode   */
                 /* wait Rx packet      */
@@ -129,19 +130,21 @@ void *RobotClientThreadCl::_execute(void)
                     _stat.rxbytes += L_i32lengthRx;
                     
                     /* manage Rx packet */
+#ifdef __TEST
                     cout << "rx packet     = " <<L_i32lengthRx<<endl;
-                    cout << "_tsMsgRx.type = " <<_tsMsgRx.type<<endl;
+                    cout << "_tsMsgRx.header.type = " <<_tsMsgRx.header.type<<endl;
                     {
                         uint32_t * L_pu32aBuffer = (uint32_t*) &_tsMsgRx;
                         for (int i=0;i<L_i32lengthRx/4;i++)
                         {
-                            printf("%08x\n",L_pu32aBuffer[i]);
+                            printf("rx %08x\n",L_pu32aBuffer[i]);
                         }
                     }
-                    if (PROTO_VERSION == _tsMsgRx.version)
+#endif
+                    if (PROTO_VERSION == _tsMsgRx.header.version)
                     {
-                        uint8_t L_msgid = _tsMsgRx.type & SRV_OPE;
-                        bool  L_ack     = ( SRV_ACK ==(_tsMsgRx.type & SRV_AN_MASK));
+                        uint8_t L_msgid = _tsMsgRx.header.type & SRV_OPE;
+                        bool  L_ack     = ( SRV_ACK ==(_tsMsgRx.header.type & SRV_AN_MASK));
                         cout << "yes check" <<endl;
                         
                         switch (L_msgid)
@@ -157,7 +160,7 @@ void *RobotClientThreadCl::_execute(void)
                                 break;
                             case ROBOT_CONNECT :
                                 cout << "yes ROBOT_CONNECT check" << _state <<endl;
-                                if ((_state == RC_CONNECTED) && ( SRV_ACK ==(_tsMsgRx.type & SRV_AN_MASK) ))
+                                if ((_state == RC_CONNECTED) && ( SRV_ACK ==(_tsMsgRx.header.type & SRV_AN_MASK) ))
                                 {
                                     L_bSendDone==false;
                                     _state = RC_RUNNING;
@@ -166,6 +169,27 @@ void *RobotClientThreadCl::_execute(void)
                                     _state = RC_INIT;
                                 }
 
+                                break;
+                            case ROBOT_KEEPALIVE :
+                                /* nothing */
+                                break;
+                            case ROBOT_REINIT:
+                                if (_state != RC_RUNNING) 
+                                {
+                                    /* reject */
+                                    _tsMsgTx.header.type  = ROBOT_REINIT | SRV_NACK;
+                                } else {
+                                    /* accepted send ack => change state to RC_CALIBRATE_REQ */
+                                    _tsMsgTx.header.type  = ROBOT_REINIT | SRV_ACK;
+                                    _state = RC_CALIBRATE_REQ;
+                                }
+                                _tsMsgTx.header.state = (uint8_t) _state;
+                                _tsMsgTx.header.rxid = _tsMsgRx.header.txid;
+                                /* send packet */
+                                _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrvHeader));
+                                _tsMsgTx.header.txid++;
+                                _stat.tx ++;
+                                _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
                                 break;
                             default:
                                 // throw std::string("not a compatible socket");
@@ -183,15 +207,15 @@ void *RobotClientThreadCl::_execute(void)
                     case RC_INIT:
                         if (L_bSendDone==false)
                         {
-                            _tsMsgTx.type  = ROBOT_INIT;
-                            _tsMsgTx.state = 0;
+                            _tsMsgTx.header.type  = ROBOT_INIT;
+                            _tsMsgTx.header.state = (uint8_t) _state;
                             /* send packet */
                             cout << "send init msg" <<endl;
-                            _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrv));
+                            _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrvHeader));
                             _stat.tx ++;
-                            _stat.txbytes += sizeof(tsMsgRobotSrv);
-                            _tsMsgTx.txid++;
-                            _tsMsgTx.rxid = 0;
+                            _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
+                            _tsMsgTx.header.txid++;
+                            _tsMsgTx.header.rxid = 0;
                             L_bSendDone = true;
                         } 
 
@@ -199,22 +223,42 @@ void *RobotClientThreadCl::_execute(void)
                     case RC_CONNECTED:
                         if (L_bSendDone==false)
                         {
-                            _tsMsgTx.type  = ROBOT_CONNECT;
-                            _tsMsgTx.state = 0;
+                            _tsMsgTx.header.type  = ROBOT_CONNECT;
+                            _tsMsgTx.header.state = (uint8_t) _state;
                             /* send packet */
                             cout << "send connected msg" <<endl;
-                            _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrv));
-                            _tsMsgTx.txid++;
-                            _tsMsgTx.rxid = _tsMsgRx.txid;
+                            _tsMsgTx.header.rxid = _tsMsgRx.header.txid;
+                            _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrvHeader));
+                            _tsMsgTx.header.txid++;
                             _stat.tx ++;
-                            _stat.txbytes += sizeof(tsMsgRobotSrv);
+                            _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
                             L_bSendDone = true;
                         }
                         break;
                     case RC_RUNNING:
-                        cout << "yes I'm ready" << endl;
+                        /* send status every 8 packets/timeout */
+                        cout <<'.'<<endl;
+                        if (0==(L_i32Idx%8))
+                        {
+                            _tsMsgTx.header.type  = ROBOT_KEEPALIVE;
+                            _tsMsgTx.header.state = (uint8_t) _state;
+                            /* send packet */
+                            cout << "send connected msg" <<endl;
+                            _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrvHeader));
+                            _tsMsgTx.header.txid++;
+                            _tsMsgTx.header.rxid = _tsMsgRx.header.txid;
+                            _stat.tx ++;
+                            _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
+                            L_bSendDone = true;
+                            cout <<'+';
+                            if (0==(L_i32Idx%64)) cout <<endl;
+                        } 
+                        L_i32Idx++;
                         break;
                     case RC_CALIBRATE_REQ:
+                        /* wait until the calibration is ended */
+
+                        /* TBD */
                         break;
                     case RC_STOPPED:
                         break;

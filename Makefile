@@ -5,7 +5,7 @@ TARGET=$(shell uname -m)
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS=-g -Wall -Wwrite-strings -Isrc/include -Isrc/socketlib  -Ibuild/$(TARGET)/include 
+CPPFLAGS=-g -Wall -Wwrite-strings -Isrc/include -Ibuild/$(TARGET)/include 
 # -std=c++0x -DILLUSOO_THREAD=1
 ifeq (1,${TEST})
 CPPFLAGS += -D__TEST
@@ -22,7 +22,7 @@ SRCS_INITEST=initst.cpp $(SRCS_INIREAD)
 SRCS_XML=src/rpc/element.cpp src/rpc/rttraceRpc.cpp src/rpc/traceRpc.cpp src/rpc/osRpc.cpp src/rpc/armRpc.cpp src/rpc/orientationRpc.cpp
 SRCS_SRV=  src/illustrabot2srv.cpp  src/thread/RobotClientTh.cpp $(SRCS_DEFAULT) $(SRCS_XML) $(SRCS_EASYDRV) $(SRCS_INIREAD)
 SRCS_DEBUG= src/debug_thread.cpp $(SRCS_DEFAULT) $(SRCS_XML) $(SRCS_EASYDRV) $(SRCS_INIREAD)
-SRCS_DEAMON= src/serverDeamon.cpp src/thread/RobotSrvTh.cpp src/thread/UeSrvTh.cpp  src/UeSrvStreamTh.cpp  $(SRCS_DEFAULT) $(SRCS_INIREAD) 
+SRCS_DEAMON= src/serverDeamon.cpp src/thread/RobotSrvTh.cpp src/thread/UeSrvTh.cpp  src/thread/UeSrvStreamTh.cpp  $(SRCS_DEFAULT) $(SRCS_INIREAD) 
 SRCS= $(SRCS_SRV) $(SRCS_DEAMON)
 
 OBJS_DEFAULT=$(subst .c,.o, $(subst .cpp,.o, $(subst src/,obj/,$(SRCS_DEFAULT))))

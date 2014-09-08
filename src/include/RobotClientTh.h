@@ -35,10 +35,10 @@
 #include <pthread.h>
 
 /**   1. Include files  (own)                                       **/
+#include "proto.h"
 #include "trace.h"
 #include "rttrace.h"
 #include "tcpconnector.h"
-#include "proto.h"
 #include "orientation.h"
 
 /**   2a.   External Functions                                      **/

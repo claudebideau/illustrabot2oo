@@ -64,15 +64,31 @@ RobotSrvThreadCl::RobotSrvThreadCl(int F_i32port)
    @brief request to stop socket thread
    @return none.
  */
-bool RobotSrvThreadCl::addMsg(char* F_pcaMsg,uint32_t F_u32size)
-{ 
+// bool RobotSrvThreadCl::addMsg(char* F_pcaMsg,uint32_t F_u32size)
+// { 
 
-    if (F_u32size==0) return false;
-    tsQueueBuffer L_tsQueueBuffer;
-    L_tsQueueBuffer.size=F_u32size;
-    memcpy((void*) &L_tsQueueBuffer.buffer,(void*)F_pcaMsg,F_u32size*sizeof(char));
+    // if (F_u32size==0) return false;
+    // tsQueueBuffer L_tsQueueBuffer;
+    // L_tsQueueBuffer.size=F_u32size;
+    // memcpy((void*) &L_tsQueueBuffer.buffer,(void*)F_pcaMsg,F_u32size*sizeof(char));
+    // pthread_mutex_lock(&_mutexFifo);
+    // _TxFifo.push (L_tsQueueBuffer);
+    // pthread_mutex_unlock(&_mutexFifo);
+    // return true;
+// }
+
+
+/**
+   @brief request to stop socket thread
+   @return none.
+ */
+bool RobotSrvThreadCl::addMsg(tsMsgRobotSrv * F_ptsMsg )
+{ 
+    tsMsgRobotSrv * L_ptsMsg = (tsMsgRobotSrv *) malloc(sizeof(tsMsgRobotSrv));
+   
+    memcpy((void*) L_ptsMsg,(void*)F_ptsMsg,sizeof(tsMsgRobotSrv));
     pthread_mutex_lock(&_mutexFifo);
-    _TxFifo.push (L_tsQueueBuffer);
+    _TxFifo.push (L_ptsMsg);
     pthread_mutex_unlock(&_mutexFifo);
     return true;
 }
@@ -151,6 +167,7 @@ bool RobotSrvThreadCl::_mng_rx(void)
 {
     bool L_bLoop  =true;
     int L_i32lengthRx;
+    static uint32_t L_u32lastTxId;
 
     L_i32lengthRx = _stream->receive((char *) &_tsMsgRx, sizeof(tsMsgRobotSrv), 2);
     if ( L_i32lengthRx > 0) 
@@ -161,10 +178,11 @@ bool RobotSrvThreadCl::_mng_rx(void)
         _stat.rx ++;
         _stat.rxbytes += L_i32lengthRx;
         
-        if (PROTO_VERSION == _tsMsgRx.version)
+        if (PROTO_VERSION == _tsMsgRx.header.version)
         {
-            uint8_t L_msgid = _tsMsgRx.type & SRV_OPE;
-            bool  L_ack     = ( SRV_ACK ==(_tsMsgRx.type & SRV_AN_MASK));
+            uint8_t L_msgid = _tsMsgRx.header.type & SRV_OPE;
+            bool  L_ack     = ( SRV_ACK ==(_tsMsgRx.header.type & SRV_AN_MASK));
+#ifdef __TEST
             {
                 uint32_t * L_pu32aBuffer = (uint32_t*) &_tsMsgRx;
                 for (int i=0;i<sizeof(tsMsgRobotSrv)/4;i++)
@@ -172,28 +190,46 @@ bool RobotSrvThreadCl::_mng_rx(void)
                     printf("rx [%d] = %08x\n",i,L_pu32aBuffer[i]);
                 }
             }
+#endif
             switch (L_msgid)
             {
                 case ROBOT_INIT :
-                    _tsMsgTx.version = PROTO_VERSION;
-                    _tsMsgTx.size    = 0;
-                    _tsMsgTx.type    = ROBOT_INIT | SRV_ACK;
-                    _tsMsgTx.state   = 0;
-                    _tsMsgTx.txid ++;
-                    _tsMsgTx.rxid    = _tsMsgRx.txid;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = 0;
+                    _tsMsgTx.header.type    = ROBOT_INIT | SRV_ACK;
+                    _tsMsgTx.header.state   = 0;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
                     
-                    addMsg((char*) &_tsMsgTx, sizeof(tsMsgRobotSrv));
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
                     break;
                 case ROBOT_CONNECT :
-                    _tsMsgTx.version = PROTO_VERSION;
-                    _tsMsgTx.size    = 0;
-                    _tsMsgTx.type    = ROBOT_CONNECT | SRV_ACK;
-                    _tsMsgTx.state   = 0;
-                    _tsMsgTx.txid ++;
-                    _tsMsgTx.rxid    = _tsMsgRx.txid;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = 0;
+                    _tsMsgTx.header.type    = ROBOT_CONNECT | SRV_ACK;
+                    _tsMsgTx.header.state   = 0;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
 
-                    addMsg((char*) &_tsMsgTx, sizeof(tsMsgRobotSrv));
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
 
+                    break;
+                case ROBOT_KEEPALIVE:
+                    /* no action if traffic occurred */
+                    if ( L_u32lastTxId == _tsMsgTx.header.txid )
+                    {
+                        /* send keepalive */
+                        _tsMsgTx.header.version = PROTO_VERSION;
+                        _tsMsgTx.header.size    = 0;
+                        _tsMsgTx.header.type    = ROBOT_KEEPALIVE | SRV_ACK;
+                        _tsMsgTx.header.state   = 0;
+                        _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+
+                        addMsg(&_tsMsgTx);
+                        cout << "k" <<endl;
+
+                    }
+                    L_u32lastTxId = _tsMsgTx.header.txid;
                     break;
                 default:
                     throw std::string("not a compatible socket");
@@ -218,25 +254,31 @@ bool RobotSrvThreadCl::_mng_tx(void)
 {
     tsQueueBuffer L_tsQueueBuffer;
     bool L_bLoop =true;
-    memset(&L_tsQueueBuffer,0,sizeof(tsQueueBuffer));
+    uint32_t L_u32size;
+    tsMsgRobotSrv * L_ptsMsgRobotSrv;
     if (!_TxFifo.empty())
     {
         pthread_mutex_lock(&_mutexFifo);
-        L_tsQueueBuffer = _TxFifo.front();
-        if (L_tsQueueBuffer.size > 0)
+        L_ptsMsgRobotSrv = _TxFifo.front();
+        if (L_ptsMsgRobotSrv!=NULL)
         {
+            L_u32size =  sizeof(tsMsgRobotSrvHeader)+L_ptsMsgRobotSrv->header.size;
+#ifdef __TEST
             {
-                uint32_t * L_pu32aBuffer = (uint32_t*) &L_tsQueueBuffer.buffer;
-                for (int i=0;i<L_tsQueueBuffer.size/4;i++)
+                uint32_t * L_pu32aBuffer = (uint32_t*) L_ptsMsgRobotSrv;
+                for (int i=0;i<L_u32size/4;i++)
                 {
-                    printf("%08x\n",L_pu32aBuffer[i]);
+                    printf("tx %08x\n",L_pu32aBuffer[i]);
                 }
             }
-            _stream->send((char *)&L_tsQueueBuffer.buffer, L_tsQueueBuffer.size);
-            _TxFifo.pop();
+#endif            
+            _tsMsgTx.header.txid ++;
+            _stream->send((char *)L_ptsMsgRobotSrv,L_u32size );
             _stat.tx ++;
-            _stat.txbytes += L_tsQueueBuffer.size;
+            _stat.txbytes += L_u32size;
+            free(L_ptsMsgRobotSrv);
         }
+        _TxFifo.pop();
         pthread_mutex_unlock(&_mutexFifo);
     }
   

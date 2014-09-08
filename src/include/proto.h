@@ -2,7 +2,13 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define PROTO_VERSION 1
+
 
 typedef uint8_t msgType_t;      /** message type. See message_t.type */
 

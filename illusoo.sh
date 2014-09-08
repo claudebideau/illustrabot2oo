@@ -5,7 +5,6 @@ LOCAL_PLT=`uname -m`
 
 TARGET=${LOCAL_PLT}
 BUILD_PATH="${CDIR}/build"
-BUILD_LIB_PATH="${BUILD_PATH}/${TARGET}"
 BUILD_LIB_PATH="${BUILD_PATH}/${TARGET}/lib"
 BUILD_INC_PATH="${BUILD_PATH}/${TARGET}/include"
 INSTALL_PATH="${BUILD_PATH}/${TARGET}"
@@ -107,6 +106,21 @@ done"> ./test.sh
 chmod u+x test.sh
 }
 
+#---------------------- help ----------------------
+#
+# Procedure socketlib()
+#
+# Objet : build xmlrpc package 
+#
+socketlib_build()
+{
+	cd src/socketlib/
+    make clean all
+    cp libsocklib.so $BUILD_LIB_PATH
+    cp *.h $BUILD_INC_PATH
+	cd ${CDIR}
+}
+
 
 
 main=$0
@@ -152,16 +166,17 @@ if [[ $XMLRPC -eq 1 ]]; then
 fi 
 
 if [[ $MAKE -eq 1 ]]; then
-        export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
-	if [[ $CLEAN -eq 1 ]]; then
+    socketlib_build
+    export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
+    if [[ $CLEAN -eq 1 ]]; then
             make clean 
-        fi
-	make all TEST=${TEST}
-	echo ""
-	echo "================================================"
-	echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"
-	echo " LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:${BUILD_LIB_PATH}"
-	echo "================================================"
+    fi
+    make all TEST=${TEST}
+    echo ""
+    echo "================================================"
+    echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"
+    echo " LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:${BUILD_LIB_PATH}"
+    echo "================================================"
 fi
 
 if [[ $GPIO -eq 1 ]]; then

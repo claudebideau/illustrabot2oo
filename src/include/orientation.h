@@ -32,6 +32,7 @@
 #include <string>
 #include <list>
 #include <queue>
+#include <pthread.h>
 
 
 /**   1. Include files  (own)                                       **/
@@ -90,6 +91,7 @@ class OrientationThCl
         ArmCl            * _pArm;
         ArmCl            * _pWrist;
         ArmCl            * _pHand;
+        pthread_mutex_t    _mutex;
 
         void *_execute(void);        
         void *_calibrate(void);
