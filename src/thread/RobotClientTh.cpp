@@ -288,6 +288,7 @@ void *RobotClientThreadCl::_execute(void)
             }
         } else {
             /* wait 10 seconds before to retry connection */
+            cout << "RobotClientThreadCl : impossible to establish stream connection "<< _host << ':' << _port <<endl;
             sleep(10);
         }
         _state    = RC_STOPPED;
