@@ -42,11 +42,25 @@ using namespace std;
 
 
 
-RobotClientThreadCl::RobotClientThreadCl(std::string F_host, int F_i32port)
+RobotClientThreadCl::RobotClientThreadCl(iniCl * _pIni )
 {
     _state    = RC_INIT;
-    _host     = F_host;
-    _port     = F_i32port;
+    /* ============================================== */
+    std::list<std::string> L_listKey;
+    
+    
+	L_listKey = _pIni->getItems("main");
+	if (!L_listKey.empty())
+	{
+        _port  = _pIni->getInteger("main","port", -1 );
+        _host  = _pIni->get("main","host" );
+        if ((_port == -1) || (_host.empty())) 
+            throw std::string("The socket port has not been set in ini file (section [main] / host and or port )!!!");
+    } else {
+            throw std::string("The socket port has not been set in ini file (section (main] / host and or port )!!!");
+    }
+    /* ============================================== */
+
     Q_vInitStat(&_stat);
     TRACES_INFO_ARG2("create RobotClientThreadCl on port [%s][%d]",_host.c_str(), _port );
     _connector = new TCPConnector();

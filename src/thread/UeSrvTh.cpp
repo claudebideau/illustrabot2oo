@@ -42,9 +42,10 @@ using namespace std;
 
 
 
-UeSrvThreadCl::UeSrvThreadCl(int F_i32port)
+UeSrvThreadCl::UeSrvThreadCl(int F_i32port, RobotSrvThreadCl * F_pts2Robot)
 {
     _port         = F_i32port;
+    _pts2Robot    = F_pts2Robot;
     TRACES_INFO_ARG1("create UeSrvThreadCl on port [%d]",_port );
 
     _acceptor = new TCPAcceptor(_port);
@@ -178,7 +179,7 @@ void *UeSrvThreadCl::_execute(void)
             E_u32UeSrvStreamThJobs++;
             pthread_mutex_unlock(&E_ueSrvStreamMutex);
             /* create UeSrvStreamThreadCl */
-            _ueThreadObj[L_i32IdxUeThread] = new UeSrvStreamThreadCl(L_i32IdxUeThread,_stream[L_i32IdxUeThread]);
+            _ueThreadObj[L_i32IdxUeThread] = new UeSrvStreamThreadCl(L_i32IdxUeThread,_stream[L_i32IdxUeThread],_pts2Robot);
             
             cout << "UeSrvThreadCl : thread creation" <<endl;
             pthread_create(&_ueThread[L_i32IdxUeThread], NULL, &UeSrvStreamThreadCl::run, _ueThreadObj[L_i32IdxUeThread]);     

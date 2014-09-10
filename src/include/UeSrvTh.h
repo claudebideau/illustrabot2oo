@@ -41,6 +41,7 @@
 #include "tcpacceptor.h"
 #include "proto.h"
 #include "UeSrvStreamTh.h"
+#include "RobotSrvTh.h"
 
 /**   2a.   External Functions                                      **/
 /**   2b.   External Data                                           **/
@@ -65,7 +66,7 @@ typedef enum eUeSrvThState {UE_TH_INIT=0, UE_TH_CONNECTED, UE_TH_RUNNING, UE_TH_
 class UeSrvThreadCl
 {
     public:
-		UeSrvThreadCl(int);
+		UeSrvThreadCl(int, RobotSrvThreadCl *);
 
         teUeSrvThState state(void);
 
@@ -97,6 +98,7 @@ class UeSrvThreadCl
         tsSocketStat                _stat;
         tsMsgRobotSrv               _tsMsgTx;
         tsMsgRobotSrv               _tsMsgRx;
+        RobotSrvThreadCl          * _pts2Robot;
 
         // std::queue<tsMsgRobotSrv *> _TxFifo;
 

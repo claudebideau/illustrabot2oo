@@ -40,6 +40,7 @@
 #include "rttrace.h"
 #include "tcpacceptor.h"
 #include "proto.h"
+#include "RobotSrvTh.h"
 
 /**   2a.   External Functions                                      **/
 /**   2b.   External Data                                           **/
@@ -68,7 +69,7 @@ extern queue<uint32_t>    E_euThreadEndedFifo;
 class UeSrvStreamThreadCl
 {
     public:
-		UeSrvStreamThreadCl(uint32_t, TCPStream *);
+		UeSrvStreamThreadCl(uint32_t, TCPStream *, RobotSrvThreadCl *);
 
         teUeSrvStreamThreadState state(void);
         bool addMsg(tsMsgRobotSrv * );
@@ -87,19 +88,20 @@ class UeSrvStreamThreadCl
 
     protected:
     private:
-        bool               _bContinue;
-        bool               _bStop;
+        bool                         _bContinue;
+        bool                         _bStop;
         teUeSrvStreamThreadState     _state;
-        bool               _ended;
-        uint32_t           _threadId;
-        RtTrace          * _trace;
-        TCPStream        * _stream;
-        pthread_mutex_t    _mutexTh;
-        pthread_mutex_t    _mutexFifo;
+        bool                        _ended;
+        uint32_t                    _threadId;
+        RtTrace                   * _trace;
+        TCPStream                 * _stream;
+        pthread_mutex_t             _mutexTh;
+        pthread_mutex_t             _mutexFifo;
+        RobotSrvThreadCl          * _pts2Robot;
 
-        tsSocketStat       _stat;
-        message_t          _tsMsgRx;
-        tsMsgRobotSrv      _tsMsgTx;
+        tsSocketStat                _stat;
+        message_t                   _tsMsgRx;
+        tsMsgRobotSrv               _tsMsgTx;
         // tsMsgRobotSrv      _tsMsgRx;
 
         std::queue<tsMsgRobotSrv *> _TxFifo;

@@ -44,6 +44,7 @@
 #include "tcpacceptor.h"
 #include "RobotSrvTh.h"
 #include "UeSrvTh.h"
+#include "DebugSrvTh.h"
 
 
 using namespace std;
@@ -134,7 +135,8 @@ int main ( int argc, char * argv[] )
     TCPAcceptor* acceptor = NULL;
     pthread_t L_RobotSrvTh;
     pthread_t L_UeSrvTh;
-
+    pthread_t L_DebugSrvTh;
+    
     // pthread_t L_RobotTh;
     // pthread_t L_DebugTh;
     // pthread_t L_UeTh[MAX_UE_THREAD];
@@ -179,14 +181,19 @@ int main ( int argc, char * argv[] )
         // Create the socket Robot 2 Srv
         // Create the socket Ue 2 Srv
 
-        RobotSrvThreadCl * L_ptsRobotSrvThreadCl = new RobotSrvThreadCl(G_tsSrvParam.robot);
-        pthread_create(&L_RobotSrvTh, NULL, &RobotSrvThreadCl::run, L_ptsRobotSrvThreadCl);
+        RobotSrvThreadCl * L_ptsRobotSrvThreadObj = new RobotSrvThreadCl(G_tsSrvParam.robot);
+        pthread_create(&L_RobotSrvTh, NULL, &RobotSrvThreadCl::run, L_ptsRobotSrvThreadObj);
 
-        UeSrvThreadCl * L_ptsUeSrvThreadCl = new UeSrvThreadCl(G_tsSrvParam.ue);
-        pthread_create(&L_UeSrvTh, NULL, &UeSrvThreadCl::run, L_ptsUeSrvThreadCl);
+        UeSrvThreadCl * L_ptsUeSrvThreadObj = new UeSrvThreadCl(G_tsSrvParam.ue, L_ptsRobotSrvThreadObj);
+        pthread_create(&L_UeSrvTh, NULL, &UeSrvThreadCl::run, L_ptsUeSrvThreadObj);
 
+        DebugSrvThreadCl * L_ptsDebugSrvThreadObj = new DebugSrvThreadCl(G_tsSrvParam.debug, L_ptsRobotSrvThreadObj, L_ptsUeSrvThreadObj);
+        pthread_create(&L_DebugSrvTh, NULL, &DebugSrvThreadCl::run, L_ptsDebugSrvThreadObj);
+        
         pthread_join(L_RobotSrvTh,NULL);
         pthread_join(L_UeSrvTh,NULL);        
+        pthread_join(L_DebugSrvTh,NULL);
+
     }
     // catch ( SocketException& e )
     // {

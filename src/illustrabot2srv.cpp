@@ -133,7 +133,7 @@ int main(int argc, char **  argv)
         E_pOrientationThObj = new OrientationThCl(cini );
         // E_pServerThObj     = new ServerThCl(cini );
 
-        G_pClientThObj     = new RobotClientThreadCl("locahost", 8088);
+        G_pClientThObj     = new RobotClientThreadCl(cini);
         
         TRACES_INFO("Create pthread for orientation");
         pthread_create(&L_OrientationTh, NULL, &OrientationThCl::run, E_pOrientationThObj);        

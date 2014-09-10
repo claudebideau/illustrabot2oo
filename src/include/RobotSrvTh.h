@@ -47,6 +47,7 @@
 /**   5.  Local Functions                                           **/
 /**   6.  Macros / Defines                                          **/
 
+#define MAX_TX_FIFO_SIZE (10)
 #define MAX_RETRY 5
 
 typedef enum eRobotSrvThState {ROBOT_TH_INIT=0, ROBOT_TH_CONNECTED, ROBOT_TH_RUNNING, ROBOT_TH_STOPPED   } teRobotSrvThState;
@@ -70,6 +71,7 @@ class RobotSrvThreadCl
 
         // bool addMsg(char*,uint32_t);
         bool addMsg(tsMsgRobotSrv * );
+        bool addData(tsUePayload *);
         void stop(void);
 
         virtual ~RobotSrvThreadCl();

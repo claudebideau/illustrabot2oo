@@ -40,6 +40,7 @@
 #include "rttrace.h"
 #include "tcpconnector.h"
 #include "orientation.h"
+#include "inireader.h"
 
 /**   2a.   External Functions                                      **/
 /**   2b.   External Data                                           **/
@@ -61,7 +62,7 @@ typedef enum eRCThreadState {RC_INIT=0, RC_CONNECTED,  RC_RUNNING, RC_CALIBRATE_
 class RobotClientThreadCl
 {
     public:
-		RobotClientThreadCl(std::string, int);
+		RobotClientThreadCl(iniCl * );
 
         teRCThreadState state(void);
 

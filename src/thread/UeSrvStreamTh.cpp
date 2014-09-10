@@ -46,9 +46,10 @@ uint32_t           E_u32UeSrvStreamThJobs = 0;
 pthread_mutex_t    E_ueSrvStreamMutex = PTHREAD_MUTEX_INITIALIZER;
 queue<uint32_t>    E_euThreadEndedFifo;
 
-UeSrvStreamThreadCl::UeSrvStreamThreadCl(uint32_t F_u32JobId, TCPStream * F_ptsStream)
+UeSrvStreamThreadCl::UeSrvStreamThreadCl(uint32_t F_u32JobId, TCPStream * F_ptsStream, RobotSrvThreadCl * F_pts2Robot)
 {
-    _threadId = F_u32JobId;
+    _threadId  = F_u32JobId;
+    _pts2Robot = F_pts2Robot;
     TRACES_INFO_ARG1("create UeSrvStreamThreadCl on thread %d",_threadId );
     Q_vInitStat(&_stat);
     pthread_mutex_init(&_mutexTh,NULL);
@@ -190,7 +191,22 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
                 case T_DATA_JOY: /* joystick - not supported */
                     break;
                 case T_DATA_AND:  /* android - supported */
-                    printf("Y\n");
+                    if ( _pts2Robot != NULL)
+                    {
+                        try {
+                            tsUePayload L_tsUePayload = { 1, 0, 0, 0, 0 };
+                            _pts2Robot->addData(&L_tsUePayload);
+                        }
+                        catch(std::string &error)
+                        {
+                            cerr<<"UeSrvStreamThreadCl : Error: "<<error<<endl;
+                        }
+                        catch(char* error)
+                        {
+                            cerr<<"UeSrvStreamThreadCl : Error: "<<error<<endl;
+                            
+                        }
+                    }
                     break;
             }
            // uint8_t L_msgid = _tsMsgRx.header.type & SRV_OPE;

@@ -49,6 +49,15 @@ typedef struct {
 #define UE_DATA        0x16
 
 
+#define DEBUG_INIT        0x20
+#define DEBUG_CONNECT     0x21
+#define DEBUG_READY       0x22
+#define DEBUG_RESTART     0x23
+#define DEBUG_SHUTDOWN    0x24
+#define DEBUG_STAT        0x25
+// #define DEBUG_DATA        0x26
+
+
 #define SRV_ACK       0x40
 #define SRV_NACK      0x80
 #define SRV_AN_MASK   0xC0
@@ -68,16 +77,21 @@ typedef struct sMsgRobotSrvHeader
 
 
   /** UE android payload
+    mode 1 : manage motors shoulder/arm
+        - param[0] : longitude
+        - param[1] : latitude
+        - param[2] : radius
+    mode 2 : manage motors wrist/finger
+        - param[0] : up/down
+        - param[1] : rotation
+        - param[2] : finger gap
+    mode 3 : re initialisation
+        
    */
 typedef  struct {
-     uint8_t b1;    /**< button 1 */
-     uint8_t b2;    /**< button 2 */
-     uint8_t b3;    /**< button 3 */
-     uint8_t b4;    /**< button 4 */
-     int32_t azimuth;   /**< axis X * 100 */
-     int32_t pitch;     /**< axis Y * 100 */
-     int32_t roll;      /**< axis Z * 100 */
-     int32_t reserved;  /** */
+    uint8_t  mode;
+    uint8_t  flag;
+    int16_t  param[3];
 } tsUePayload;
 
 
@@ -104,6 +118,16 @@ typedef struct sMsgRobotSrv
         tsUePayload ue;
     } pl;
 } tsMsgRobotSrv;
+
+
+typedef struct sMsgDebugSrv 
+{
+    tsMsgRobotSrvHeader header;
+    union {
+        char txt[1024];     /**< command text */
+    } pl;
+} tsMsgDebugSrv;
+
 
 /** Message send from client to server
  */
