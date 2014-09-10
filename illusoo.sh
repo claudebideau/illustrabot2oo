@@ -53,7 +53,11 @@ help()
    printf "\nDESCRIPTION\n\n"
    printf "\nOPTIONS\n\n"
    printf "     -x    : build the xmlrpc library for local target\n"
-   printf "     -c    : clean illusoo\n"
+   printf "     -c    : clean option for deamon and illusoo\n"
+   printf "     =================================================\n"
+   printf "     -d    : build server deamon\n"
+   printf "     -e    : execute serveur deamon\n"
+   printf "     =================================================\n"
    printf "     -b    : build illusoo\n"
    printf "     -t    : build illusoo with __TEST flag\n"
    printf "     -g    : execute GPIO config with sudo ( beaglebone case only)\n"
@@ -125,6 +129,8 @@ socketlib_build()
 
 main=$0
 XMLRPC=0
+DEAMON=0
+MAKED=0
 MAKE=0
 TEST=0
 GPIO=0
@@ -145,12 +151,14 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
                                 # Usage: scriptname -options
                                 # Note: dash (-) necessary
     fi  
-    while getopts "xbgtslc" Option
+    while getopts "xbgtslcde" Option
     do
       case $Option in
         h     ) help; exit 0;;
         x     ) printf "BUILD XML-RPC LIBRARY\n===========================\n"; XMLRPC=1 ;;
-        c     ) printf "CLEAN ILLUSOO\n===========================\n"; CLEAN=1 ;;
+        c     ) printf "CLEAN \n===========================\n"; CLEAN=1 ;;
+        d     ) printf "BUILD DEAMON\n===========================\n"; MAKED=1 ;;
+        e     ) printf "Execute DEAMON\n===========================\n"; DEAMON=1 ;;
         b     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1 ;;
         t     ) printf "BUILD ILLUSOO TEST mode\n===========================\n"; MAKE=1; TEST=1 ; test_script ;;
         g     ) printf "load ILLUSOO GPIO config\n===========================\n"; GPIO=1 ;;
@@ -164,6 +172,22 @@ fi
 if [[ $XMLRPC -eq 1 ]]; then
 	xmlrpc_build
 fi 
+
+if [[ $MAKED -eq 1 ]]; then
+    socketlib_build
+    export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
+    if [[ $CLEAN -eq 1 ]]; then
+            make clean 
+    fi
+    make serverDeamon
+    echo ""
+    echo "================================================"
+    echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"
+    echo " LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:${BUILD_LIB_PATH}"
+    echo "================================================"
+fi
+
+
 
 if [[ $MAKE -eq 1 ]]; then
     socketlib_build
@@ -196,4 +220,9 @@ if [[ $LOAD -eq 1 ]]; then
    	else
 		LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./illustrabot2srv -i config/illusoo.ini
    	fi
+fi 
+
+if [[ $DEAMON -eq 1 ]]; then
+   
+	LD_LIBRARY_PATH=${BUILD_LIB_PATH}  ./serverDeamon -i config/server.ini
 fi 

@@ -138,14 +138,14 @@ void *DebugSrvThreadCl::_execute(void)
         _bContinue = true;
    
         /* wait the start of socket communication stream */
-        cout << "accept ?"<<endl;
+        cout << "DebugSrvThreadCl:accept ?"<<endl;
         _stream = _acceptor->accept();
         if (_stream != NULL)
         {
             /* cleanup tx fifo */
             while (!_TxFifo.empty())
             {
-                cout << "DebugSrvThreadCl : get from  2 tx fifo" << this << endl;
+                cout << "DebugSrvThreadCl : cleanup / get from tx fifo" << this << endl;
 
                 pthread_mutex_lock(&_mutexFifo);
                 _TxFifo.pop();
@@ -217,7 +217,7 @@ bool DebugSrvThreadCl::_mng_rx(void)
 #endif
             switch (L_msgid)
             {
-                case ROBOT_INIT :
+                case DEBUG_INIT :
                     _tsMsgTx.header.version = PROTO_VERSION;
                     _tsMsgTx.header.size    = 0;
                     _tsMsgTx.header.type    = ROBOT_INIT | SRV_ACK;
@@ -227,7 +227,7 @@ bool DebugSrvThreadCl::_mng_rx(void)
                     L_u32lastTxId = _tsMsgTx.header.txid;
                     addMsg(&_tsMsgTx);
                     break;
-                case ROBOT_CONNECT :
+                case DEBUG_CONNECT :
                     _tsMsgTx.header.version = PROTO_VERSION;
                     _tsMsgTx.header.size    = 0;
                     _tsMsgTx.header.type    = ROBOT_CONNECT | SRV_ACK;
@@ -238,22 +238,11 @@ bool DebugSrvThreadCl::_mng_rx(void)
                     addMsg(&_tsMsgTx);
 
                     break;
-                case ROBOT_KEEPALIVE:
-                    /* no action if traffic occurred */
-                    if ( L_u32lastTxId == _tsMsgTx.header.txid )
-                    {
-                        /* send keepalive */
-                        _tsMsgTx.header.version = PROTO_VERSION;
-                        _tsMsgTx.header.size    = 0;
-                        _tsMsgTx.header.type    = ROBOT_KEEPALIVE | SRV_ACK;
-                        _tsMsgTx.header.state   = 0;
-                        _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
-
-                        addMsg(&_tsMsgTx);
-                        cout << "k" <<endl;
-
-                    }
-                    L_u32lastTxId = _tsMsgTx.header.txid;
+                case DEBUG_RESTART:
+                    break;
+                case DEBUG_SHUTDOWN:
+                    break;
+                case DEBUG_STAT:
                     break;
                 default:
                     throw std::string("not a compatible socket");
