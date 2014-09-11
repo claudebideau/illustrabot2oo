@@ -28,7 +28,7 @@ depend: .depend
 	$(CXX)  $(CPPFLAGS) -MM $^>>./.depend;
 
 
-libsocket.so: $(OBJS_LIBS)
+$(MAKELIB): $(OBJS_LIBS)
 	$(CXX) -shared -o $@ $(OBJS_LIBS)
 
 
@@ -37,7 +37,7 @@ libsocket.so: $(OBJS_LIBS)
 	
 
 clean:
-	$(RM) $(OBJS_LIBS)
+	$(RM) $(OBJS_LIBS) $(MAKELIB)
 
 display:
 	@echo "SRCS_LIBS='$(SRCS_LIBS)'"
