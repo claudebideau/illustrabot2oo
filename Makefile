@@ -10,7 +10,8 @@ CPPFLAGS=-g -Wall -Wwrite-strings -Isrc/include -Ibuild/$(TARGET)/include
 ifeq (1,${TEST})
 CPPFLAGS += -D__TEST
 endif
-LDFLAGS = -l xmlrpc++ -l xmlrpc_server++ -l xmlrpc_server_abyss++ -lsocket  -lrt -lpthread -Wl
+ILLUSOO_LDFLAGS = -l xmlrpc++ -l xmlrpc_server++ -l xmlrpc_server_abyss++ -lsocket  -lrt -lpthread -Wl
+DEAMON_LDFLAGS = -lsocket  -lrt -lpthread -Wl
 
 LDLIBS=-L build/$(TARGET)/lib -L src/socketlib
 
@@ -54,16 +55,11 @@ depend: .depend
 
 
 illustrabot2srv: $(OBJS_SRV)  | $(OBJDIR)
-	$(CXX) $(OBJS_SRV) -o $@ $(LDLIBS) $(LDFLAGS)    
+	$(CXX) $(OBJS_SRV) -o $@ $(LDLIBS) $(ILLUSOO_LDFLAGS)    
 
 serverDeamon: $(OBJS_DEAMON)  | $(OBJDIR)
-	$(CXX) $(OBJS_DEAMON) -o $@ $(LDLIBS) $(LDFLAGS)  
+	$(CXX) $(OBJS_DEAMON) -o $@ $(LDLIBS) $(DEAMON_LDFLAGS)  
     
-debug_thread: $(OBJS_DEBUG)  | $(OBJDIR)
-	$(CXX) $(OBJS_DEBUG) -o $@ $(LDLIBS) $(LDFLAGS)
-
-# ini: $(OBJS_INITEST)
-	# $(CXX) $(OBJS_INITEST) -o ini
 
 obj/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
