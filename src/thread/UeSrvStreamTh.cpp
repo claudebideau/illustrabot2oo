@@ -161,7 +161,7 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
     int L_i32lengthRx;
     static uint32_t L_u32lastTxId;
 //
-    L_i32lengthRx = _stream->receive((char *) &_tsMsgRx, sizeof(message_t), 2);
+    L_i32lengthRx = _stream->receive((char *) &_tsMsgRx, sizeof(message_t), 1000);
     if ( L_i32lengthRx > 0) 
     {
         /* core of ue server feature   */

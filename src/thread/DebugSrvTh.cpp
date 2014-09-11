@@ -193,7 +193,7 @@ bool DebugSrvThreadCl::_mng_rx(void)
     int L_i32lengthRx;
     static uint32_t L_u32lastTxId;
 
-    L_i32lengthRx = _stream->receive((char *) &_tsMsgRx, sizeof(tsMsgDebugSrv), 2);
+    L_i32lengthRx = _stream->receive((char *) &_tsMsgRx, sizeof(tsMsgDebugSrv), 1000);
     if ( L_i32lengthRx > 0) 
     {
         /* core of robot server feature   */

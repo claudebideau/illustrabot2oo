@@ -129,7 +129,7 @@ void *RobotClientThreadCl::_execute(void)
                 
                 /* non blocking mode   */
                 /* wait Rx packet      */
-                L_i32lengthRx = _stream->receive((char *) &_tsMsgRx,  sizeof(tsMsgRobotSrv),1);
+                L_i32lengthRx = _stream->receive((char *) &_tsMsgRx,  sizeof(tsMsgRobotSrv),1000);
                 cout <<".";
                 if (++L_i32Idx%80==0) cout <<endl;
                 if (L_i32lengthRx == 0)
