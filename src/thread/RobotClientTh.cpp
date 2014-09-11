@@ -157,7 +157,6 @@ void *RobotClientThreadCl::_execute(void)
                     {
                         uint8_t L_msgid = _tsMsgRx.header.type & SRV_OPE;
                         bool  L_ack     = ( SRV_ACK ==(_tsMsgRx.header.type & SRV_AN_MASK));
-                        cout << "yes check" <<endl;
                         
                         switch (L_msgid)
                         {
@@ -184,6 +183,7 @@ void *RobotClientThreadCl::_execute(void)
                                 break;
                             case ROBOT_KEEPALIVE :
                                 /* nothing */
+				cout <<"k";
                                 break;
                             case ROBOT_REINIT:
                                 if (_state != RC_RUNNING) 

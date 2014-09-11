@@ -249,7 +249,7 @@ bool RobotSrvThreadCl::_mng_rx(void)
                         _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
 
                         addMsg(&_tsMsgTx);
-                        cout << "k" <<endl;
+                        cout << "k";
 
                     }
                     L_u32lastTxId = _tsMsgTx.header.txid;
