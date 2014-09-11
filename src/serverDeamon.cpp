@@ -39,6 +39,7 @@
 
 /**   1. Include files  (own)                                       **/
 #include "proto.h"
+#include "IssueException.h"
 #include "inireader.h"
 #include "trace.h"
 #include "tcpacceptor.h"
@@ -137,9 +138,9 @@ int main ( int argc, char * argv[] )
     pthread_t L_UeSrvTh;
     pthread_t L_DebugSrvTh;
     
-    // pthread_t L_RobotTh;
-    // pthread_t L_DebugTh;
-    // pthread_t L_UeTh[MAX_UE_THREAD];
+    RobotSrvThreadCl *   L_ptsRobotSrvThreadObj = NULL;
+    UeSrvThreadCl *       L_ptsUeSrvThreadObj = NULL;
+    DebugSrvThreadCl * L_ptsDebugSrvThreadObj = NULL;
 
     TRACES_INFO(__FILE__"main function");
     TRACES_INFO_ARG1("Compiler version %d",__cplusplus);
@@ -178,40 +179,57 @@ int main ( int argc, char * argv[] )
         cini = new iniCl(inifile);
         
         if (Q_i32GetIniParam(cini,&G_tsSrvParam)!=0) throw std::string("Impossible to get server parameters");
-        // Create the socket Robot 2 Srv
-        // Create the socket Ue 2 Srv
-
-        RobotSrvThreadCl * L_ptsRobotSrvThreadObj = new RobotSrvThreadCl(G_tsSrvParam.robot);
-        pthread_create(&L_RobotSrvTh, NULL, &RobotSrvThreadCl::run, L_ptsRobotSrvThreadObj);
-
-        UeSrvThreadCl * L_ptsUeSrvThreadObj = new UeSrvThreadCl(G_tsSrvParam.ue, L_ptsRobotSrvThreadObj);
-        pthread_create(&L_UeSrvTh, NULL, &UeSrvThreadCl::run, L_ptsUeSrvThreadObj);
-
-        DebugSrvThreadCl * L_ptsDebugSrvThreadObj = new DebugSrvThreadCl(G_tsSrvParam.debug, L_ptsRobotSrvThreadObj, L_ptsUeSrvThreadObj);
-        pthread_create(&L_DebugSrvTh, NULL, &DebugSrvThreadCl::run, L_ptsDebugSrvThreadObj);
-        
-        pthread_join(L_RobotSrvTh,NULL);
-        pthread_join(L_UeSrvTh,NULL);        
-        pthread_join(L_DebugSrvTh,NULL);
-
     }
-    // catch ( SocketException& e )
-    // {
-        // std::cout << "Exception was caught:" << e.description() << "\nExiting.\n";
-    // } catch (exception const& e) {
-        // //cerr << "Something failed.  " << e.what() << endl;
-        // std::string error(e.what());
-        // TRACES_ERROR_ARG1("Something failed. %s ", error.c_str());
-    // }
     catch(std::string &error)
     {
         cerr<<"Error: "<<error<<endl;
+        return -1;
     }
     catch(char* error)
     {
         cerr<<"Error: "<<error<<endl;
+        return -1;
     } 
 
+    bool L_bStop = false;
+    /*main loop */
+    while (!L_bStop)
+    {
+        try
+       {
+            // Create the socket Robot 2 Srv
+            // Create the socket Ue 2 Srv
+
+            L_ptsRobotSrvThreadObj = new RobotSrvThreadCl(G_tsSrvParam.robot);
+            pthread_create(&L_RobotSrvTh, NULL, &RobotSrvThreadCl::run, L_ptsRobotSrvThreadObj);
+
+            L_ptsUeSrvThreadObj = new UeSrvThreadCl(G_tsSrvParam.ue, L_ptsRobotSrvThreadObj);
+            pthread_create(&L_UeSrvTh, NULL, &UeSrvThreadCl::run, L_ptsUeSrvThreadObj);
+
+            L_ptsDebugSrvThreadObj = new DebugSrvThreadCl(G_tsSrvParam.debug, L_ptsRobotSrvThreadObj, L_ptsUeSrvThreadObj);
+            pthread_create(&L_DebugSrvTh, NULL, &DebugSrvThreadCl::run, L_ptsDebugSrvThreadObj);
+
+            pthread_join(L_RobotSrvTh,NULL);
+            pthread_join(L_UeSrvTh,NULL);        
+            pthread_join(L_DebugSrvTh,NULL);
+
+        }
+        catch(IssueCl const &error)
+        {
+            cerr << "Error:" << error.what() << endl;
+            cerr << "    service = " << error.getService() <<endl;
+        }
+        catch(std::string &error)
+        {
+            cerr<<"Error: "<<error<<endl;
+            L_bStop = true;
+        }
+        catch(char* error)
+        {
+            cerr<<"Error: "<<error<<endl;
+            L_bStop = true;
+        } 
+    }
     return 0;
 }
 

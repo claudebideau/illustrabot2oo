@@ -130,8 +130,6 @@ void *RobotClientThreadCl::_execute(void)
                 /* non blocking mode   */
                 /* wait Rx packet      */
                 L_i32lengthRx = _stream->receive((char *) &_tsMsgRx,  sizeof(tsMsgRobotSrv),1000);
-                cout <<".";
-                if (++L_i32Idx%80==0) cout <<endl;
                 if (L_i32lengthRx == 0)
                 {
                     /* connection close */
@@ -250,22 +248,18 @@ void *RobotClientThreadCl::_execute(void)
                         }
                         break;
                     case RC_RUNNING:
-                        /* send status every 8 packets/timeout */
-                        cout <<'.'<<endl;
-                        if (0==(L_i32Idx%8))
+                        /* send status every 2048 packets/timeout ( 2 second)*/
+                        if (0==(L_i32Idx%2048))
                         {
                             _tsMsgTx.header.type  = ROBOT_KEEPALIVE;
                             _tsMsgTx.header.state = (uint8_t) _state;
                             /* send packet */
-                            cout << "send connected msg" <<endl;
                             _stream->send((char *)&_tsMsgTx, sizeof(tsMsgRobotSrvHeader));
                             _tsMsgTx.header.txid++;
                             _tsMsgTx.header.rxid = _tsMsgRx.header.txid;
                             _stat.tx ++;
                             _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
                             L_bSendDone = true;
-                            cout <<'+';
-                            if (0==(L_i32Idx%64)) cout <<endl;
                         } 
                         L_i32Idx++;
                         break;

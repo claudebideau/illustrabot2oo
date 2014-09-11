@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include "IssueException.h"
 #include "RobotSrvTh.h"
 #include "trace.h"
 #include "proto.h"
@@ -254,7 +255,8 @@ bool RobotSrvThreadCl::_mng_rx(void)
                     L_u32lastTxId = _tsMsgTx.header.txid;
                     break;
                 default:
-                    throw std::string("not a compatible socket");
+                    /* throw std::string("not a compatible socket");*/
+                    throw IssueCl(1,"not a compatible socket");
                     break;
             }
         }
@@ -278,11 +280,8 @@ bool RobotSrvThreadCl::_mng_tx(void)
     bool L_bLoop =true;
     uint32_t L_u32size;
     tsMsgRobotSrv * L_ptsMsgRobotSrv;
-    cout << "dequeue ?" << endl;
     while (!_TxFifo.empty())
     {
-        cout << "RobotSrvThreadCl : get from tx fifo" << this << endl;
-
         pthread_mutex_lock(&_mutexFifo);
         L_ptsMsgRobotSrv = _TxFifo.front();
         if (L_ptsMsgRobotSrv!=NULL)
