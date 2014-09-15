@@ -54,7 +54,6 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
 	std::list<std::string>::iterator L_it;
 
     _pArm   = NULL;
-    _pWrist = NULL;
     _pHand  = NULL;
 
     pthread_mutex_init(&_mutex,NULL);
@@ -75,12 +74,16 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
     _orientation.arm.longitude = 0;
     _orientation.arm.latitude  = 0;
     _orientation.arm.radius    = 0;
-
+    _orientation.hand.rotation = 0;
+    _orientation.hand.updown   = 0;
+    _orientation.hand.gap      = 0;
     /* TODO: need to check if exist section arm/wrist/hand */
 
-    _pArm = new ArmCl(_pIni,"arm");
-    E_pArmObj = _pArm;
-    
+    _pArm  = new ArmCl(_pIni,"arm");
+    _pHand = new HandCl(_pIni,"hand");
+    E_pArmObj  = _pArm;
+    E_pHandObj = _pHand;
+
     _state     = ORIENTATION_INIT;
     _bContinue = false;
 
@@ -110,6 +113,9 @@ void OrientationThCl::get(tsOrientation * F_ptsOrientation)
     F_ptsOrientation->arm.longitude = _orientation.arm.longitude;
     F_ptsOrientation->arm.latitude  = _orientation.arm.latitude ;
     F_ptsOrientation->arm.radius    = _orientation.arm.radius   ;
+    F_ptsOrientation->hand.rotation = _orientation.hand.rotation;
+    F_ptsOrientation->hand.updown   = _orientation.hand.updown  ;
+    F_ptsOrientation->hand.gap      = _orientation.hand.gap     ;
     return ;
 }
 
@@ -136,7 +142,6 @@ void * OrientationThCl::_calibrate(void)
     /*  need to clarify how to calibrate depend of the current sensor    */
     /* ================================================================= */
     if (_pHand  != NULL) _pHand->start_calibrate();
-    if (_pWrist != NULL) _pWrist->start_calibrate();
     if (_pArm   != NULL) _pArm->start_calibrate();
     
     _state = ORIENTATION_READY;
@@ -161,11 +166,9 @@ void *OrientationThCl::_execute(void)
         /*   - compute new orientation                      */
         /*   - set new orientation                          */
         /* rise arm                                         */
-        /* rise wrist                                       */
         /* rise hand                                        */
         /* sleep before fall                                */
         /* fall arm                                         */
-        /* fall wrist                                       */
         /* fall hand                                        */
         /*                                                  */
         /*                                                  */
@@ -186,11 +189,9 @@ void *OrientationThCl::_execute(void)
         }
 
         if (_pArm   != NULL) _pArm->rise();
-        if (_pWrist != NULL) _pWrist->rise();
         if (_pHand  != NULL) _pHand->rise();
         usleep(1000);
         if (_pArm   != NULL) _pArm->fall();
-        if (_pWrist != NULL) _pWrist->fall();
         if (_pHand  != NULL) _pHand->fall();
         
     }
@@ -204,9 +205,9 @@ OrientationThCl::~OrientationThCl()
 {
     _bContinue = false;
     if (_pArm    != NULL) delete _pArm   ;
-    if (_pWrist  != NULL) delete _pWrist ;
     if (_pHand   != NULL) delete _pHand  ;
-    _pArm = NULL;
+    _pArm  = NULL;
+    _pHand = NULL;
 
 
     std::cout << "~OrientationThCl : delete done" << endl;

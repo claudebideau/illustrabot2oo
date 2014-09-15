@@ -37,6 +37,7 @@
 
 /**   1. Include files  (own)                                       **/
 #include "arm.h"
+#include "hand.h"
 #include "inireader.h"
 
 /**   2a.   External Functions                                      **/
@@ -50,7 +51,8 @@ typedef enum eOrientationState {ORIENTATION_INIT=0, ORIENTATION_CALIBRATE, ORIEN
 
 
 typedef struct sOrientation {
-    tsArmPosition arm;
+    tsArmPosition  arm;
+    tsHandPosition hand;
 } tsOrientation;
 
  /**
@@ -82,15 +84,14 @@ class OrientationThCl
 
     protected:
     private:
-        bool               _bContinue;
-        teOrientationState _state;
-        tsOrientation      _orientation;
+        bool                       _bContinue;
+        teOrientationState         _state;
+        tsOrientation              _orientation;
         std::queue<tsOrientation>  _queue;
         RtTrace          * _trace;
 
         ArmCl            * _pArm;
-        ArmCl            * _pWrist;
-        ArmCl            * _pHand;
+        HandCl           * _pHand;
         pthread_mutex_t    _mutex;
 
         void *_execute(void);        

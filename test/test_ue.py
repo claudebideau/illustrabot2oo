@@ -13,19 +13,24 @@ import math
 G_maxV =32
 G_noise=64
 
-def makeSinusNoise(angle=0.0):
-    table = [ int(math.cos(angle+2*math.pi *2*i/G_maxV)*1024) for i in range(G_maxV)]
-    # table = []
-    # for i in range(G_maxV):
-        # print angle
-        # calc_angle = float(angle) + 2.0*math.pi *2.0*float(i)/float(G_maxV)
-        # print calc_angle,
-        # value = math.cos(calc_angle)*1024
-        # print value,
-        # table.append(int(value))
-        # print value
-    # add noise
-    tablenoise = [ v + random.randint(-G_noise, G_noise) for v in table]
+def AWGN_generator(NOISE_POWER=64):
+    # Generates additive white Gaussian Noise samples with zero mean and a standard deviation of 1.
+    p=1
+    
+    while p>0 :
+        temp2 = random.random()
+        if temp2>=0.5: 
+            p = 1
+        else:
+            p =-1
+
+    temp1 = math.cos( ( 2.0 * math.pi ) * random.random() );
+    result = math.sqrt( -2.0 * math.log( temp2 ) ) * temp1;
+    return int(result*NOISE_POWER)
+
+def makeSinusNoise(nb_sample= 32, start_angle=0.0, max_amplitude= 1024, noise = ):
+    table = [ int(math.cos(start_angle+2*math.pi *2*i/G_maxV)*max_amplitude) for i in range(nb_sample)]
+    tablenoise = [ v + AWGN_generator(G_noise) for v in table]
         
     return tablenoise
 

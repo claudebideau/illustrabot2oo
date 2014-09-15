@@ -183,7 +183,7 @@ void *RobotClientThreadCl::_execute(void)
                                 break;
                             case ROBOT_KEEPALIVE :
                                 /* nothing */
-				cout <<"k";
+				cout <<"k" << endl;
                                 break;
                             case ROBOT_REINIT:
                                 if (_state != RC_RUNNING) 
