@@ -46,6 +46,23 @@ uint32_t           E_u32UeSrvStreamThJobs = 0;
 pthread_mutex_t    E_ueSrvStreamMutex = PTHREAD_MUTEX_INITIALIZER;
 queue<uint32_t>    E_euThreadEndedFifo;
 
+
+static inline uint32_t Q_u32swap( uint32_t L_u32valueIn)
+{
+    uint32_t L_u32valueOut;
+    uint8_t * L_pu8valueIn  = (uint8_t*) &L_u32valueIn;
+    uint8_t * L_pu8valueOut = (uint8_t*) &L_u32valueOut;
+
+    for ( uint8_t L_u8Idx =0; L_u8Idx< 4 ; L_u8Idx++)
+    {
+       L_pu8valueOut[L_u8Idx] = L_pu8valueIn[3-L_u8Idx];
+    }
+    return L_u32valueOut;
+}
+
+
+
+
 UeSrvStreamThreadCl::UeSrvStreamThreadCl(uint32_t F_u32JobId, TCPStream * F_ptsStream, RobotSrvThreadCl * F_pts2Robot)
 {
     _threadId  = F_u32JobId;
@@ -170,7 +187,7 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
         _stat.rx ++;
         _stat.rxbytes += L_i32lengthRx;
        
-#ifdef __TEST
+#if 0
        {
             uint32_t * L_pu32aBuffer = (uint32_t*) &_tsMsgRx;
             for (int i=0;i<sizeof(message_t)/4;i++)
@@ -194,7 +211,11 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
                     if ( _pts2Robot != NULL)
                     {
                         try {
-                            tsUePayload L_tsUePayload = { 1, 0, 0, 0, 0 };
+                            /* swap */
+                            uint16_t L_u16v1 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.azimuth) &0xFFFF;
+                            uint16_t L_u16v2 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.pitch) &0xFFFF;
+                            uint16_t L_u16v3 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.roll) & 0xFFFF;
+                            tsUePayload L_tsUePayload = { 1, 0, (uint16_t) L_u16v1, L_u16v2, L_u16v3};
                             _pts2Robot->addData(&L_tsUePayload);
                         }
                         catch(std::string &error)

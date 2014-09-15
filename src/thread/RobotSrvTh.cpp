@@ -95,7 +95,6 @@ bool RobotSrvThreadCl::addData(tsUePayload * F_ptsData )
     if (MAX_TX_FIFO_SIZE > _TxFifo.size())
     {
         _TxFifo.push (L_ptsMsg);
-        cout << "add 2 tx"<<endl;
     }
     else cout << "D";
     pthread_mutex_unlock(&_mutexFifo);
@@ -297,6 +296,8 @@ bool RobotSrvThreadCl::_mng_tx(void)
             }
 #endif
             _tsMsgTx.header.txid ++;
+            L_ptsMsgRobotSrv->header.txid = _tsMsgTx.header.txid;
+            L_ptsMsgRobotSrv->header.rxid = _tsMsgRx.header.txid;
             _stream->send((char *)L_ptsMsgRobotSrv,L_u32size );
             _stat.tx ++;
             _stat.txbytes += L_u32size;
