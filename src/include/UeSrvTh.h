@@ -68,7 +68,9 @@ class UeSrvThreadCl
     public:
 		UeSrvThreadCl(int, RobotSrvThreadCl *);
 
-        teUeSrvThState state(void);
+        teUeSrvThState state(void); 
+        tsSocketStat getStat(uint8_t );
+        unsigned int getTrace(unsigned int * , uint8_t);
 
         static void *run(void *context)
         {
@@ -112,6 +114,41 @@ class UeSrvThreadCl
 };
 
 extern const std::string UE_TH_KEYS[];
+
+
+inline tsSocketStat UeSrvThreadCl::getStat( uint8_t F_u8stream=0xFF)
+{
+	if ( F_u8stream == 0xFF)
+	{
+		return _stat;
+	} else {
+		if (F_u8stream >= MAX_UE_CONNECTED) return _stat;
+		else {
+			if (_ueThreadObj[F_u8stream] != NULL)
+				return _ueThreadObj[F_u8stream]->getStat();
+			else return _stat;
+		}
+	}
+	return _stat;
+}
+
+inline unsigned int UeSrvThreadCl::getTrace(unsigned int * F_ptsBufferTraceOut, uint8_t F_u8stream=0xFF)
+{
+	if ( F_u8stream == 0xFF)
+	{
+		if (_trace == NULL) return 0;
+		return _trace->getTrace(F_ptsBufferTraceOut);
+	} else {
+		if (F_u8stream >= MAX_UE_CONNECTED) return 0;
+		else {
+			if (_ueThreadObj[F_u8stream] != NULL)
+				return _ueThreadObj[F_u8stream]->getTrace(F_ptsBufferTraceOut);
+			else return 0;
+		}
+	}
+	return 0;
+}
+
 
 
 

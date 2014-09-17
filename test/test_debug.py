@@ -63,6 +63,11 @@ class dbgClientCl(asyncore.dispatcher):
                                 print 'rx stat= ',unpacked_stat
                                 data = data[24:]
 
+    def shutdown(self):
+        values = (1, 0x24, 0, 0, 0, self.__txcnt,self.__rxcnt )
+        print 'request shutdown !!!', values
+        self.__queue.append(values)
+
     def __storeStat(self,code,value):
         self.__statistic[code] = value
         return
@@ -70,13 +75,13 @@ class dbgClientCl(asyncore.dispatcher):
     def getStat(self,code):
         return self.__statistic[code]
                 
-    def statReq(self,socketid=0):
-        values = (1, 0x25+socketid, 0, 0, 0, self.__txcnt,self.__rxcnt )
+    def statReq(self,socketid=0, stream=0xFF):
+        values = (1, 0x25+socketid, 0, stream, 0, self.__txcnt,self.__rxcnt )
         print 'request stat !!!', values
         self.__queue.append(values)
 
-    def traceReq(self,socketid=0):
-        values = (1, 0x28+socketid, 0, 0, 0, self.__txcnt,self.__rxcnt )
+    def traceReq(self,socketid=0, stream=0):
+        values = (1, 0x28+socketid, 0, stream, 0, self.__txcnt,self.__rxcnt )
         print 'request trace !!!', values
         self.__queue.append(values)
         
@@ -112,8 +117,12 @@ if __name__ == "__main__":
     client = dbgClientCl('localhost', 8090)
 
     time.sleep(2)
-    client.statReq(2)
-    client.statReq(1)
+    client.statReq(2,0)
+    client.statReq(1,0)
+    client.statReq(0,0)
+    client.statReq(0,0xFF)
     client.traceReq(1)
+    client.traceReq(0,0)
+    client.shutdown()
 
     asyncore.loop()        

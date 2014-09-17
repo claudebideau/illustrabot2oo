@@ -144,7 +144,7 @@ void *UeSrvThreadCl::_execute(void)
             L_u32Idx = E_euThreadEndedFifo.front();
             cout << __LINE__<< " : join and terminate stream thread ["<< L_u32Idx<<"]" <<endl;
             pthread_join(_ueThread[L_u32Idx], NULL);
-            L_tsStat = _ueThreadObj[L_u32Idx]->stat();
+            L_tsStat = _ueThreadObj[L_u32Idx]->getStat();
             Q_vAddStat(&_stat,&L_tsStat);
             _ueThreadObj[L_u32Idx]->stop();
             delete _ueThreadObj[L_u32Idx];

@@ -263,6 +263,9 @@ bool DebugSrvThreadCl::_mng_rx(void)
                 case DEBUG_RESTART:
                     break;
                 case DEBUG_SHUTDOWN:
+					_pts2UeTh->stop();
+					_pts2RobotTh->stop();
+					stop();
                     break;
                 case DEBUG_STAT_UE:
 					cout << "request to get UE stat" << endl;
@@ -271,7 +274,7 @@ bool DebugSrvThreadCl::_mng_rx(void)
                     _tsMsgTx.header.type    = DEBUG_STAT_UE | SRV_ACK;
                     _tsMsgTx.header.state   = (uint8_t)_state;
                     _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
-					//_tsMsgTx.pl.stat = _pts2UeTh->getStat();
+					_tsMsgTx.pl.stat = _pts2UeTh->getStat(_tsMsgRx.header.reserved);
                     L_u32lastTxId = _tsMsgTx.header.txid;
                     addMsg(&_tsMsgTx);
                     break;
@@ -298,6 +301,15 @@ bool DebugSrvThreadCl::_mng_rx(void)
                     addMsg(&_tsMsgTx);
                     break;
                 case DEBUG_TRACE_UE:
+					cout << "request to get robot trace" << endl;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = sizeof(unsigned int)* MAX_BUFFER_SIZE;
+                    _tsMsgTx.header.type    = DEBUG_TRACE_ROBOT | SRV_ACK;
+                    _tsMsgTx.header.state   = (uint8_t)_state;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+					_pts2UeTh->getTrace(_tsMsgTx.pl.buffer, _tsMsgRx.header.reserved);
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
                     break;
                 case DEBUG_TRACE_ROBOT:
 					cout << "request to get robot trace" << endl;

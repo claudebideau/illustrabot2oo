@@ -67,7 +67,9 @@ UeSrvStreamThreadCl::UeSrvStreamThreadCl(uint32_t F_u32JobId, TCPStream * F_ptsS
 {
     _threadId  = F_u32JobId;
     _pts2Robot = F_pts2Robot;
-    TRACES_INFO_ARG1("create UeSrvStreamThreadCl on thread %d",_threadId );
+    _trace    = new RtTrace("ue", RT_TRACE_ENABLE);
+    _trace->trace(0, RT_TRACE_ENABLE, 0xFFFFFFFF, 2);
+	TRACES_INFO_ARG1("create UeSrvStreamThreadCl on thread %d",_threadId );
     Q_vInitStat(&_stat);
     pthread_mutex_init(&_mutexTh,NULL);
     pthread_mutex_init(&_mutexFifo,NULL);
@@ -85,14 +87,6 @@ UeSrvStreamThreadCl::UeSrvStreamThreadCl(uint32_t F_u32JobId, TCPStream * F_ptsS
 	
 }
 
-/**
-   @brief return statistic
-   @return _stat.
- */
-tsSocketStat UeSrvStreamThreadCl::stat(void)
-{ 
-    return _stat;
-}
  
 /**
    @brief addMsg to Ue

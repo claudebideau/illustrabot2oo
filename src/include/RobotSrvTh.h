@@ -110,12 +110,14 @@ extern const std::string ROBOT_TH_KEYS[];
 
 inline tsSocketStat RobotSrvThreadCl::getStat(void )
 {
-		return _stat;
+    return _stat;
 }
 
 inline unsigned int RobotSrvThreadCl::getTrace(unsigned int * F_ptsBufferTraceOut)
 {
-		return _trace->getTrace(F_ptsBufferTraceOut);
+    if (_trace == NULL) return 0;
+
+    return _trace->getTrace(F_ptsBufferTraceOut);
 }
 
 

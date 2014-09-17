@@ -79,7 +79,8 @@ class UeSrvStreamThreadCl
             return ((UeSrvStreamThreadCl *)context)->_execute();
         }
 
-         tsSocketStat stat(void);
+        tsSocketStat getStat(void);
+        unsigned int getTrace(unsigned int * );
 
         void stop(void);
 
@@ -112,6 +113,16 @@ class UeSrvStreamThreadCl
         bool _mng_tx(void);
 };
 
+inline tsSocketStat UeSrvStreamThreadCl::getStat(void )
+{
+		return _stat;
+}
+
+inline unsigned int UeSrvStreamThreadCl::getTrace(unsigned int * F_ptsBufferTraceOut)
+{
+	if (_trace == NULL) return 0;
+    return _trace->getTrace(F_ptsBufferTraceOut);
+}
 
 
 #endif // __UE_STREAM_TH_H__
