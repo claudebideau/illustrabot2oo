@@ -47,6 +47,7 @@ DebugSrvThreadCl::DebugSrvThreadCl(int F_i32port, RobotSrvThreadCl * F_ptsRobotT
     _port        = F_i32port;
     _pts2RobotTh = F_ptsRobotTh;
     _pts2UeTh    = F_ptsUeTh;
+    _state       = DEBUG_SRV_TH_INIT;
     TRACES_INFO_ARG1("create DebugSrvThreadCl on port [%d]",_port );
     _acceptor = new TCPAcceptor(_port);
     if (_acceptor->start() != 0) throw std::string("impossible to start socket");
@@ -179,6 +180,7 @@ void *DebugSrvThreadCl::_execute(void)
         cout << "_stat.txbytes   = " << _stat.txbytes   << endl;
         cout << "_stat.rx        = " << _stat.rx        << endl;
         cout << "_stat.rxbytes   = " << _stat.rxbytes   << endl;
+		_state       = DEBUG_SRV_TH_INIT;
     }
     delete _acceptor;
     _acceptor=NULL;
@@ -211,38 +213,102 @@ bool DebugSrvThreadCl::_mng_rx(void)
                 uint32_t * L_pu32aBuffer = (uint32_t*) &_tsMsgRx;
                 for (int i=0;i<sizeof(tsMsgDebugSrv)/4;i++)
                 {
-                    printf("rx [%d] = %08x\n",i,L_pu32aBuffer[i]);
+                    printf("dbg rx [%d] = %08x\n",i,L_pu32aBuffer[i]);
                 }
             }
 #endif
             switch (L_msgid)
             {
                 case DEBUG_INIT :
-                    _tsMsgTx.header.version = PROTO_VERSION;
-                    _tsMsgTx.header.size    = 0;
-                    _tsMsgTx.header.type    = ROBOT_INIT | SRV_ACK;
-                    _tsMsgTx.header.state   = 0;
-                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
-                    
-                    L_u32lastTxId = _tsMsgTx.header.txid;
-                    addMsg(&_tsMsgTx);
+					if ( _state == DEBUG_SRV_TH_INIT)
+					{
+
+						_tsMsgTx.header.version = PROTO_VERSION;
+						_tsMsgTx.header.size    = 0;
+						_tsMsgTx.header.type    = DEBUG_INIT | SRV_ACK;
+						_tsMsgTx.header.state   = 0;
+						_tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+						
+						L_u32lastTxId = _tsMsgTx.header.txid;
+						addMsg(&_tsMsgTx);
+					} else {
+						/* force to stop */
+						pthread_mutex_lock(&_mutexTh);
+						_bContinue = false;
+						_bStop = false;
+						pthread_mutex_unlock(&_mutexTh);
+					}
                     break;
                 case DEBUG_CONNECT :
-                    _tsMsgTx.header.version = PROTO_VERSION;
-                    _tsMsgTx.header.size    = 0;
-                    _tsMsgTx.header.type    = ROBOT_CONNECT | SRV_ACK;
-                    _tsMsgTx.header.state   = 0;
-                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+					if ( _state == DEBUG_SRV_TH_INIT)
+					{
+						_tsMsgTx.header.version = PROTO_VERSION;
+						_tsMsgTx.header.size    = 0;
+						_tsMsgTx.header.type    = DEBUG_CONNECT | SRV_ACK;
+						_tsMsgTx.header.state   = (uint8_t)_state;
+						_tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
 
-                    L_u32lastTxId = _tsMsgTx.header.txid;
-                    addMsg(&_tsMsgTx);
+						L_u32lastTxId = _tsMsgTx.header.txid;
+						addMsg(&_tsMsgTx);
+						_state = DEBUG_SRV_TH_CONNECTED;
+					} else {
+						/* force to stop */
+						pthread_mutex_lock(&_mutexTh);
+						_bContinue = false;
+						_bStop = false;
+						pthread_mutex_unlock(&_mutexTh);
+					}
 
                     break;
                 case DEBUG_RESTART:
                     break;
                 case DEBUG_SHUTDOWN:
                     break;
-                case DEBUG_STAT:
+                case DEBUG_STAT_UE:
+					cout << "request to get UE stat" << endl;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = sizeof(tsSocketStat);
+                    _tsMsgTx.header.type    = DEBUG_STAT_UE | SRV_ACK;
+                    _tsMsgTx.header.state   = (uint8_t)_state;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+					//_tsMsgTx.pl.stat = _pts2UeTh->getStat();
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
+                    break;
+                case DEBUG_STAT_ROBOT:
+					cout << "request to get Robot stat" << endl;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = sizeof(tsSocketStat);
+                    _tsMsgTx.header.type    = DEBUG_STAT_ROBOT | SRV_ACK;
+                    _tsMsgTx.header.state   = (uint8_t)_state;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+					_tsMsgTx.pl.stat = _pts2RobotTh->getStat();
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
+                    break;
+                case DEBUG_STAT_DEBUG:
+					cout << "request to get debug stat" << endl;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = sizeof(tsSocketStat);
+                    _tsMsgTx.header.type    = DEBUG_STAT_DEBUG | SRV_ACK;
+                    _tsMsgTx.header.state   = (uint8_t)_state;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+					_tsMsgTx.pl.stat = _stat;
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
+                    break;
+                case DEBUG_TRACE_UE:
+                    break;
+                case DEBUG_TRACE_ROBOT:
+					cout << "request to get robot trace" << endl;
+                    _tsMsgTx.header.version = PROTO_VERSION;
+                    _tsMsgTx.header.size    = sizeof(unsigned int)* MAX_BUFFER_SIZE;
+                    _tsMsgTx.header.type    = DEBUG_TRACE_ROBOT | SRV_ACK;
+                    _tsMsgTx.header.state   = (uint8_t)_state;
+                    _tsMsgTx.header.rxid    = _tsMsgRx.header.txid;
+					_pts2RobotTh->getTrace(_tsMsgTx.pl.buffer);
+                    L_u32lastTxId = _tsMsgTx.header.txid;
+                    addMsg(&_tsMsgTx);
                     break;
                 default:
                     throw std::string("not a compatible socket");
@@ -269,17 +335,18 @@ bool DebugSrvThreadCl::_mng_tx(void)
     bool L_bLoop =true;
     uint32_t L_u32size;
     tsMsgDebugSrv * L_ptsMsgDebugSrv;
-    cout << "dequeue ?" << endl;
     while (!_TxFifo.empty())
     {
-        cout << "DebugSrvThreadCl : get from tx fifo" << this << endl;
+        cout << "DebugSrvThreadCl : get from tx fifo " << this << endl;
 
         pthread_mutex_lock(&_mutexFifo);
         L_ptsMsgDebugSrv = _TxFifo.front();
         if (L_ptsMsgDebugSrv!=NULL)
         {
+			cout << "payload size = " << L_ptsMsgDebugSrv->header.size <<endl;
             L_u32size =  sizeof(tsMsgRobotSrvHeader)+L_ptsMsgDebugSrv->header.size;
-#if 0
+			cout << "total size = " << L_u32size <<endl;
+#ifdef __TEST
             {
                 uint32_t * L_pu32aBuffer = (uint32_t*) L_ptsMsgDebugSrv;
                 for (int i=0;i<L_u32size/4;i++)
@@ -288,6 +355,7 @@ bool DebugSrvThreadCl::_mng_tx(void)
                 }
             }
 #endif
+			L_ptsMsgDebugSrv->header.txid = _tsMsgTx.header.txid;
             _tsMsgTx.header.txid ++;
             _stream->send((char *)L_ptsMsgDebugSrv,L_u32size );
             _stat.tx ++;

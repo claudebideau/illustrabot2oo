@@ -54,12 +54,12 @@ help()
    printf "\nOPTIONS\n\n"
    printf "     -x    : build the xmlrpc library for local target\n"
    printf "     -c    : clean option for deamon and illusoo\n"
+   printf "     -t    : build with __TEST flag\n"
    printf "     =================================================\n"
    printf "     -d    : build server deamon\n"
    printf "     -e    : execute serveur deamon\n"
    printf "     =================================================\n"
    printf "     -b    : build illusoo\n"
-   printf "     -t    : build illusoo with __TEST flag\n"
    printf "     -g    : execute GPIO config with sudo ( beaglebone case only)\n"
    printf "     -s    : execute illusoo with sudo ( beaglebone case only)\n"
    printf "     -l    : execute illusoo\n"
@@ -160,7 +160,7 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
         d     ) printf "BUILD DEAMON\n===========================\n"; MAKED=1 ;;
         e     ) printf "Execute DEAMON\n===========================\n"; DEAMON=1 ;;
         b     ) printf "BUILD ILLUSOO\n===========================\n"; MAKE=1 ;;
-        t     ) printf "BUILD ILLUSOO TEST mode\n===========================\n"; MAKE=1; TEST=1 ; test_script ;;
+        t     ) printf "set TEST mode\n===========================\n"; TEST=1 ; test_script ;;
         g     ) printf "load ILLUSOO GPIO config\n===========================\n"; GPIO=1 ;;
         s     ) printf "load ILLUSOO in sudoers mode\n===========================\n"; LOAD=1; LSUDO=1 ;;
         l     ) printf "load ILLUSOO\n===========================\n"; LOAD=1 ;;
@@ -179,7 +179,7 @@ if [[ $MAKED -eq 1 ]]; then
     if [[ $CLEAN -eq 1 ]]; then
             make clean 
     fi
-    make serverDeamon
+    make serverDeamon TEST=${TEST}
     echo ""
     echo "================================================"
     echo " PLEASE update LD_LIBRARY_PATH as following to map xmlrpc-c library:"

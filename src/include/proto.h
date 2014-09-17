@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "rttrace.h"
 
 #define PROTO_VERSION 1
 
@@ -54,8 +55,11 @@ typedef struct {
 #define DEBUG_READY       0x22
 #define DEBUG_RESTART     0x23
 #define DEBUG_SHUTDOWN    0x24
-#define DEBUG_STAT        0x25
-// #define DEBUG_DATA        0x26
+#define DEBUG_STAT_UE     0x25
+#define DEBUG_STAT_ROBOT  0x26
+#define DEBUG_STAT_DEBUG  0x27
+#define DEBUG_TRACE_UE    0x28
+#define DEBUG_TRACE_ROBOT 0x29
 
 
 #define SRV_ACK       0x40
@@ -68,9 +72,10 @@ typedef struct {
 typedef struct sMsgRobotSrvHeader
 {
     uint8_t   version;   /**< protocol version */
-    uint8_t   size;      /**< message size */
     msgType_t type;      /**< message type. will define the payload */
     uint8_t   state;
+    uint8_t   reserved;  /**< message size */
+    uint32_t  size;      /**< message size */
     uint32_t  txid;
     uint32_t  rxid;
 } tsMsgRobotSrvHeader;
@@ -125,6 +130,8 @@ typedef struct sMsgDebugSrv
     tsMsgRobotSrvHeader header;
     union {
         char txt[1024];     /**< command text */
+        unsigned int buffer[MAX_BUFFER_SIZE];
+        tsSocketStat stat;
     } pl;
 } tsMsgDebugSrv;
 

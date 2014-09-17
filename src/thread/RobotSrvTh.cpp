@@ -46,6 +46,9 @@ using namespace std;
 RobotSrvThreadCl::RobotSrvThreadCl(int F_i32port)
 {
     _port     = F_i32port;
+    _trace    = new RtTrace("robot", RT_TRACE_ENABLE);
+    _trace->trace(0, RT_TRACE_ENABLE, 0xFFFFFFFF, 2);
+    
     TRACES_INFO_ARG1("create RobotSrvThreadCl on port [%d]",_port );
     _acceptor = new TCPAcceptor(_port);
     if (_acceptor->start() != 0) throw std::string("impossible to start socket");

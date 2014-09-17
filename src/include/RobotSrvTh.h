@@ -73,6 +73,8 @@ class RobotSrvThreadCl
         bool addMsg(tsMsgRobotSrv * );
         bool addData(tsUePayload *);
         void stop(void);
+        tsSocketStat getStat(void );
+        unsigned int getTrace(unsigned int * );
 
         virtual ~RobotSrvThreadCl();
 
@@ -81,7 +83,7 @@ class RobotSrvThreadCl
     private:
         bool               _bContinue;
         bool               _bStop;
-        teRobotSrvThState     _state;
+        teRobotSrvThState  _state;
         RtTrace          * _trace;
         TCPStream        * _stream;
         TCPAcceptor      * _acceptor;
@@ -106,6 +108,15 @@ class RobotSrvThreadCl
 
 extern const std::string ROBOT_TH_KEYS[];
 
+inline tsSocketStat RobotSrvThreadCl::getStat(void )
+{
+		return _stat;
+}
+
+inline unsigned int RobotSrvThreadCl::getTrace(unsigned int * F_ptsBufferTraceOut)
+{
+		return _trace->getTrace(F_ptsBufferTraceOut);
+}
 
 
 #endif // __ROBOT_TH_H__
