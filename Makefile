@@ -11,7 +11,7 @@ ifeq (1,${TEST})
 CPPFLAGS += -D__TEST
 endif
 ILLUSOO_LDFLAGS = -l xmlrpc++ -l xmlrpc_server++ -l xmlrpc_server_abyss++ -lsocket  -lrt -lpthread -Wl
-DEAMON_LDFLAGS = -lsocket  -lrt -lpthread -Wl
+DEAMON_LDFLAGS = -lsocket  -lrt -lpthread 
 
 LDLIBS=-L build/$(TARGET)/lib -L src/socketlib
 
@@ -54,10 +54,10 @@ depend: .depend
 	$(CXX)  $(CPPFLAGS) -MM $^>>./.depend;
 
 
-illustrabot2srv: $(OBJS_SRV)  | $(OBJDIR)
+illustrabot2srv: display $(OBJS_SRV)  | $(OBJDIR)
 	$(CXX) $(OBJS_SRV) -o $@ $(LDLIBS) $(ILLUSOO_LDFLAGS)    
 
-serverDeamon: $(OBJS_DEAMON)  | $(OBJDIR)
+serverDeamon: display $(OBJS_DEAMON)  | $(OBJDIR)
 	$(CXX) $(OBJS_DEAMON) -o $@ $(LDLIBS) $(DEAMON_LDFLAGS)  
     
 
