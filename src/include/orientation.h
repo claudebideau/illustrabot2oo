@@ -47,7 +47,7 @@
 /**   6.  Macros / Defines                                          **/
 
 
-typedef enum eOrientationState {ORIENTATION_INIT=0, ORIENTATION_CALIBRATE, ORIENTATION_READY, ORIENTATION_RUNNING, ORIENTATION_STOPPED   } teOrientationState;
+typedef enum eOrientationState {ORIENTATION_INIT=0, ORIENTATION_CALIBRATE, ORIENTATION_READY, ORIENTATION_RUNNING,ORIENTATION_MAINTENANCE, ORIENTATION_STOPPED   } teOrientationState;
 
 
 typedef struct sOrientation {
@@ -76,6 +76,7 @@ class OrientationThCl
             return ((OrientationThCl *)context)->_calibrate();
         }
         void stop(void);
+        std::string maintenance(std::string);
         int set(tsOrientation );
         void get(tsOrientation *);
 

@@ -41,7 +41,7 @@
 using namespace std;
 
 
-const std::string ORIENTATION_KEYS[] =  {"ORIENTATION_INIT", "ORIENTATION_CALIBRATE", "ORIENTATION_READY", "ORIENTATION_RUNNING", "ORIENTATION_STOPPED"};
+const std::string ORIENTATION_KEYS[] =  {"ORIENTATION_INIT", "ORIENTATION_CALIBRATE", "ORIENTATION_READY", "ORIENTATION_RUNNING", "ORIENTATION_MAINTENANCE", "ORIENTATION_STOPPED"};
 
 OrientationThCl * E_pOrientationThObj= NULL;
 
@@ -49,9 +49,9 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
 {
     std::string L_StrName;
     unsigned char L_u8Idx;
-	std::string L_keys;
+    std::string L_keys;
     std::list<std::string> F_listKey;
-	std::list<std::string>::iterator L_it;
+    std::list<std::string>::iterator L_it;
 
     _pArm   = NULL;
     _pHand  = NULL;
@@ -121,8 +121,56 @@ void OrientationThCl::get(tsOrientation * F_ptsOrientation)
 
 void OrientationThCl::stop(void)
 { 
+    pthread_mutex_lock(&_mutex);
     _bContinue = false;
+    pthread_mutex_unlock(&_mutex);
     return;
+}
+
+std::string OrientationThCl::maintenance(std::string F_state="off")
+{ 
+    if (F_state == "off")
+    {
+        switch (_state)
+        {
+            case ORIENTATION_INIT:
+            case ORIENTATION_CALIBRATE:
+            case ORIENTATION_READY:
+            case ORIENTATION_STOPPED:
+            case ORIENTATION_RUNNING:
+                break;
+            case ORIENTATION_MAINTENANCE:
+                pthread_mutex_lock(&_mutex);
+                _state= ORIENTATION_RUNNING;
+                pthread_mutex_unlock(&_mutex);
+                break;
+            default:
+                break;
+        }
+    }
+	else if (F_state == "on")
+	{
+        switch (_state)
+        {
+            case ORIENTATION_INIT:
+            case ORIENTATION_CALIBRATE:
+            case ORIENTATION_READY:
+            case ORIENTATION_STOPPED:
+            case ORIENTATION_MAINTENANCE:
+                break;
+            case ORIENTATION_RUNNING:
+                pthread_mutex_lock(&_mutex);
+                _state= ORIENTATION_MAINTENANCE;
+                pthread_mutex_unlock(&_mutex);
+                break;
+                break;
+            default:
+                break;
+        }
+	}
+	if (_state == ORIENTATION_MAINTENANCE)
+		return std::string("on");
+	return std::string("off");
 }
 
 
@@ -188,11 +236,21 @@ void *OrientationThCl::_execute(void)
             /* - set new orientation          */
         }
 
-        if (_pArm   != NULL) _pArm->rise();
-        if (_pHand  != NULL) _pHand->rise();
-        usleep(1000);
-        if (_pArm   != NULL) _pArm->fall();
-        if (_pHand  != NULL) _pHand->fall();
+        pthread_mutex_lock(&_mutex);
+        if (_state==ORIENTATION_RUNNING)
+        {
+            pthread_mutex_unlock(&_mutex);
+            if (_pArm   != NULL) _pArm->rise();
+            if (_pHand  != NULL) _pHand->rise();
+            usleep(1000);
+            if (_pArm   != NULL) _pArm->fall();
+            if (_pHand  != NULL) _pHand->fall();
+        } else {
+            pthread_mutex_unlock(&_mutex);
+            /* no action :  maintenance case */
+            usleep(1000);
+        }
+
         
     }
     _state = ORIENTATION_STOPPED;

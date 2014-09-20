@@ -113,6 +113,61 @@ usage : xml.orientation.info \n\n\
        
 };
 
+ /**
+ * \class OrientationMaintCl
+ * \brief 
+ *
+ */
+class OrientationMaintCl : public xmlrpc_c::method
+{
+    public:
+        OrientationMaintCl()
+        {
+            this->_signature = "n:A";
+            this->_help = "\n\
+usage : xml.orientation.maint <on/off> \n\n\
+\tActivate/deactivate maintenance of orientation\n\
+\n\n parameters:\n\
+\t<on/off>      : on or off the maintenance\n\
+\nreturn :\n\
+\t<status> \n\
+\t\n\n";
+            return;
+        };
+        
+        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+        {
+
+            switch(paramList.size())
+            {
+                case 0:
+                    {
+			if ( E_pOrientationThObj != NULL)
+				*retvalP = xmlrpc_c::value_string(E_pOrientationThObj->maintenance(""));
+			else 
+				*retvalP = xmlrpc_c::value_string(std::string("off"));
+                    }
+                    break;
+                case 1:
+                    {
+                        // RtTrace * L_RtTraceBuffer;
+                        std::string const L_state(paramList.getString(0));
+			if ( E_pOrientationThObj != NULL)
+				*retvalP = xmlrpc_c::value_string(E_pOrientationThObj->maintenance(L_state));
+			else 
+				*retvalP = xmlrpc_c::value_string(std::string("off"));
+                    }
+                    break;
+                default:
+                    *retvalP = xmlrpc_c::value_int(-2);
+                    throw "require only one parameter <on/off>";
+                    break;
+            }
+            return;
+        }
+        
+};
+
 
 /**
  * \class OrientationCalibrateCl
@@ -340,12 +395,14 @@ usage : xml.orientation.stop \n\n\
 void OrientationRpcAttach(xmlrpc_c::registry * F_pRegistry)
 {
     xmlrpc_c::methodPtr const OrientationInfoObj  (new OrientationInfoCl);
+    xmlrpc_c::methodPtr const OrientationMaintenanceObj(new OrientationMaintCl);
     xmlrpc_c::methodPtr const OrientationCalibrateObj(new OrientationCalibrateCl);
     xmlrpc_c::methodPtr const OrientationSetObj(new OrientationSetCl);
     xmlrpc_c::methodPtr const OrientationStartObj(new OrientationStartCl);
     xmlrpc_c::methodPtr const OrientationStopObj(new OrientationStopCl);
 
     F_pRegistry->addMethod("xml.orientation.info",      OrientationInfoObj    );
+    F_pRegistry->addMethod("xml.orientation.maintenance", OrientationMaintenanceObj  );
     F_pRegistry->addMethod("xml.orientation.calibrate", OrientationCalibrateObj  );
     F_pRegistry->addMethod("xml.orientation.set",       OrientationSetObj  );
     F_pRegistry->addMethod("xml.orientation.start",     OrientationStartObj  );
