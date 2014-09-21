@@ -25,22 +25,25 @@ class Elements(QtGui.QWidget):
 
         self.__timer__ = QtCore.QTimer(self)
         self.__timer__.timeout.connect(lambda :self.do_refresh(True))
-        self.setTimer(2)
-        self.__timerSpinBox__.setValue(2)
+        self.setTimer(1)
+        self.__timerSpinBox__.setValue(1)
             
     def setrpc(self,rpc):
         try:
             self.__rpc__ = rpc
-            self.__mth__ = "xml.element.info"
-            self.__info_mth__ = getattr(self.__rpc__,self.__mth__)
-            self.widget = QtGui.QWidget()            
+            self.__info_mth__ = "xml.element.info"
+            self.__maint_mth__ = "xml.orientation.maintenance"
+            self.__info_mth__ = getattr(self.__rpc__,self.__info_mth__)
+            self.__maint_mth__ = getattr(self.__rpc__,self.__maint_mth__)
+            self.widget = QtGui.QWidget()
             self.__grid__ = QtGui.QGridLayout()
             #self.__grid__.setMargin(1)
             self.__grid__.setHorizontalSpacing(2)
             self.__grid__.setVerticalSpacing(2)
-            self.__grid__.addWidget(self.__info__(),0,0)
+            self.__grid__.addWidget(self.__info__(),1,0)
+            self.__grid__.addWidget(self.__maintenance__(),0,0)
             self.__grid__.setRowStretch(4, 1)
-            self.widget.setLayout(self.__grid__)            
+            self.widget.setLayout(self.__grid__)
             self.__scrollArea = QtGui.QScrollArea()
             self.__scrollArea.setWidget(self.widget)
             self.__scrollArea.setWidgetResizable(True)
@@ -65,6 +68,39 @@ class Elements(QtGui.QWidget):
         # self.itemExpanded.connect(self.treeExpanded)
         # self.itemChanged.connect(self.updateLevel)
 
+    def __maintenance__(self):
+        maintBox = QtGui.QGroupBox()
+        maintBox.setFlat(False)
+        maintLayout = QtGui.QVBoxLayout()
+        self.__maintbutton__ = QtGui.QPushButton('Maintenance')
+        self.__maintbutton__.clicked.connect(self.do_maintenance)
+        maintLayout.addWidget(self.__maintbutton__, 0, 0 )
+        maintLayout.addStretch(1)
+        maintBox.setLayout(maintLayout)
+        self.do_maintenance(init=True)
+
+        return maintBox
+
+    def do_maintenance(self,init=False):
+        res = self.__maint_mth__()
+        if init ==False:
+            # toggle
+            #~ print "toggle", res
+            if res=='on':
+                res=self.__maint_mth__(*['off'])
+            else:
+                res=self.__maint_mth__(*['on'])
+        #~ print "'%s'"%(res)
+        if res == 'on':
+            self.__maintbutton__.setText('Maintenance Desactivate ?')
+            self.__elt_layout__.setEnabled(True)
+        else:
+            self.__maintbutton__.setText('Maintenance Activate ?')
+            self.__elt_layout__.setEnabled(False)
+        return
+
+
+
     def __info__(self):
         groupBox = QtGui.QGroupBox()
         groupBox.setFlat(False)
@@ -85,6 +121,7 @@ class Elements(QtGui.QWidget):
         elementLayout.addStretch(1)
         groupBox.setLayout(elementLayout)
 
+        self.__elt_layout__ = groupBox
         return groupBox
 
     def __autoRefreshButton__(self):

@@ -129,6 +129,7 @@ void OrientationThCl::stop(void)
 
 std::string OrientationThCl::maintenance(std::string F_state="off")
 { 
+    //~ std::cout << "change state to maintenance ? " << F_state << endl;
     if (F_state == "off")
     {
         switch (_state)
@@ -147,9 +148,8 @@ std::string OrientationThCl::maintenance(std::string F_state="off")
             default:
                 break;
         }
-    }
-	else if (F_state == "on")
-	{
+    }	else if (F_state == "on")
+   {
         switch (_state)
         {
             case ORIENTATION_INIT:
@@ -167,10 +167,11 @@ std::string OrientationThCl::maintenance(std::string F_state="off")
             default:
                 break;
         }
-	}
-	if (_state == ORIENTATION_MAINTENANCE)
-		return std::string("on");
-	return std::string("off");
+   }
+   //~ std::cout << "change state to maintenance "<< F_state << " " << _state<< endl;
+   if (_state == ORIENTATION_MAINTENANCE)
+        return std::string("on");
+   return std::string("off");
 }
 
 
