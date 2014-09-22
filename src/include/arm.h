@@ -79,8 +79,7 @@ class ArmCl
         void get(tsArmPosition * );
         void rise(void);
         void fall(void);        
-        void start_calibrate();
-        void stop_calibrate();
+        bool calibrate(void);
 
         virtual ~ArmCl();
         inline std::string name() { return _name; }
@@ -109,6 +108,7 @@ class ArmCl
         teArmState               _state;
         tsArmPosition            _pos;
         MotorSensorElementCl   * _Elt[3];
+
 };
 
 

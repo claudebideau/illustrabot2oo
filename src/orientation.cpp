@@ -127,6 +127,33 @@ void OrientationThCl::stop(void)
     return;
 }
 
+std::string OrientationThCl::calibrateReq(void)
+{ 
+    std::cout << " request Calibration in state : "<< _state <<endl;
+    switch (_state)
+    {
+        case ORIENTATION_INIT:
+        case ORIENTATION_STOPPED:
+            break;
+        case ORIENTATION_CALIBRATE:
+        case ORIENTATION_MAINTENANCE:
+        case ORIENTATION_READY:
+        case ORIENTATION_RUNNING:
+            pthread_mutex_lock(&_mutex);
+            _state= ORIENTATION_CALIBRATE;
+            pthread_mutex_unlock(&_mutex);
+            break;
+        default:
+            break;
+    }
+
+    //~ std::cout << "change state to maintenance "<< F_state << " " << _state<< endl;
+    if (_state == ORIENTATION_CALIBRATE)
+        return std::string("on");
+    return std::string("off");
+}
+
+
 std::string OrientationThCl::maintenance(std::string F_state="off")
 { 
     //~ std::cout << "change state to maintenance ? " << F_state << endl;
@@ -149,7 +176,7 @@ std::string OrientationThCl::maintenance(std::string F_state="off")
                 break;
         }
     }	else if (F_state == "on")
-   {
+    {
         switch (_state)
         {
             case ORIENTATION_INIT:
@@ -167,17 +194,19 @@ std::string OrientationThCl::maintenance(std::string F_state="off")
             default:
                 break;
         }
-   }
-   //~ std::cout << "change state to maintenance "<< F_state << " " << _state<< endl;
-   if (_state == ORIENTATION_MAINTENANCE)
+    }
+    //~ std::cout << "change state to maintenance "<< F_state << " " << _state<< endl;
+    if (_state == ORIENTATION_MAINTENANCE)
         return std::string("on");
-   return std::string("off");
+    return std::string("off");
 }
 
 
-void * OrientationThCl::_calibrate(void)
+int OrientationThCl::_calibrate(void)
 {
     int L_i32Idx = 0;
+    bool L_bCal;
+    bool L_bLoop;
     tsOrientation L_tsOrientationValue;
     
     TRACES_INFO("execute calibration of OrientationThCl" );
@@ -190,8 +219,23 @@ void * OrientationThCl::_calibrate(void)
     /*                                                                   */
     /*  need to clarify how to calibrate depend of the current sensor    */
     /* ================================================================= */
-    if (_pHand  != NULL) _pHand->start_calibrate();
-    if (_pArm   != NULL) _pArm->start_calibrate();
+    pthread_mutex_lock(&_mutex);
+    L_bLoop = _bContinue;
+    pthread_mutex_unlock(&_mutex);
+    while (L_bLoop==true)
+    {
+        L_bCal = true;
+        if (_pHand  != NULL) L_bCal &= _pHand->calibrate();
+        if (_pArm   != NULL) L_bCal &= _pArm->calibrate();
+        usleep(1000);
+        if (_pArm   != NULL) _pArm->fall();
+        if (_pHand  != NULL) _pHand->fall();
+        
+        /* continue ? Critical section */
+        pthread_mutex_lock(&_mutex);
+        L_bLoop = not (L_bCal) && _bContinue;
+        pthread_mutex_unlock(&_mutex);
+    }
     
     _state = ORIENTATION_READY;
     TRACES_INFO("calibrate ending of OrientationThCl");
@@ -200,11 +244,19 @@ void * OrientationThCl::_calibrate(void)
 
 void *OrientationThCl::_execute(void)
 {
-    int L_i32Idx = 0;
-    tsOrientation L_tsOrientationValue;
+    int                 L_i32Idx        = 0;
+    tsOrientation       L_tsOrientationValue;
+    teOrientationState  L_state;
+
     _bContinue = true;
     
     TRACES_INFO("execute core of OrientationThCl" );
+
+
+    /* first action is the calibration */
+    _calibrate();
+    
+    
     _state = ORIENTATION_RUNNING;
     while (_bContinue==true)
     {
@@ -238,18 +290,24 @@ void *OrientationThCl::_execute(void)
         }
 
         pthread_mutex_lock(&_mutex);
-        if (_state==ORIENTATION_RUNNING)
+        L_state= _state;
+        pthread_mutex_unlock(&_mutex);
+        switch (L_state)
         {
-            pthread_mutex_unlock(&_mutex);
-            if (_pArm   != NULL) _pArm->rise();
-            if (_pHand  != NULL) _pHand->rise();
-            usleep(1000);
-            if (_pArm   != NULL) _pArm->fall();
-            if (_pHand  != NULL) _pHand->fall();
-        } else {
-            pthread_mutex_unlock(&_mutex);
-            /* no action :  maintenance case */
-            usleep(1000);
+            case ORIENTATION_RUNNING:
+                if (_pArm   != NULL) _pArm->rise();
+                if (_pHand  != NULL) _pHand->rise();
+                usleep(1000);
+                if (_pArm   != NULL) _pArm->fall();
+                if (_pHand  != NULL) _pHand->fall();
+                break;
+            case ORIENTATION_CALIBRATE:
+                _calibrate();
+                break;
+            default:
+                /* no action :  maintenance case */
+                usleep(1000);
+                break;
         }
 
         

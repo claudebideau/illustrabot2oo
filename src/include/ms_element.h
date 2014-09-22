@@ -109,8 +109,7 @@ class MotorSensorElementCl
         unsigned int speed(unsigned int);
         unsigned int speed(void);
         unsigned int speed_mask(void);
-        void start_calibrate();
-        void stop_calibrate();
+        bool calibrate(void);
         // void attach(MotorSensorElementCl *);
 
         /* operating action */
@@ -178,7 +177,6 @@ class MotorSensorElementCl
         }
     protected:
     private:
-        void calibrate();
 
         void _anglePreProc(void);
         
@@ -199,12 +197,12 @@ class MotorSensorElementCl
         EasyDriverCl  * _pDriver;
         GpioInCl      * _pSensor;
         RtTrace       * _trace;
-        bool            _stop_thCal;
-#ifdef ILLUSOO_THREAD 
-        std::mutex      _thMutex;
-        std::thread   * _thCal;
-#endif        
-        // MotorSensorElementCl * _pAttachedMS;
+
+        /* calibration */
+        bool            _bDetectEdge;
+        teValue         _teValueCurrent;
+        teValue         _teValuePrev;
+        
 };
 
 

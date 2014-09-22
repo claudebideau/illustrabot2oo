@@ -242,23 +242,33 @@ void ArmCl::fall()
     }
 }
 
-void ArmCl::start_calibrate(void)
+bool ArmCl::calibrate(void)
 {
-    cout <<  "WARNING: ARM CALIBRATION not yet implemented" << endl;
-    return;
+    bool L_bCalib= true;
+    uint8_t L_u8sensorArm =0xFF;
+    uint8_t L_u8sensorForeArm = 0xFF;
+    /* order of calibration        */
+    /*   1) shoulder               */
+    /*   2) arm //forearm          */
+    /*   3) forearm //arm          */
+    if( _Elt[SHOULDER] != NULL)
+        L_bCalib &= _Elt[SHOULDER]->calibrate();
+
+    if( _Elt[ARM] != NULL)      _Elt[ARM]->sensor(&L_u8sensorArm);
+    if( _Elt[FOREARM] != NULL)  _Elt[FOREARM]->sensor(&L_u8sensorForeArm);
+
+    std::cout << "arm = " << L_u8sensorArm << " / forearm = " << L_u8sensorForeArm << endl;
+
+    if ((L_u8sensorArm == 0xFF )|| (L_u8sensorForeArm==0xFF)) return L_bCalib;
+
+#if 0
+    L_bCalib &= _Elt[ARM]->calibrate();
+    L_bCalib &= _Elt[FOREARM]->calibrate();
+#endif
+
+    return L_bCalib;
 }
 
-/**
-   @brief request to stop calibration thread 
-   @return none.
- */
-
-void ArmCl::stop_calibrate(void)
-{
-
-    cout <<  "WARNING: ARM CALIBRATION not yet implemented" << endl;
-    return;
-}
 
 ArmCl::~ArmCl()
 {

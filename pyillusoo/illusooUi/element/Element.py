@@ -90,14 +90,14 @@ class ElementWidget(QtGui.QWidget):
 
         self.__info_mth__ = "xml.element.info"
         self.__step_mth__ = "xml.element.step"
-        self.__cal_mth__ = "xml.element.calibrate"
+        # self.__cal_mth__ = "xml.element.calibrate"
         self.__speed_mth__ = "xml.element.speed"
         self.__pos_reset_mth__ = "xml.element.pos.reset"
         self.__pos_min_mth__ = "xml.element.pos.min"
         self.__pos_max_mth__ = "xml.element.pos.max"
         self.__info_act__  = getattr(self.__rpc__,self.__info_mth__)
         self.__step_act__  = getattr(self.__rpc__,self.__step_mth__)
-        self.__cal_act__  = getattr(self.__rpc__,self.__cal_mth__)
+        # self.__cal_act__  = getattr(self.__rpc__,self.__cal_mth__)
         self.__speed_act__  = getattr(self.__rpc__,self.__speed_mth__)
         self.__pos_reset_act__  = getattr(self.__rpc__,self.__pos_reset_mth__)
         self.__pos_min_act__  = getattr(self.__rpc__,self.__pos_min_mth__)
@@ -275,23 +275,23 @@ class ElementWidget(QtGui.QWidget):
         buttonLayout = QtGui.QGridLayout()
         self.__stepButton__ = QtGui.QPushButton("&Do Step(s)")
         self.__refreshButton__ = QtGui.QPushButton("&Refresh")
-        self.__calibrateButton__ = QtGui.QPushButton("&Calibrate")
-        self.__stopCalibrateButton__ = QtGui.QPushButton("&Stop Calibrate")
+        # self.__calibrateButton__ = QtGui.QPushButton("&Calibrate")
+        # self.__stopCalibrateButton__ = QtGui.QPushButton("&Stop Calibrate")
         self.__paramButton__ = QtGui.QPushButton("&Update Field(s)")
         # self.__minButton__ = QtGui.QPushButton("&Min")
         # self.__maxButton__ = QtGui.QPushButton("M&ax")
         # associated function
         self.__stepButton__.clicked.connect(self.do_step)
         self.__refreshButton__.clicked.connect(self.do_refresh)
-        self.__calibrateButton__.clicked.connect(self.do_calibrate)
-        self.__stopCalibrateButton__.clicked.connect(self.do_stopCalibrate)
+        # self.__calibrateButton__.clicked.connect(self.do_calibrate)
+        # self.__stopCalibrateButton__.clicked.connect(self.do_stopCalibrate)
         # self.__minButton__.clicked.connect(self.do_min)
         # self.__maxButton__.clicked.connect(self.do_max)
         self.__paramButton__.clicked.connect(self.do_update)
         buttonLayout.addWidget(self.__stepButton__,0,0)
         buttonLayout.addWidget(self.__refreshButton__,1,0)
-        buttonLayout.addWidget(self.__calibrateButton__,0,1)
-        buttonLayout.addWidget(self.__stopCalibrateButton__,1,1)
+        # buttonLayout.addWidget(self.__calibrateButton__,0,1)
+        # buttonLayout.addWidget(self.__stopCalibrateButton__,1,1)
         # buttonLayout.addWidget(self.__minButton__,0,2)
         # buttonLayout.addWidget(self.__maxButton__,1,2)
         buttonLayout.addWidget(self.__paramButton__,0,2)
@@ -333,18 +333,18 @@ class ElementWidget(QtGui.QWidget):
         #self.__scaledRefresh__(res['factorStep'])
         print "Element.__info__ = ", res
             
-    def do_calibrate(self):
-        # get number of step
-        # print self.__slider__.value()
-        res = self.__cal_act__(*[self.__name__, 'start' ])
-        self.do_refresh()
-        # print res
-
-    def do_stopCalibrate(self):
-        # get number of step
-        # print self.__slider__.value()
-        res = self.__cal_act__(*[self.__name__, 'stop' ])
-        self.do_refresh()
+#     def do_calibrate(self):
+#         # get number of step
+#         # print self.__slider__.value()
+#         res = self.__cal_act__(*[self.__name__, 'start' ])
+#         self.do_refresh()
+#         # print res
+#  
+#     def do_stopCalibrate(self):
+#         # get number of step
+#         # print self.__slider__.value()
+#         res = self.__cal_act__(*[self.__name__, 'stop' ])
+#         self.do_refresh()
         
     def do_raz(self):
         res = self.__pos_reset_act__(*[self.__name__ ])

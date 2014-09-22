@@ -242,23 +242,12 @@ void HandCl::fall()
     }
 }
 
-void HandCl::start_calibrate(void)
+bool HandCl::calibrate(void)
 {
     cout <<  "WARNING: HAND CALIBRATION not yet implemented" << endl;
-    return;
+    return true;
 }
 
-/**
-   @brief request to stop calibration thread 
-   @return none.
- */
-
-void HandCl::stop_calibrate(void)
-{
-
-    cout <<  "WARNING: HAND CALIBRATION not yet implemented" << endl;
-    return;
-}
 
 HandCl::~HandCl()
 {

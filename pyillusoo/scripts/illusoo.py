@@ -19,7 +19,9 @@ import xmlrpclib
 class MainButton(QtGui.QVBoxLayout):
     
     LIST_BUTTON = [ ( "Boardrst",      'boardrstAction', True),
-                    ( "Shutdown",      'shutdownAction', True),
+                    ( "Shutdown",      'boardShutdownAction', True),
+                    ( "stop APPLI",      'stopAppliAction', True),
+                    ( "calibrate",      'calibrateAction', True),
                 ]
                 
     def __init__(self, env=[None, None, None], tstLbl=None, parent=None):
@@ -82,16 +84,22 @@ class MainButton(QtGui.QVBoxLayout):
         if self.tstLbl != None:
             self.tstLbl.setText('"%s" is currently opened'%self.tstDir)
 
+    def boardShutdownAction(self,item=None):
+        self.__boardInitAction__(0,"Confirm Board Shutdown","Are you sure you want to shutdown the board ?")
+        return
+
         
     def boardrstAction(self,item=None):
-        print 'boardrstAction', item
+        self.__boardInitAction__(6,"Confirm Board Reset","Are you sure you want to reset the board ?")
+        return
+
+    def __boardInitAction__(self,value=6, msg1= "Confirm Board Reset",msg2="Are you sure you want to reset the board ?"):
+        print '__boardInitAction__', value
         initAct= getattr(self.__rpc__,'xml.os.init')
-        button = QtGui.QMessageBox.question(self.__button__[0],   "Confirm Board Reset",
-                                                    "Are you sure you want to reset the board ?",
-                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        button = QtGui.QMessageBox.question(self.__button__[0], msg1, msg2, QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
         if button == QtGui.QMessageBox.Yes:
             try:
-                initAct(*[6])
+                initAct(*[value])
                 if self.status != None: self.status.updateState(True)
             except Exception,e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -100,10 +108,10 @@ class MainButton(QtGui.QVBoxLayout):
                 if self.status != None: self.status.updateState(False)
                 pass
         return
-
-    def shutdownAction(self,item=None):
-        button = QtGui.QMessageBox.question(self.__button__[1], "Confirm ShutDown ",
-                    "Are you sure you want to shutdown ?" ,
+        
+    def stopAppliAction(self,item=None):
+        button = QtGui.QMessageBox.question(self.__button__[1], "Confirm to stop appli ",
+                    "Are you sure you want to stop appli  ?" ,
                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
         if button == QtGui.QMessageBox.Yes:
             try:
@@ -116,6 +124,21 @@ class MainButton(QtGui.QVBoxLayout):
                 pass
         return
 
+    def calibrateAction(self,item=None):
+        calibrateAct= getattr(self.__rpc__,'xml.orientation.calibrate')
+        button = QtGui.QMessageBox.question(self.__button__[1], "Confirm calibrate ",
+                    "Are you sure you want to calibrate ?" ,
+                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if button == QtGui.QMessageBox.Yes:
+            try:
+                calibrateAct()
+            except Exception,e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                sys.stderr.write(  "%s/%s[%d] %s %s\n"%(exc_type, fname, exc_tb.tb_lineno, self.__class__.__name__,e))
+                if self.status != None: self.status.updateState(False)
+                pass
+        return
 
     def close(self):
         

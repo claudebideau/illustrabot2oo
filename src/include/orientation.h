@@ -71,11 +71,9 @@ class OrientationThCl
         {
             return ((OrientationThCl *)context)->_execute();
         }
-        static void *calibrate(void *context)
-        {
-            return ((OrientationThCl *)context)->_calibrate();
-        }
+
         void stop(void);
+        std::string calibrateReq(void);
         std::string maintenance(std::string);
         int set(tsOrientation );
         void get(tsOrientation *);
@@ -89,14 +87,14 @@ class OrientationThCl
         teOrientationState         _state;
         tsOrientation              _orientation;
         std::queue<tsOrientation>  _queue;
-        RtTrace          * _trace;
-
-        ArmCl            * _pArm;
-        HandCl           * _pHand;
-        pthread_mutex_t    _mutex;
+        RtTrace                  * _trace;
+                                 
+        ArmCl                    * _pArm;
+        HandCl                   * _pHand;
+        pthread_mutex_t            _mutex;
 
         void *_execute(void);        
-        void *_calibrate(void);
+        int   _calibrate(void);
 };
 
 extern const std::string ORIENTATION_KEYS[];

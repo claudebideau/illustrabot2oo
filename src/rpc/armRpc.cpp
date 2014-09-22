@@ -110,68 +110,68 @@ usage : xml.arm.info [<name>] \n\n\
 };
 
 
-/**
- * \class ArmCalibrateCl
- * \brief 
- *
- */
-class ArmCalibrateCl : public xmlrpc_c::method
-{
-    public:
-        ArmCalibrateCl()
-        {
-            // this->_signature = "n:A";
-            this->_help = "\n\
-usage : xml.arm.calibrate <start/stop>\n\n\
-\tstart or stop calibration for arm \n\
-\n\n parameters:\n\
-\t<start/stop> : \n\
-\nreturn :\n\
-\t<status> : 0 done / otherwise error\n\
-\t\n\n";
-            return;
-        };
-        
-        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
-        {
-            switch(paramList.size())
-            {
-
-                case 1:
-                    {
-                        // RtTrace * L_RtTraceBuffer;
-                        std::string const L_type(paramList.getString(1));
-                        int L_start=0;
-                        L_start= (L_type.compare("start") == 0);
-                        
-                        map<string, xmlrpc_c::value> L_structData;
-                        
-                        if (E_pArmObj != NULL)
-                        {
-                            if (L_start==TRUE)
-                            {
-                                TRACES_WARNING_ARG1("Calibration start request for '%s'",E_pArmObj->name().c_str());
-                                E_pArmObj->start_calibrate();
-                            } else {
-                                TRACES_WARNING_ARG1("Calibration stop  request for '%s'",E_pArmObj->name().c_str());
-                                E_pArmObj->stop_calibrate();
-                            }
-                            *retvalP = xmlrpc_c::value_int(0);
-
-                        } else {
-                            *retvalP = xmlrpc_c::value_int(-1);
-                        }
-                    }
-                    break;
-                default:
-                    *retvalP = xmlrpc_c::value_int(-2);
-                    throw "require only one parameter";
-                    break;
-            }
-            return;
-        }
-        
-};
+///**
+// * \class ArmCalibrateCl
+// * \brief 
+// *
+// */
+//class ArmCalibrateCl : public xmlrpc_c::method
+//{
+//    public:
+//        ArmCalibrateCl()
+//        {
+//            // this->_signature = "n:A";
+//            this->_help = "\n\
+//usage : xml.arm.calibrate <start/stop>\n\n\
+//\tstart or stop calibration for arm \n\
+//\n\n parameters:\n\
+//\t<start/stop> : \n\
+//\nreturn :\n\
+//\t<status> : 0 done / otherwise error\n\
+//\t\n\n";
+//            return;
+//        };
+//        
+//        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+//        {
+//            switch(paramList.size())
+//            {
+//
+//                case 1:
+//                    {
+//                        // RtTrace * L_RtTraceBuffer;
+//                        std::string const L_type(paramList.getString(1));
+//                        int L_start=0;
+//                        L_start= (L_type.compare("start") == 0);
+//                        
+//                        map<string, xmlrpc_c::value> L_structData;
+//                        
+//                        if (E_pArmObj != NULL)
+//                        {
+//                            if (L_start==TRUE)
+//                            {
+//                                TRACES_WARNING_ARG1("Calibration start request for '%s'",E_pArmObj->name().c_str());
+//                                E_pArmObj->start_calibrate();
+//                            } else {
+//                                TRACES_WARNING_ARG1("Calibration stop  request for '%s'",E_pArmObj->name().c_str());
+//                                E_pArmObj->stop_calibrate();
+//                            }
+//                            *retvalP = xmlrpc_c::value_int(0);
+//
+//                        } else {
+//                            *retvalP = xmlrpc_c::value_int(-1);
+//                        }
+//                    }
+//                    break;
+//                default:
+//                    *retvalP = xmlrpc_c::value_int(-2);
+//                    throw "require only one parameter";
+//                    break;
+//            }
+//            return;
+//        }
+//        
+//};
 
 
 /**
@@ -236,12 +236,12 @@ usage : xml.arm.set <longitude> <latitude> <radius>\n\n\
 void ArmRpcAttach(xmlrpc_c::registry * F_pRegistry)
 {
     xmlrpc_c::methodPtr const ArmInfoObj  (new ArmInfoCl);
-    xmlrpc_c::methodPtr const ArmCalibrateObj(new ArmCalibrateCl);
+    // xmlrpc_c::methodPtr const ArmCalibrateObj(new ArmCalibrateCl);
     xmlrpc_c::methodPtr const ArmSetObj(new ArmSetCl);
 
 
     F_pRegistry->addMethod("xml.arm.info",      ArmInfoObj    );
-    F_pRegistry->addMethod("xml.arm.calibrate", ArmCalibrateObj  );
+    // F_pRegistry->addMethod("xml.arm.calibrate", ArmCalibrateObj  );
     F_pRegistry->addMethod("xml.arm.set",       ArmSetObj  );
 
 

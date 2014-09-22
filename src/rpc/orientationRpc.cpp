@@ -152,11 +152,11 @@ usage : xml.orientation.maint <on/off> \n\n\
                     {
                         // RtTrace * L_RtTraceBuffer;
                         std::string const L_state(paramList.getString(0));
-			if ( E_pOrientationThObj != NULL)
-				*retvalP = xmlrpc_c::value_string(E_pOrientationThObj->maintenance(L_state));
-			else 
-				*retvalP = xmlrpc_c::value_string(std::string("off"));
-                    }
+                        if ( E_pOrientationThObj != NULL)
+                            *retvalP = xmlrpc_c::value_string(E_pOrientationThObj->maintenance(L_state));
+                        else 
+                            *retvalP = xmlrpc_c::value_string(std::string("off"));
+                        }
                     break;
                 default:
                     *retvalP = xmlrpc_c::value_int(-2);
@@ -170,54 +170,49 @@ usage : xml.orientation.maint <on/off> \n\n\
 
 
 /**
- * \class OrientationCalibrateCl
- * \brief 
- *
- */
+* \class OrientationCalibrateCl
+* \brief 
+*
+*/
 class OrientationCalibrateCl : public xmlrpc_c::method
 {
-    public:
-        OrientationCalibrateCl()
-        {
-            // this->_signature = "n:A";
-            this->_help = "\n\
+   public:
+       OrientationCalibrateCl()
+       {
+           // this->_signature = "n:A";
+           this->_help = "\n\
 usage : xml.orientation.calibrate\n\n\
 \tstart calibration for Orientation \n\
-\n\n parameters:\n\
-\t<start/stop> : \n\
 \nreturn :\n\
 \t<status> : 0 done / otherwise error\n\
 \t\n\n";
-            return;
-        };
-        
-        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
-        {
-            switch(paramList.size())
-            {
+           return;
+       };
+       
+       void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+       {
+           switch(paramList.size())
+           {
 
-                case 0:
-                    {
-                        
+               case 0:
+                   {
                         if (E_pOrientationThObj != NULL)
                         {
-                            E_pOrientationThObj->stop();
-                            pthread_create(&G_OrientationCalibrationTh, NULL, &OrientationThCl::calibrate, E_pOrientationThObj);        
-                            *retvalP = xmlrpc_c::value_int(0);
+                            *retvalP = xmlrpc_c::value_string(E_pOrientationThObj->calibrateReq());
 
                         } else {
-                            *retvalP = xmlrpc_c::value_int(-1);
+                            *retvalP = xmlrpc_c::value_string("ko");
                         }
-                    }
-                    break;
-                default:
-                    *retvalP = xmlrpc_c::value_int(-2);
-                    throw "require only one parameter";
-                    break;
-            }
-            return;
-        }
-        
+                   }
+                   break;
+               default:
+                   *retvalP = xmlrpc_c::value_int(-2);
+                   throw "require only one parameter";
+                   break;
+           }
+           return;
+       }
+       
 };
 
 
@@ -278,61 +273,61 @@ usage : xml.orientation.set <longitude> <latitude> <radius>\n\n\
 };
 
 
-/**
- * \class OrientationStartCl
- * \brief 
- *
- */
-class OrientationStartCl : public xmlrpc_c::method
-{
-    public:
-        OrientationStartCl()
-        {
-            // this->_signature = "n:A";
-            this->_help = "\n\
-usage : xml.orientation.stop \n\n\
-\tstop thread \n\
-\n\n parameters:\n\
-\nreturn :\n\
-\t<status> : 0 done / otherwise error\n\
-\t\n\n";
-            return;
-        };
-        
-        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
-        {
-            switch(paramList.size())
-            {
-
-               case 0:
-                   {
-                       if (E_pOrientationThObj != NULL)
-                       {
-                            if (E_pOrientationThObj->state() > ORIENTATION_CALIBRATE) 
-                            {
-                                TRACES_INFO("Create pthread for orientation");
-                                pthread_create(&G_OrientationTh, NULL, &OrientationThCl::run, E_pOrientationThObj);        
-                               *retvalP = xmlrpc_c::value_int(0);
-
-                            }
-                            else 
-                            {
-                                *retvalP = xmlrpc_c::value_int(-2);
-                            }
-                       } else {
-                           *retvalP = xmlrpc_c::value_int(-1);
-                       }
-                   }
-                   break;
-                default:
-                    *retvalP = xmlrpc_c::value_int(-2);
-                    throw "require no parameters";
-                    break;
-            }
-            return;
-        }
-
-};
+///**
+// * \class OrientationStartCl
+// * \brief 
+// *
+// */
+//class OrientationStartCl : public xmlrpc_c::method
+//{
+//    public:
+//        OrientationStartCl()
+//        {
+//            // this->_signature = "n:A";
+//            this->_help = "\n\
+//usage : xml.orientation.stop \n\n\
+//\tstop thread \n\
+//\n\n parameters:\n\
+//\nreturn :\n\
+//\t<status> : 0 done / otherwise error\n\
+//\t\n\n";
+//            return;
+//        };
+//        
+//        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+//        {
+//            switch(paramList.size())
+//            {
+//
+//               case 0:
+//                   {
+//                       if (E_pOrientationThObj != NULL)
+//                       {
+//                            if (E_pOrientationThObj->state() > ORIENTATION_CALIBRATE) 
+//                            {
+//                                TRACES_INFO("Create pthread for orientation");
+//                                pthread_create(&G_OrientationTh, NULL, &OrientationThCl::run, E_pOrientationThObj);        
+//                               *retvalP = xmlrpc_c::value_int(0);
+//
+//                            }
+//                            else 
+//                            {
+//                                *retvalP = xmlrpc_c::value_int(-2);
+//                            }
+//                       } else {
+//                           *retvalP = xmlrpc_c::value_int(-1);
+//                       }
+//                   }
+//                   break;
+//                default:
+//                    *retvalP = xmlrpc_c::value_int(-2);
+//                    throw "require no parameters";
+//                    break;
+//            }
+//            return;
+//        }
+//
+//};
 
 
 /**
@@ -398,14 +393,14 @@ void OrientationRpcAttach(xmlrpc_c::registry * F_pRegistry)
     xmlrpc_c::methodPtr const OrientationMaintenanceObj(new OrientationMaintCl);
     xmlrpc_c::methodPtr const OrientationCalibrateObj(new OrientationCalibrateCl);
     xmlrpc_c::methodPtr const OrientationSetObj(new OrientationSetCl);
-    xmlrpc_c::methodPtr const OrientationStartObj(new OrientationStartCl);
+    // xmlrpc_c::methodPtr const OrientationStartObj(new OrientationStartCl);
     xmlrpc_c::methodPtr const OrientationStopObj(new OrientationStopCl);
 
     F_pRegistry->addMethod("xml.orientation.info",      OrientationInfoObj    );
     F_pRegistry->addMethod("xml.orientation.maintenance", OrientationMaintenanceObj  );
     F_pRegistry->addMethod("xml.orientation.calibrate", OrientationCalibrateObj  );
     F_pRegistry->addMethod("xml.orientation.set",       OrientationSetObj  );
-    F_pRegistry->addMethod("xml.orientation.start",     OrientationStartObj  );
+    // F_pRegistry->addMethod("xml.orientation.start",     OrientationStartObj  );
     F_pRegistry->addMethod("xml.orientation.stop",      OrientationStopObj  );
 
 

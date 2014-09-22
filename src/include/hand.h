@@ -79,8 +79,7 @@ class HandCl
         void get(tsHandPosition * );
         void rise(void);
         void fall(void);        
-        void start_calibrate();
-        void stop_calibrate();
+        bool calibrate();
 
         virtual ~HandCl();
         inline std::string name() { return _name; }

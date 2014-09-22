@@ -300,72 +300,72 @@ usage : xml.element.speed <name> [<speed value>]\n\n\
         
 };
 
-/**
- * \class ElementCalibrateCl
- * \brief 
- *
- */
-class ElementCalibrateCl : public xmlrpc_c::method
-{
-    public:
-        ElementCalibrateCl()
-        {
-            // this->_signature = "n:A";
-            this->_help = "\n\
-usage : xml.element.calibrate <name> <start/stop>\n\n\
-\tstart or stop calibration for element <name>\n\
-\n\n parameters:\n\
-\t<name>      : name of the element to apply the step(s)\n\
-\t<start/stop> : number of step to apply (default 1)\n\
-\nreturn :\n\
-\t<status> : 0 done / otherwise error\n\
-\t\n\n";
-            return;
-        };
-        
-        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
-        {
-            switch(paramList.size())
-            {
-
-                case 2:
-                    {
-                        // RtTrace * L_RtTraceBuffer;
-                        std::string const L_name(paramList.getString(0));
-                        std::string const L_type(paramList.getString(1));
-                        int L_start=0;
-                        L_start= (L_type.compare("start") == 0);
-                        
-                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
-                        map<string, xmlrpc_c::value> L_structData;
-                        
-                        L_itElement = G_MapElementObj.find(L_name);
-                        if (L_itElement != G_MapElementObj.end())
-                        {
-                            if (L_start==TRUE)
-                            {
-                                TRACES_WARNING_ARG1("Calibration start request for '%s'",L_itElement->first.c_str());
-                                L_itElement->second->start_calibrate();
-                            } else {
-                                TRACES_WARNING_ARG1("Calibration stop  request for '%s'",L_itElement->first.c_str());
-                                L_itElement->second->stop_calibrate();
-                            }
-                            *retvalP = xmlrpc_c::value_int(0);
-
-                        } else {
-                            *retvalP = xmlrpc_c::value_int(-1);
-                        }
-                    }
-                    break;
-                default:
-                    *retvalP = xmlrpc_c::value_int(-2);
-                    throw "require only one parameter";
-                    break;
-            }
-            return;
-        }
-        
-};
+///**
+// * \class ElementCalibrateCl
+// * \brief 
+// *
+// */
+//class ElementCalibrateCl : public xmlrpc_c::method
+//{
+//    public:
+//        ElementCalibrateCl()
+//        {
+//            // this->_signature = "n:A";
+//            this->_help = "\n\
+//usage : xml.element.calibrate <name> <start/stop>\n\n\
+//\tstart or stop calibration for element <name>\n\
+//\n\n parameters:\n\
+//\t<name>      : name of the element to apply the step(s)\n\
+//\t<start/stop> : number of step to apply (default 1)\n\
+//\nreturn :\n\
+//\t<status> : 0 done / otherwise error\n\
+//\t\n\n";
+//            return;
+//        };
+//        
+//        void execute(xmlrpc_c::paramList const& paramList,xmlrpc_c::value *   const  retvalP) 
+//        {
+//            switch(paramList.size())
+//            {
+//
+//                case 2:
+//                    {
+//                        // RtTrace * L_RtTraceBuffer;
+//                        std::string const L_name(paramList.getString(0));
+//                        std::string const L_type(paramList.getString(1));
+//                        int L_start=0;
+//                        L_start= (L_type.compare("start") == 0);
+//                        
+//                        std::map<std::string, MotorSensorElementCl *>::iterator L_itElement ;
+//                        map<string, xmlrpc_c::value> L_structData;
+//                        
+//                        L_itElement = G_MapElementObj.find(L_name);
+//                        if (L_itElement != G_MapElementObj.end())
+//                        {
+//                            if (L_start==TRUE)
+//                            {
+//                                TRACES_WARNING_ARG1("Calibration start request for '%s'",L_itElement->first.c_str());
+//                                L_itElement->second->start_calibrate();
+//                            } else {
+//                                TRACES_WARNING_ARG1("Calibration stop  request for '%s'",L_itElement->first.c_str());
+//                                L_itElement->second->stop_calibrate();
+//                            }
+//                            *retvalP = xmlrpc_c::value_int(0);
+//
+//                        } else {
+//                            *retvalP = xmlrpc_c::value_int(-1);
+//                        }
+//                    }
+//                    break;
+//                default:
+//                    *retvalP = xmlrpc_c::value_int(-2);
+//                    throw "require only one parameter";
+//                    break;
+//            }
+//            return;
+//        }
+//        
+//};
 
 
 /**
@@ -640,7 +640,6 @@ void ElementRpcAttach(xmlrpc_c::registry * F_pRegistry)
     xmlrpc_c::methodPtr const ElementInfoObj  (new ElementInfoCl);
     xmlrpc_c::methodPtr const ElementStepObj  (new ElementStepCl);
     xmlrpc_c::methodPtr const ElementSpeedObj  (new ElementSpeedCl);
-    xmlrpc_c::methodPtr const ElementCalibrateObj(new ElementCalibrateCl);
     xmlrpc_c::methodPtr const ElementPosResetObj(new ElementPosResetCl);
     xmlrpc_c::methodPtr const ElementPosMinObj(new ElementPosMinCl);
     xmlrpc_c::methodPtr const ElementPosMaxObj(new ElementPosMaxCl);
@@ -648,7 +647,6 @@ void ElementRpcAttach(xmlrpc_c::registry * F_pRegistry)
     F_pRegistry->addMethod("xml.element.info",   ElementInfoObj    );
     F_pRegistry->addMethod("xml.element.speed",   ElementSpeedObj    );
     F_pRegistry->addMethod("xml.element.step",   ElementStepObj    );
-    F_pRegistry->addMethod("xml.element.calibrate", ElementCalibrateObj  );
     F_pRegistry->addMethod("xml.element.pos.reset", ElementPosResetObj  );
     F_pRegistry->addMethod("xml.element.pos.min", ElementPosMinObj  );
     F_pRegistry->addMethod("xml.element.pos.max", ElementPosMaxObj  );

@@ -134,9 +134,9 @@ MotorSensorElementCl::MotorSensorElementCl(iniCl * _pIni, std::string _keyName)
         // }
     // }
     
-#ifdef ILLUSOO_THREAD
-    _thCal=NULL;
-#endif
+
+    _teValuePrev = _pSensor->get();
+    _bDetectEdge=false;
     _state  = MS_UNCALIBRATE;
 }
 
@@ -240,86 +240,40 @@ unsigned int MotorSensorElementCl::speed_mask(void)
     return _pDriver->speed_mask;
 }
 
-/**
-   @brief create the calibration thread with calibrate function
-   @return none.
- */
 
-void MotorSensorElementCl::start_calibrate(void)
-{
-#ifdef ILLUSOO_THREAD
-    _thMutex.lock();
-    _stop_thCal= false;
-    _thMutex.unlock();
-    /* create thread with calibrate call */
-    _thCal = new std::thread(&MotorSensorElementCl::calibrate, this);
-    
-#endif
-}
-
-/**
-   @brief request to stop calibration thread 
-   @return none.
- */
-
-void MotorSensorElementCl::stop_calibrate(void)
-{
-#ifdef ILLUSOO_THREAD
-    _thMutex.lock();
-    _stop_thCal= true;
-    _thMutex.unlock();
-    _thCal->join();
-    _thCal=NULL;
-#endif   
-
-}
 /**
    @brief calibrate the position of the motor with sensor edge
    @return none.
  */
 
-void MotorSensorElementCl::calibrate(void)
+bool MotorSensorElementCl::calibrate(void)
 {
-    teValue L_teValueCurrent;
-    teValue L_teValuePrev;
+    teValue _teValuePrev;
     int     L_i32Step;
-    unsigned char L_bDetectEdge = 0;
     
-    L_teValuePrev = _pSensor->get();
-    while (L_bDetectEdge==0)
+    if (_bDetectEdge==false)
     {
-#ifdef ILLUSOO_THREAD
-        _thMutex.lock();
-#endif
-        if (_stop_thCal == true)
+        _teValueCurrent = _pSensor->get();
+        if (_teValueCurrent != _teValuePrev)
         {
-            L_bDetectEdge= 1;
-#ifdef ILLUSOO_THREAD
-            _thMutex.unlock();
-#endif
-            continue;
-        }
-#ifdef ILLUSOO_THREAD
-        _thMutex.unlock();
-#endif
-        L_teValueCurrent = _pSensor->get();
-        if (L_teValueCurrent != L_teValuePrev)
-        {
-            L_bDetectEdge=1;
-            _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, L_teValueCurrent, L_teValuePrev );
+            _bDetectEdge=true;
+            _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, _teValueCurrent, _teValuePrev );
             _state  = MS_READY;
+            _calibrationStep = 0;
         } else 
         {
-            L_i32Step = ( L_teValueCurrent == LOW) ? 1 : -1;
+            L_i32Step = ( _teValueCurrent == LOW) ? 1 : -1;
             /* do step */
-            _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, L_teValueCurrent, L_teValuePrev );
+            _trace->trace(MOTOR_CALIBRATION, MOTOR_CALIBRATION, _teValueCurrent, _teValuePrev );
             _pDriver->step_pulse(L_i32Step);
-            usleep(100);
-            _pDriver->step_fall();
-            usleep(100);
+
         }
     }
-
+#ifdef __TEST
+    /* force to true in case of test mode */
+    _bDetectEdge = true;
+#endif
+    return _bDetectEdge;
 }
 
 /**
