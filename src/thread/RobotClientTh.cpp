@@ -183,7 +183,7 @@ void *RobotClientThreadCl::_execute(void)
                                 break;
                             case ROBOT_KEEPALIVE :
                                 /* nothing */
-				cout <<"k" << endl;
+                                std::cout <<"k" << endl;
                                 break;
                             case ROBOT_REINIT:
                                 if (_state != RC_RUNNING) 
@@ -202,6 +202,15 @@ void *RobotClientThreadCl::_execute(void)
                                 _tsMsgTx.header.txid++;
                                 _stat.tx ++;
                                 _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
+                                break;
+                            case ROBOT_DATA:
+                                std::cout << 'd' << endl;
+                                _tsMsgTx.header.rxid = _tsMsgRx.header.txid;
+                                /* process incoming data ......                     */
+                                /* TODO : JL                                        */
+                                
+                                /* call orientation set method to fill coordination */
+                                
                                 break;
                             default:
                                 // throw std::string("not a compatible socket");
@@ -248,7 +257,7 @@ void *RobotClientThreadCl::_execute(void)
                         }
                         break;
                     case RC_RUNNING:
-                        /* send status every 2048 packets/timeout ( 2 second)*/
+                        /* send status every 2048 packets/timeout ( ~ 2 seconds )*/
                         if (0==(L_i32Idx%2048))
                         {
                             _tsMsgTx.header.type  = ROBOT_KEEPALIVE;

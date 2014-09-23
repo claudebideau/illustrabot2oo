@@ -297,7 +297,7 @@ void MotorSensorElementCl::rise()
     int L_i32diff;
     
     /* force step to 0 */
-    _pDriver->step_fall();
+    //_pDriver->step_fall();
     L_i32diff = _requireStep- _currentStep;
     _direction = (L_i32diff >=0) ? 1: -1;
     if (L_i32diff!=0)
