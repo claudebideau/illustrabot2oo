@@ -1,0 +1,47 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eth0
+iface eth0 inet dhcp
+# Example to keep MAC address between reboots
+#hwaddress ether DE:AD:BE:EF:CA:FE
+
+# WiFi Example
+#auto wlan0
+#iface wlan0 inet dhcp
+#    wpa-ssid "essid"
+#    wpa-psk  "password"
+
+# Ethernet/RNDIS gadget (g_ether)
+# ... or on host side, usbnet and random hwaddr
+# Note on some boards, usb0 is automaticly setup with an init script
+# in that case, to completely disable remove file [run_boot-scripts] from the boot partition
+iface usb0 inet static
+    address 192.168.7.2
+    netmask 255.255.255.0
+    network 192.168.7.0
+    gateway 192.168.7.1
+
+allow-hotplug wwan0
+iface wwan0 inet manual
+#    pre-up /usr/local/sbin/lte.sh backup-netconf
+#    up /usr/local/sbin/lte.sh connect
+#    down /usr/local/sbin/lte.sh disconnect
+#    post-down /usr/local/sbin/lte.sh restore-netconf
+
+#    pre-up /usr/local/sbin/lte.sh attach
+#    pre-up /usr/local/sbin/lte.sh start
+#    post-up /sbin/dhclient -pf /var/run/dhclient.$IFACE.pid -lf /var/lib/dhcp/dhclient.$IFACE.leases
+#    pre-down /bin/kill `ps -eaf|grep dhclient|grep $IFACE|grep -v grep|awk '{print $2}'`
+#    pre-down /usr/local/sbin/lte.sh stop
+
+iface wwan0 inet6 manual
+    pre-up /usr/local/sbin/lte.sh connect6
+    up /sbin/ifconfig $IFACE up
+    down /sbin/ifconfig $IFACE down
+    post-down /usr/local/sbin/lte.sh disconnect6
