@@ -1,5 +1,8 @@
 #!/bin/bash
 
+if [ ! -e /lib/firmware/arm_control-1-00A0.dtbo ] ; then
+    sudo cp arm_control-1-00A0.dtbo /lib/firmware
+fi	
 
 #wget -c https://raw.github.com/RobertCNelson/tools/master/pkgs/dtc.sh
 #chmod u+x dtc.sh
