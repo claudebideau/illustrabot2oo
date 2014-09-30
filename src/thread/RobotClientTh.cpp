@@ -204,13 +204,9 @@ void *RobotClientThreadCl::_execute(void)
                                 _stat.txbytes += sizeof(tsMsgRobotSrvHeader);
                                 break;
                             case ROBOT_DATA:
-                                std::cout << 'd' << endl;
-                                _tsMsgTx.header.rxid = _tsMsgRx.header.txid;
-                                /* process incoming data ......                     */
-                                /* TODO : JL                                        */
-                                
+                            	_tsMsgTx.header.rxid = _tsMsgRx.header.txid;
+                                E_pOrientationThObj->compute(_tsMsgRx.pl.ue.param,1);
                                 /* call orientation set method to fill coordination */
-                                
                                 break;
                             default:
                                 // throw std::string("not a compatible socket");

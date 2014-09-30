@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
-
+#include <math.h>
 #include "trace.h"
 #include "proto.h"
 #include "UeSrvStreamTh.h"
@@ -209,8 +209,17 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
                             uint16_t L_u16v1 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.azimuth) &0xFFFF;
                             uint16_t L_u16v2 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.pitch) &0xFFFF;
                             uint16_t L_u16v3 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.roll) & 0xFFFF;
-                            tsUePayload L_tsUePayload = { 1, 0, (uint16_t) L_u16v1, L_u16v2, L_u16v3};
+                            uint16_t L_u16b2  = (uint16_t) _tsMsgRx.pl.android.buttons1 & 0xFFFF;
+                            uint16_t L_u16b1  = floor(L_u16b2/256);
+                            L_u16b2=L_u16b2-L_u16b1*256;
+                            tsUePayload L_tsUePayload = {(uint8_t)L_u16b1,(uint8_t)L_u16b2 , (int16_t)L_u16v1, (int16_t)L_u16v2, (int16_t)L_u16v3};
+                            //cout<<"b1: "<<L_u16b1<<endl;
+                            //cout<<"b2: "<<L_u16b2<<endl;
+                            //cout<<"v1: "<<L_u16v1<<endl;
+                            //cout<<"v2: "<<L_u16v2<<endl;
+                            //cout<<"v3: "<<L_u16v3<<endl;
                             _pts2Robot->addData(&L_tsUePayload);
+
                         }
                         catch(std::string &error)
                         {
@@ -277,7 +286,6 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
     } else if (L_i32lengthRx == 0)
     {
         pthread_mutex_lock(&_mutexTh);
-        _bContinue = false;
         _bStop     = false;
         L_bLoop    = false;
         pthread_mutex_unlock(&_mutexTh);

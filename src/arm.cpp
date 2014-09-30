@@ -166,15 +166,15 @@ void ArmCl::set(tsArmPosition F_tsArmPos)
 {
     int L_i32alphaScaled, L_i32betaScaled;
     int L_i32AlphaAngle, L_i32GammaAngle;
-    
+
     _pos.longitude = F_tsArmPos.longitude;
     _pos.latitude  = F_tsArmPos.latitude ;
     _pos.radius    = F_tsArmPos.radius   ;
     
     // input value are scaled
-    // cout << "_pos.longitude"<< _pos.longitude << endl;
-    // cout << "_pos.latitude "<< _pos.latitude  << endl;
-    // cout << "_pos.radius   "<< _pos.radius    << endl;
+     //cout << "_pos.longitude"<< _pos.longitude << endl;
+     //cout << "_pos.latitude "<< _pos.latitude  << endl;
+     //cout << "_pos.radius   "<< _pos.radius    << endl;
 
     // determine longitude require step value
     _Elt[SHOULDER]->set(_pos.longitude);
@@ -185,11 +185,13 @@ void ArmCl::set(tsArmPosition F_tsArmPos)
     //       radiusAngle = acos(_pos.radius)
     L_i32AlphaAngle = G_tsaAlphaTable[_pos.radius].norm;
 
-    _Elt[ARM]->set(_pos.latitude + L_i32AlphaAngle);
-    
-    L_i32GammaAngle = _pos.latitude - L_i32AlphaAngle;
-    _Elt[FOREARM]->set(L_i32GammaAngle);
+    //_Elt[ARM]->set(_pos.latitude + L_i32AlphaAngle);
+    _Elt[ARM]->set(_pos.latitude);
 
+    L_i32GammaAngle = _pos.latitude - L_i32AlphaAngle;
+    //_Elt[FOREARM]->set(L_i32GammaAngle);
+    _Elt[FOREARM]->set(0);
+    
     // cout << "_pos.latitude(scaled)   = " << _pos.latitude << endl;
     // cout << "L_i32AlphaAngle(scaled) = " << L_i32AlphaAngle << endl;
     // cout << "L_i32AlphaAngle(degre)  = " << G_tsaAlphaTable[_pos.radius].degre << endl;
@@ -222,8 +224,9 @@ void ArmCl::rise()
     unsigned char L_u8Idx;
     for (L_u8Idx=SHOULDER; L_u8Idx<= FOREARM ; L_u8Idx++)
     {
-        if( _Elt[L_u8Idx] != NULL)
+        if( _Elt[L_u8Idx] != NULL){
             _Elt[L_u8Idx]->rise();
+        }
     }
 
 }

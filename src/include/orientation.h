@@ -33,7 +33,7 @@
 #include <list>
 #include <queue>
 #include <pthread.h>
-
+#include <stdint.h>
 
 /**   1. Include files  (own)                                       **/
 #include "arm.h"
@@ -77,9 +77,8 @@ class OrientationThCl
         std::string maintenance(std::string);
         int set(tsOrientation );
         void get(tsOrientation *);
-
+        int compute(int16_t param[3],uint8_t command );
         virtual ~OrientationThCl();
-
 
     protected:
     private:
@@ -88,11 +87,9 @@ class OrientationThCl
         tsOrientation              _orientation;
         std::queue<tsOrientation>  _queue;
         RtTrace                  * _trace;
-                                 
         ArmCl                    * _pArm;
         HandCl                   * _pHand;
         pthread_mutex_t            _mutex;
-
         void *_execute(void);        
         int   _calibrate(void);
 };

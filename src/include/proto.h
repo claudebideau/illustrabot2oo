@@ -174,11 +174,8 @@ typedef struct message {
       /** android payload
        */
       struct {
-         uint8_t b1;    /**< button 1 */
-         uint8_t b2;    /**< button 2 */
-         uint8_t b3;    /**< button 3 */
-         uint8_t b4;    /**< button 4 */
-         int32_t azimuth;   /**< axis X * 100 */
+    	 int32_t buttons1;   /** buttons */
+    	 int32_t azimuth;   /**< axis X * 100 */
          int32_t pitch;     /**< axis Y * 100 */
          int32_t roll;      /**< axis Z * 100 */
       } android;

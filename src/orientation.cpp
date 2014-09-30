@@ -40,9 +40,13 @@
 
 using namespace std;
 
-
 const std::string ORIENTATION_KEYS[] =  {"ORIENTATION_INIT", "ORIENTATION_CALIBRATE", "ORIENTATION_READY", "ORIENTATION_RUNNING", "ORIENTATION_MAINTENANCE", "ORIENTATION_STOPPED"};
-
+const int16_t POSALPHATH=30000;
+const int16_t NEGALPHATH=30000;
+const int16_t POSBETATH=13500;
+const int16_t NEGBETATH=8500;
+const int16_t POSGAMMATH=11500;
+const int16_t NEGGAMMATH=7500;
 OrientationThCl * E_pOrientationThObj= NULL;
 
 OrientationThCl::OrientationThCl(iniCl * _pIni )
@@ -64,11 +68,10 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
     pthread_mutex_unlock(&_mutex);
     
     TRACES_MSG("OrientationThCl: init");
-
-    /* create and associate Rt Trace object */
+   /* create and associate Rt Trace object */
     _trace = new RtTrace("OrientationThCl", RT_TRACE_ENABLE );
     _trace->trace(0, RT_TRACE_ENABLE, 0xFFFFFFFF, 2);
-    
+
     // speed_mask = 0;
     // speed      = 0;
     _orientation.arm.longitude = 0;
@@ -77,6 +80,8 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
     _orientation.hand.rotation = 0;
     _orientation.hand.updown   = 0;
     _orientation.hand.gap      = 0;
+
+
     /* TODO: need to check if exist section arm/wrist/hand */
 
     _pArm  = new ArmCl(_pIni,"arm");
@@ -96,7 +101,7 @@ OrientationThCl::OrientationThCl(iniCl * _pIni )
  */
 teOrientationState OrientationThCl::state(void)
 {
-    return _state;
+	return _state;
 }
 
 int OrientationThCl::set(tsOrientation F_tsOrientation)
@@ -104,6 +109,43 @@ int OrientationThCl::set(tsOrientation F_tsOrientation)
     pthread_mutex_lock(&_mutex);
     _queue.push(F_tsOrientation);
     pthread_mutex_unlock(&_mutex);
+    return 0;
+}
+
+int OrientationThCl::compute(int16_t param[3],uint8_t command)
+{
+	tsOrientation F_tsOrientation;
+
+	//E_pOrientationThObj->get(&F_tsOrientation);
+	if(1){
+		if(param[1]>POSBETATH){
+			F_tsOrientation.arm.latitude=1;
+			cout<<"UP:"<<param[1]<<endl;
+		}
+		else if(param[1]<NEGBETATH){
+			F_tsOrientation.arm.latitude=-1;
+			cout<<"DOWN:"<<param[1]<<endl;
+		}
+		else F_tsOrientation.arm.latitude=0;
+		if(param[2]>POSGAMMATH){
+			F_tsOrientation.arm.longitude=-1;
+			cout<<"RIGHT:"<<param[2]<<endl;
+		}
+		else if(param[2]<NEGGAMMATH){
+			F_tsOrientation.arm.longitude=1;
+			cout<<"LEFT:"<<param[2]<<endl;
+		}
+		else F_tsOrientation.arm.longitude=0;
+		F_tsOrientation.arm.radius=0;
+		F_tsOrientation.hand.gap=0;
+		F_tsOrientation.hand.rotation=0;
+		F_tsOrientation.hand.updown=0;
+	}
+	else{
+		cout<<"hand computing"<<endl;
+	}
+	E_pOrientationThObj->set(F_tsOrientation);
+
     return 0;
 }
 
@@ -252,7 +294,6 @@ void *OrientationThCl::_execute(void)
     
     TRACES_INFO("execute core of OrientationThCl" );
 
-
     /* first action is the calibration */
     _calibrate();
     
@@ -286,9 +327,11 @@ void *OrientationThCl::_execute(void)
             pthread_mutex_unlock(&_mutex);
             
             /* - compute new orientation      */
-            /* - set new orientation          */
-        }
 
+            /* - set new orientation          */
+            _pArm->set(L_tsOrientationValue.arm);
+            _pHand->set(L_tsOrientationValue.hand);
+        }
         pthread_mutex_lock(&_mutex);
         L_state= _state;
         pthread_mutex_unlock(&_mutex);
@@ -296,10 +339,10 @@ void *OrientationThCl::_execute(void)
         {
             case ORIENTATION_RUNNING:
                 if (_pArm   != NULL) _pArm->rise();
-                if (_pHand  != NULL) _pHand->rise();
+                //if (_pHand  != NULL) _pHand->rise();
                 usleep(1000);
                 if (_pArm   != NULL) _pArm->fall();
-                if (_pHand  != NULL) _pHand->fall();
+                //if (_pHand  != NULL) _pHand->fall();
                 break;
             case ORIENTATION_CALIBRATE:
                 _calibrate();
