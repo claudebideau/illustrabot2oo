@@ -56,7 +56,7 @@ typedef enum eHandType {HAND_LEFT=0, HAND_RIGHT, FINGER} teHandType;
 typedef struct sHandPosition {
     int          rotation;
     int          updown;
-    unsigned int gap;
+    int gap;
 } tsHandPosition;
     
  /**

@@ -77,7 +77,7 @@ class OrientationThCl
         std::string maintenance(std::string);
         int set(tsOrientation );
         void get(tsOrientation *);
-        int compute(int16_t param[3],uint8_t command );
+        int compute(int16_t param[3],int16_t mode);
         virtual ~OrientationThCl();
 
     protected:

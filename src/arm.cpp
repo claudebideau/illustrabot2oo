@@ -183,14 +183,14 @@ void ArmCl::set(tsArmPosition F_tsArmPos)
     // both angle of the arm and forearm
     //   - determine radius impact
     //       radiusAngle = acos(_pos.radius)
-    L_i32AlphaAngle = G_tsaAlphaTable[_pos.radius].norm;
+    //L_i32AlphaAngle = G_tsaAlphaTable[_pos.radius].norm;
 
     //_Elt[ARM]->set(_pos.latitude + L_i32AlphaAngle);
     _Elt[ARM]->set(_pos.latitude);
 
-    L_i32GammaAngle = _pos.latitude - L_i32AlphaAngle;
+    //L_i32GammaAngle = _pos.latitude - L_i32AlphaAngle;
     //_Elt[FOREARM]->set(L_i32GammaAngle);
-    _Elt[FOREARM]->set(0);
+    _Elt[FOREARM]->set(_pos.radius);
     
     // cout << "_pos.latitude(scaled)   = " << _pos.latitude << endl;
     // cout << "L_i32AlphaAngle(scaled) = " << L_i32AlphaAngle << endl;

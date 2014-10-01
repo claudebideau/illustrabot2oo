@@ -56,7 +56,7 @@ typedef enum eArmType {SHOULDER=0, ARM, FOREARM} teArmType;
 typedef struct sArmPosition {
     int longitude;
     int latitude;
-    unsigned int radius;
+    int radius;
 } tsArmPosition;
     
  /**

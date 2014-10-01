@@ -206,15 +206,15 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
                     {
                         try {
                             /* swap */
+
                             uint16_t L_u16v1 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.azimuth) &0xFFFF;
                             uint16_t L_u16v2 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.pitch) &0xFFFF;
                             uint16_t L_u16v3 = (uint16_t) Q_u32swap((uint32_t)_tsMsgRx.pl.android.roll) & 0xFFFF;
-                            uint16_t L_u16b2  = (uint16_t) _tsMsgRx.pl.android.buttons1 & 0xFFFF;
-                            uint16_t L_u16b1  = floor(L_u16b2/256);
-                            L_u16b2=L_u16b2-L_u16b1*256;
-                            tsUePayload L_tsUePayload = {(uint8_t)L_u16b1,(uint8_t)L_u16b2 , (int16_t)L_u16v1, (int16_t)L_u16v2, (int16_t)L_u16v3};
-                            //cout<<"b1: "<<L_u16b1<<endl;
-                            //cout<<"b2: "<<L_u16b2<<endl;
+                            uint16_t L_u16b  = (uint16_t) _tsMsgRx.pl.android.buttons1 & 0xFFFF;
+                            //uint16_t L_u16b1  = floor(L_u16b2/256);
+                            //L_u16b2=L_u16b2-L_u16b1*256;
+                            tsUePayload L_tsUePayload = {(int16_t)L_u16b,(int16_t)L_u16v1, (int16_t)L_u16v2, (int16_t)L_u16v3};
+                            //cout<<"b: "<<L_u16b<<endl;
                             //cout<<"v1: "<<L_u16v1<<endl;
                             //cout<<"v2: "<<L_u16v2<<endl;
                             //cout<<"v3: "<<L_u16v3<<endl;

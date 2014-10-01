@@ -176,8 +176,7 @@ void HandCl::set(tsHandPosition F_tsHandPos)
     // cout << "_pos.gap   "<< _pos.gap    << endl;
 
     // determine rotation require step value
-    //_Elt[HAND_LEFT]->set(_pos.rotation);
-    _Elt[HAND_LEFT]->set(0);
+    _Elt[HAND_LEFT]->set(_pos.rotation);
     // processing depend of updown and gap
     // both angle of the hand_right and finger
     //   - determine gap impact
@@ -185,10 +184,10 @@ void HandCl::set(tsHandPosition F_tsHandPos)
     L_i32AlphaAngle = G_tsaAlphaTable[_pos.gap].norm;
 
     //_Elt[HAND_RIGHT]->set(_pos.updown + L_i32AlphaAngle);
-    _Elt[HAND_RIGHT]->set(0);
-    L_i32GammaAngle = _pos.updown - L_i32AlphaAngle;
+    _Elt[HAND_RIGHT]->set(_pos.updown);
+    //L_i32GammaAngle = _pos.updown - L_i32AlphaAngle;
     //_Elt[FINGER]->set(L_i32GammaAngle);
-    _Elt[FINGER]->set(0);
+    _Elt[FINGER]->set(_pos.gap);
     // cout << "_pos.updown(scaled)   = " << _pos.updown << endl;
     // cout << "L_i32AlphaAngle(scaled) = " << L_i32AlphaAngle << endl;
     // cout << "L_i32AlphaAngle(degre)  = " << G_tsaAlphaTable[_pos.gap].degre << endl;
