@@ -147,7 +147,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		}
 		else{
 			F_tsOrientation.arm.latitude=0;
-			F_tsOrientation.arm.radius=-1;
+			F_tsOrientation.arm.radius=0;
 		}
 
 
