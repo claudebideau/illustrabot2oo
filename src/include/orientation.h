@@ -39,6 +39,7 @@
 #include "arm.h"
 #include "hand.h"
 #include "inireader.h"
+#include "proto.h"
 
 /**   2a.   External Functions                                      **/
 /**   2b.   External Data                                           **/
@@ -77,7 +78,7 @@ class OrientationThCl
         std::string maintenance(std::string);
         int set(tsOrientation );
         void get(tsOrientation *);
-        int compute(int16_t param[3],int16_t mode);
+        int compute(tsUePayload *);
         virtual ~OrientationThCl();
 
     protected:

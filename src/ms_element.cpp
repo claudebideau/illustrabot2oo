@@ -310,7 +310,8 @@ void MotorSensorElementCl::rise()
        {
            _pDriver->step_pulse(_direction);
            _currentStep += _direction;
-          // cout<<"required:"<<_requireStep<<"\tcurrent:"<<_currentStep<<endl;
+           cout<<_name << "   required:"<<_requireStep<<"\tcurrent:"<<_currentStep<<endl;
+	   _requireStep=0;
        }
 
 }

@@ -94,8 +94,8 @@ typedef struct sMsgRobotSrvHeader
         
    */
 typedef  struct {
-    uint8_t  mode;
-    uint8_t  flag;
+    uint16_t  mode;
+    //uint8_t  flag;
     int16_t  param[3];
 } tsUePayload;
 
