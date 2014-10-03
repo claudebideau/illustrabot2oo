@@ -152,11 +152,11 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 
 
 		if(F_ptsUe->param[2]>POSGAMMATH){
-			F_tsOrientation.arm.longitude=-1;
+			F_tsOrientation.arm.longitude=1;
 			cout<<"ARM RIGHT:"<<F_ptsUe->param[2]<<endl;
 		}
 		else if(F_ptsUe->param[2]<NEGGAMMATH){
-			F_tsOrientation.arm.longitude=1;
+			F_tsOrientation.arm.longitude=-1;
 			cout<<"ARM LEFT:"<<F_ptsUe->param[2]<<endl;
 		}
 		else F_tsOrientation.arm.longitude=0;
@@ -164,11 +164,11 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 
 	else{
 		if(F_ptsUe->param[1]>POSBETATH){
-			F_tsOrientation.hand.updown=1;
+			F_tsOrientation.hand.updown=-1;
 			cout<<"HAND UP:"<<F_ptsUe->param[1]<<endl;
 		}
 		else if(F_ptsUe->param[1]<NEGBETATH){
-			F_tsOrientation.hand.updown=-1;
+			F_tsOrientation.hand.updown=1;
 			cout<<"HAND DOWN:"<<F_ptsUe->param[1]<<endl;
 		}
 		else F_tsOrientation.hand.updown=0;

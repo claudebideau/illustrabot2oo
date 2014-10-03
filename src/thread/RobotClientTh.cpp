@@ -206,7 +206,7 @@ void *RobotClientThreadCl::_execute(void)
                             case ROBOT_DATA:
                             	_tsMsgTx.header.rxid = _tsMsgRx.header.txid;
                                 E_pOrientationThObj->compute(&_tsMsgRx.pl.ue);
-                                std::cout << "compute" << endl;
+                                //std::cout << "compute" << endl;
                                 /* call orientation set method to fill coordination */
                                 break;
                             default:

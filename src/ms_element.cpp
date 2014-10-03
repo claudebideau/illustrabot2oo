@@ -284,8 +284,8 @@ bool MotorSensorElementCl::calibrate(void)
 void MotorSensorElementCl::set(int _i32Value)
 {
     // input value is scaled 
-#if 0
-    _requireStep += _i32Value;
+#if 1
+    _requireStep += _i32Value <<7;
 #else
     _requireStep = _i32Value;
 #endif
@@ -303,7 +303,7 @@ void MotorSensorElementCl::set(int _i32Value)
  */
 void MotorSensorElementCl::rise()
 {
-#if 0
+#if 1
     int L_i32diff;
 
     L_i32diff = _requireStep- _currentStep;
@@ -312,7 +312,7 @@ void MotorSensorElementCl::rise()
     {
         _pDriver->step_pulse(_direction);
         _currentStep += _direction;
-        std::cout<<_name << "   required:"<<_requireStep<<"\tcurrent:"<<_currentStep<<endl;
+        // std::cout<<_name << "   required:"<<_requireStep<<"\tcurrent:"<<_currentStep<<endl;
    }
 
 #else
@@ -321,7 +321,7 @@ void MotorSensorElementCl::rise()
     {
         _pDriver->step_pulse(_direction);
         _currentStep += _direction;
-        std::cout<<_name << "   required:"<<_requireStep<<"\tcurrent:"<<_currentStep<<endl;
+        // std::cout<<_name << "   required:"<<_requireStep<<"\tcurrent:"<<_currentStep<<endl;
         _requireStep=0;
    }
 #endif

@@ -28,6 +28,7 @@ for file in ${list_file[*]}; do
 	fi
 
 done
+chmod 755 /usr/local/sbin/lte-dongle.sh
 
 echo "# add manually the following line in /etc/network/interfaces"
 echo "# ============================================================="
