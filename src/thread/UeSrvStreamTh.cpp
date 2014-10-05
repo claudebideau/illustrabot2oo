@@ -144,7 +144,6 @@ void *UeSrvStreamThreadCl::_execute(void)
         {
             L_bLoop &= _mng_rx();
             L_bLoop &= _mng_tx();
-            sleep(1);
         }
     }
     cout << "_stat.connected = " << _stat.connected << endl;
@@ -172,6 +171,7 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
     int L_i32lengthRx;
     static uint32_t L_u32lastTxId;
 //
+	memset((void*) &_tsMsgRx, 0, sizeof(message_t));
     L_i32lengthRx = _stream->receive((char *) &_tsMsgRx, sizeof(message_t), 1000);
     if ( L_i32lengthRx > 0) 
     {
@@ -196,6 +196,7 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
             switch ( _tsMsgRx.type ) 
             {
                 case T_COMMAND: /* no supported */
+                
                     break;
                 case T_DATA_WII: /* no supported */
                     break;
@@ -219,6 +220,8 @@ bool UeSrvStreamThreadCl::_mng_rx(void)
                             //cout<<"v2: "<<L_u16v2<<endl;
                             //cout<<"v3: "<<L_u16v3<<endl;
                             _pts2Robot->addData(&L_tsUePayload);
+                            std::cout << 'd';
+                            if ((_stat.rx & 0x0F ) == 0 ) std::cout << endl;
 
                         }
                         catch(std::string &error)
