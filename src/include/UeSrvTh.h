@@ -50,7 +50,7 @@
 /**   6.  Macros / Defines                                          **/
 
 #define MAX_RETRY 5
-#define MAX_UE_CONNECTED 4
+#define MAX_UE_CONNECTED 1
 
 typedef enum eUeSrvThState {UE_TH_INIT=0, UE_TH_CONNECTED, UE_TH_RUNNING, UE_TH_STOPPED   } teUeSrvThState;
 
