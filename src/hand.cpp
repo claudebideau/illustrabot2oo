@@ -169,6 +169,45 @@ void HandCl::set(tsHandPosition F_tsHandPos)
     _pos.rotation = F_tsHandPos.rotation;
     _pos.updown   = F_tsHandPos.updown ;
     _pos.gap      = F_tsHandPos.gap   ;
+
+#if 1
+	
+	if (_pos.rotation != 0)
+	{
+		/* 3 motors are associated                 *
+		 *   rotation right :                      *
+		 *           => right
+		 *           => -left
+		 *           => -finger
+		 *   rotation  left
+		 *           => -right
+		 *           => left
+		 *           => finger
+		 */
+		_Elt[HAND_LEFT]->set(-_pos.rotation);
+		_Elt[HAND_RIGHT]->set(_pos.rotation);
+		_Elt[FINGER]->set(-_pos.gap);
+	}
+	if (_pos.gap != 0)
+	{
+		_Elt[FINGER]->set(_pos.gap);
+	}
+	if (_pos.updown != 0)
+	{
+		/* 3 motors are associated                 *
+		 *   updown :                      *
+		 *           => right
+		 *           => left
+		 *           => finger
+		 */
+		_Elt[HAND_LEFT]->set(_pos.updown);
+		_Elt[HAND_RIGHT]->set(_pos.updown);
+		_Elt[FINGER]->set(_pos.updown);
+	}
+//	_Elt[HAND_LEFT]->set(_pos.rotation);
+//    _Elt[HAND_RIGHT]->set(_pos.updown);
+//    _Elt[FINGER]->set(_pos.gap);
+#else
     
     // input value are scaled
     // cout << "_pos.rotation"<< _pos.rotation << endl;
@@ -193,7 +232,7 @@ void HandCl::set(tsHandPosition F_tsHandPos)
     // cout << "L_i32AlphaAngle(degre)  = " << G_tsaAlphaTable[_pos.gap].degre << endl;
     // cout << "L_i32GammaAngle(scaled) = " << L_i32GammaAngle << endl;
 
-        
+#endif        
         
     // determine rotation require step value
     

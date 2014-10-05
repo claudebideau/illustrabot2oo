@@ -285,7 +285,7 @@ void MotorSensorElementCl::set(int _i32Value)
 {
     // input value is scaled 
 #if 1
-    _requireStep += _i32Value <<7;
+    _requireStep += _i32Value;
 #else
     _requireStep = _i32Value;
 #endif

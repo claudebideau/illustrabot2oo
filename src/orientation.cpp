@@ -120,27 +120,33 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 	int16_t I_handArmSelect  = (F_ptsUe->mode>> 8)& 0x1;
 	int16_t I_functionSelect=F_ptsUe->mode& 0xFF;
 
-	if(I_handArmSelect!=0){// Arm engine processing
-		if(F_ptsUe->param[1]>POSBETATH){
-			if(I_functionSelect>122){
-				F_tsOrientation.arm.latitude=1;
+	if(I_handArmSelect!=0)
+	{// Arm engine processing
+		if(F_ptsUe->param[1]>POSBETATH)
+		{
+			if(I_functionSelect>122)
+			{
+				F_tsOrientation.arm.latitude=1<<7;
 				F_tsOrientation.arm.radius=0;
-				cout<<"SHOULDER UP:"<<F_ptsUe->param[1]<<endl;
-			}
-			else{
-				F_tsOrientation.arm.radius=1;
+#if 0
+				std::cout<<"SHOULDER UP:"<<F_ptsUe->param[1]<<endl;
+#else
+#endif
+			} else {
+				F_tsOrientation.arm.radius=1<<7;
 				F_tsOrientation.arm.latitude=0;
-				cout<<"ARM UP:"<<F_ptsUe->param[1]<<endl;
+				std::cout<<"ARM UP:"<<F_ptsUe->param[1]<<endl;
 			}
 		}
-		else if(F_ptsUe->param[1]<NEGBETATH){
-			if(I_functionSelect>122){
-				F_tsOrientation.arm.latitude=-1;
+		else if(F_ptsUe->param[1]<NEGBETATH)
+		{
+			if(I_functionSelect>122)
+			{
+				F_tsOrientation.arm.latitude=-1<<7;
 				F_tsOrientation.arm.radius=0;
-				cout<<"SHOULDER DOWN:"<<F_ptsUe->param[1]<<endl;
-			}
-			else{
-				F_tsOrientation.arm.radius=-1;
+				std::cout<<"SHOULDER DOWN:"<<F_ptsUe->param[1]<<endl;
+			} else {
+				F_tsOrientation.arm.radius=-1<<7;
 				F_tsOrientation.arm.latitude=0;
 				cout<<"ARM DOWN:"<<F_ptsUe->param[1]<<endl;
 			}
@@ -151,48 +157,55 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		}
 
 
-		if(F_ptsUe->param[2]>POSGAMMATH){
-			F_tsOrientation.arm.longitude=1;
+		if(F_ptsUe->param[2]>POSGAMMATH)
+		{
+			F_tsOrientation.arm.longitude=1<<7;
 			cout<<"ARM RIGHT:"<<F_ptsUe->param[2]<<endl;
 		}
-		else if(F_ptsUe->param[2]<NEGGAMMATH){
-			F_tsOrientation.arm.longitude=-1;
+		else if(F_ptsUe->param[2]<NEGGAMMATH)
+		{
+			F_tsOrientation.arm.longitude=-1<<7;
 			cout<<"ARM LEFT:"<<F_ptsUe->param[2]<<endl;
 		}
 		else F_tsOrientation.arm.longitude=0;
 	}
-
 	else{
-		if(F_ptsUe->param[1]>POSBETATH){
-			F_tsOrientation.hand.updown=-1;
+		if(F_ptsUe->param[1]>POSBETATH)
+		{
+			F_tsOrientation.hand.updown=-1<<7;
 			cout<<"HAND UP:"<<F_ptsUe->param[1]<<endl;
 		}
-		else if(F_ptsUe->param[1]<NEGBETATH){
-			F_tsOrientation.hand.updown=1;
+		else if(F_ptsUe->param[1]<NEGBETATH)
+		{
+			F_tsOrientation.hand.updown=1<<7;
 			cout<<"HAND DOWN:"<<F_ptsUe->param[1]<<endl;
 		}
 		else F_tsOrientation.hand.updown=0;
 
-		if(F_ptsUe->param[2]>POSGAMMATH){
-			if(I_functionSelect>122){
-				F_tsOrientation.hand.gap=1;
+		if(F_ptsUe->param[2]>POSGAMMATH)
+		{
+			if(I_functionSelect>122)
+			{
+				F_tsOrientation.hand.gap=1<<7;
 				F_tsOrientation.hand.rotation=0;
 				cout<<"HAND OPEN:"<<F_ptsUe->param[2]<<endl;
 			}
 			else{
-				F_tsOrientation.hand.rotation=1;
+				F_tsOrientation.hand.rotation=1<<7;
 				F_tsOrientation.hand.gap=0;
 				cout<<"HAND ROT R:"<<F_ptsUe->param[2]<<endl;
 			}
 		}
-		else if(F_ptsUe->param[2]<NEGGAMMATH){
-			if(I_functionSelect>122){
-				F_tsOrientation.hand.gap=-1;
+		else if(F_ptsUe->param[2]<NEGGAMMATH)
+		{
+			if(I_functionSelect>122)
+			{
+				F_tsOrientation.hand.gap=-1<<7;
 				F_tsOrientation.hand.rotation=0;
 				cout<<"HAND CLOSE:"<<F_ptsUe->param[2]<<endl;
 			}
 			else{
-				F_tsOrientation.hand.rotation=-1;
+				F_tsOrientation.hand.rotation=-1<<7;
 				F_tsOrientation.hand.gap=0;
 				cout<<"HAND ROT L:"<<F_ptsUe->param[2]<<endl;
 			}
