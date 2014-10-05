@@ -153,7 +153,7 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
                                 # Usage: scriptname -options
                                 # Note: dash (-) necessary
     fi  
-    while getopts "xbgtslcde" Option
+    while getopts "xybgtslcde" Option
     do
       case $Option in
         h     ) help; exit 0;;
