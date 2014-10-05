@@ -53,6 +53,7 @@ help()
    printf "\nDESCRIPTION\n\n"
    printf "\nOPTIONS\n\n"
    printf "     -x    : build the xmlrpc library for local target\n"
+   printf "     -y    : build the socket library for local target\n"
    printf "     -c    : clean option for deamon and illusoo\n"
    printf "     -t    : build with __TEST flag\n"
    printf "     =================================================\n"
@@ -118,17 +119,18 @@ chmod u+x test.sh
 #
 socketlib_build()
 {
-	cd src/socketlib/
+    cd src/socketlib/
     make clean all
     cp libsocket.so $BUILD_LIB_PATH
     cp *.h $BUILD_INC_PATH
-	cd ${CDIR}
+    cd ${CDIR}
 }
 
 
 
 main=$0
 XMLRPC=0
+SOCKET=0
 DEAMON=0
 MAKED=0
 MAKE=0
@@ -156,6 +158,7 @@ if [[ "${main}" == "./illusoo.sh" ]]; then
       case $Option in
         h     ) help; exit 0;;
         x     ) printf "BUILD XML-RPC LIBRARY\n===========================\n"; XMLRPC=1 ;;
+        y     ) printf "BUILD socket LIBRARY\n===========================\n"; SOCKET=1 ;;
         c     ) printf "CLEAN \n===========================\n"; CLEAN=1 ;;
         d     ) printf "BUILD DEAMON\n===========================\n"; MAKED=1 ;;
         e     ) printf "Execute DEAMON\n===========================\n"; DEAMON=1 ;;
@@ -173,8 +176,11 @@ if [[ $XMLRPC -eq 1 ]]; then
 	xmlrpc_build
 fi 
 
-if [[ $MAKED -eq 1 ]]; then
+if [[ $SOCKET -eq 1 ]]; then
     socketlib_build
+fi 
+
+if [[ $MAKED -eq 1 ]]; then
     export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
     if [[ $CLEAN -eq 1 ]]; then
             make clean 
@@ -190,7 +196,6 @@ fi
 
 
 if [[ $MAKE -eq 1 ]]; then
-    socketlib_build
     export LD_LIBRARY_PATH=${BUILD_LIB_PATH}
     if [[ $CLEAN -eq 1 ]]; then
             make clean 
