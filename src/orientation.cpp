@@ -209,7 +209,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 	else{
 		if(F_ptsUe->param[1]>POSBETATH)
 		{
-			F_tsOrientation.hand.updown=-1<<7;
+			F_tsOrientation.hand.updown=-1<<6;
 #if __TRACE_LEVEL == 0
 			std::cout<<"HAND UP:"<<F_ptsUe->param[1]<<endl;
 #elif __TRACE_LEVEL == 1
@@ -220,7 +220,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		}
 		else if(F_ptsUe->param[1]<NEGBETATH)
 		{
-			F_tsOrientation.hand.updown=1<<7;
+			F_tsOrientation.hand.updown=1<<6;
 #if __TRACE_LEVEL == 0
 			std::cout<<"HAND DOWN:"<<F_ptsUe->param[1]<<endl;
 #elif __TRACE_LEVEL == 1
@@ -235,7 +235,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		{
 			if(I_functionSelect>122)
 			{
-				F_tsOrientation.hand.gap=1<<7;
+				F_tsOrientation.hand.gap=1<<6;
 				F_tsOrientation.hand.rotation=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND OPEN:"<<F_ptsUe->param[2]<<endl;
@@ -246,7 +246,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 #endif
 			}
 			else{
-				F_tsOrientation.hand.rotation=1<<7;
+				F_tsOrientation.hand.rotation=1<<6;
 				F_tsOrientation.hand.gap=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND ROT R:"<<F_ptsUe->param[2]<<endl;
@@ -261,7 +261,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		{
 			if(I_functionSelect>122)
 			{
-				F_tsOrientation.hand.gap=-1<<7;
+				F_tsOrientation.hand.gap=-1<<6;
 				F_tsOrientation.hand.rotation=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND CLOSE:"<<F_ptsUe->param[2]<<endl;
@@ -272,7 +272,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 #endif
 			}
 			else{
-				F_tsOrientation.hand.rotation=-1<<7;
+				F_tsOrientation.hand.rotation=-1<<6;
 				F_tsOrientation.hand.gap=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND ROT L:"<<F_ptsUe->param[2]<<endl;
