@@ -185,7 +185,7 @@ void ArmCl::set(tsArmPosition F_tsArmPos)
     //       radiusAngle = acos(_pos.radius)
     //L_i32AlphaAngle = G_tsaAlphaTable[_pos.radius].norm;
 
-    _Elt[ARM]->set(_pos.latitude);
+    _Elt[ARM]->set(-_pos.latitude);
     _Elt[FOREARM]->set(_pos.radius);
     
 

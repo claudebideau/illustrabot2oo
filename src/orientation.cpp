@@ -41,7 +41,8 @@
 
 using namespace std;
 
-#define __TRACE_LEVEL 2
+#define __TRACE_LEVEL 3
+#define STEP_VALUE (48)
 
 const std::string ORIENTATION_KEYS[] =  {"ORIENTATION_INIT", "ORIENTATION_CALIBRATE", "ORIENTATION_READY", "ORIENTATION_RUNNING", "ORIENTATION_MAINTENANCE", "ORIENTATION_STOPPED"};
 const int16_t POSALPHATH=30000;
@@ -130,7 +131,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		{
 			if(I_functionSelect>122)
 			{
-				F_tsOrientation.arm.latitude=1<<7;
+				F_tsOrientation.arm.latitude=STEP_VALUE;
 				F_tsOrientation.arm.radius=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"SHOULDER UP:"<<F_ptsUe->param[1]<<endl;
@@ -140,7 +141,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 				std::cout<<"S"; _traceout++;
 #endif
 			} else {
-				F_tsOrientation.arm.radius=1<<7;
+				F_tsOrientation.arm.radius=STEP_VALUE;
 				F_tsOrientation.arm.latitude=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"ARM UP:"<<F_ptsUe->param[1]<<endl;
@@ -155,7 +156,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		{
 			if(I_functionSelect>122)
 			{
-				F_tsOrientation.arm.latitude=-1<<7;
+				F_tsOrientation.arm.latitude=-STEP_VALUE;
 				F_tsOrientation.arm.radius=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"SHOULDER DOWN:"<<F_ptsUe->param[1]<<endl;
@@ -165,7 +166,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 				std::cout<<"S"; _traceout++;
 #endif
 			} else {
-				F_tsOrientation.arm.radius=-1<<7;
+				F_tsOrientation.arm.radius=-STEP_VALUE;
 				F_tsOrientation.arm.latitude=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"ARM DOWN:"<<F_ptsUe->param[1]<<endl;
@@ -184,7 +185,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 
 		if(F_ptsUe->param[2]>POSGAMMATH)
 		{
-			F_tsOrientation.arm.longitude=1<<7;
+			F_tsOrientation.arm.longitude=STEP_VALUE;
 #if __TRACE_LEVEL == 0
 			std::cout<<"ARM RIGHT:"<<F_ptsUe->param[2]<<endl;
 #elif __TRACE_LEVEL == 1
@@ -195,7 +196,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		}
 		else if(F_ptsUe->param[2]<NEGGAMMATH)
 		{
-			F_tsOrientation.arm.longitude=-1<<7;
+			F_tsOrientation.arm.longitude=-STEP_VALUE;
 #if __TRACE_LEVEL == 0
 			std::cout<<"ARM LEFT:"<<F_ptsUe->param[2]<<endl;
 #elif __TRACE_LEVEL == 1
@@ -209,7 +210,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 	else{
 		if(F_ptsUe->param[1]>POSBETATH)
 		{
-			F_tsOrientation.hand.updown=-1<<6;
+			F_tsOrientation.hand.updown=-STEP_VALUE;
 #if __TRACE_LEVEL == 0
 			std::cout<<"HAND UP:"<<F_ptsUe->param[1]<<endl;
 #elif __TRACE_LEVEL == 1
@@ -220,7 +221,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		}
 		else if(F_ptsUe->param[1]<NEGBETATH)
 		{
-			F_tsOrientation.hand.updown=1<<6;
+			F_tsOrientation.hand.updown=STEP_VALUE;
 #if __TRACE_LEVEL == 0
 			std::cout<<"HAND DOWN:"<<F_ptsUe->param[1]<<endl;
 #elif __TRACE_LEVEL == 1
@@ -235,7 +236,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		{
 			if(I_functionSelect>122)
 			{
-				F_tsOrientation.hand.gap=1<<6;
+				F_tsOrientation.hand.gap=STEP_VALUE;
 				F_tsOrientation.hand.rotation=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND OPEN:"<<F_ptsUe->param[2]<<endl;
@@ -246,7 +247,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 #endif
 			}
 			else{
-				F_tsOrientation.hand.rotation=1<<6;
+				F_tsOrientation.hand.rotation=STEP_VALUE;
 				F_tsOrientation.hand.gap=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND ROT R:"<<F_ptsUe->param[2]<<endl;
@@ -261,7 +262,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 		{
 			if(I_functionSelect>122)
 			{
-				F_tsOrientation.hand.gap=-1<<6;
+				F_tsOrientation.hand.gap=-STEP_VALUE;
 				F_tsOrientation.hand.rotation=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND CLOSE:"<<F_ptsUe->param[2]<<endl;
@@ -272,7 +273,7 @@ int OrientationThCl::compute(tsUePayload * F_ptsUe)
 #endif
 			}
 			else{
-				F_tsOrientation.hand.rotation=-1<<6;
+				F_tsOrientation.hand.rotation=-STEP_VALUE;
 				F_tsOrientation.hand.gap=0;
 #if __TRACE_LEVEL == 0
 				std::cout<<"HAND ROT L:"<<F_ptsUe->param[2]<<endl;

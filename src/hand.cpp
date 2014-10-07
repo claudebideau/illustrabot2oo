@@ -186,7 +186,7 @@ void HandCl::set(tsHandPosition F_tsHandPos)
 		 */
 		_Elt[HAND_LEFT]->set(_pos.rotation);
 		_Elt[HAND_RIGHT]->set(-_pos.rotation);
-		_Elt[FINGER]->set(_pos.gap);
+		_Elt[FINGER]->set(_pos.rotation);
 	}
 	if (_pos.gap != 0)
 	{
@@ -202,11 +202,8 @@ void HandCl::set(tsHandPosition F_tsHandPos)
 		 */
 		_Elt[HAND_LEFT]->set(-_pos.updown);
 		_Elt[HAND_RIGHT]->set(-_pos.updown);
-		_Elt[FINGER]->set(-_pos.updown);
+		_Elt[FINGER]->set(_pos.updown);
 	}
-//	_Elt[HAND_LEFT]->set(_pos.rotation);
-//    _Elt[HAND_RIGHT]->set(_pos.updown);
-//    _Elt[FINGER]->set(_pos.gap);
 #else
     
     // input value are scaled
